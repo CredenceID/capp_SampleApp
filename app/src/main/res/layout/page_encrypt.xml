@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            style="@style/TextInfo"
+            android:text="@string/passphrase_header" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/generate_btn"
+            style="@style/PageButton"
+            android:text="@string/generate" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/passphrase_text"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top"
+        android:hint="@string/passphrase_hint"
+        android:imeOptions="actionDone"
+        android:inputType="textNoSuggestions" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            style="@style/TextInfo"
+            android:text="@string/key_heading" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/random_btn"
+            style="@style/PageButton"
+            android:text="@string/random" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/key_text"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top"
+        android:hint="@string/key_hint"
+        android:imeOptions="actionDone"
+        android:inputType="textNoSuggestions" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            style="@style/TextInfo"
+            android:text="@string/data_header" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/encrypt_btn"
+            style="@style/PageButton"
+            android:text="@string/encrypt" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/decrypt_btn"
+            style="@style/PageButton"
+            android:text="@string/decrypt" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/payload_text"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top"
+        android:imeOptions="actionDone"
+        android:inputType="textNoSuggestions" />
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="false" />
+
+</LinearLayout>

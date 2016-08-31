@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <RelativeLayout
+        android:id="@+id/images"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/capture_1_image"
+            android:layout_width="@dimen/fingerprint_width"
+            android:layout_height="@dimen/fingerprint_height"
+            android:layout_margin="@dimen/border_width"
+            android:background="@drawable/image_border"
+            android:padding="@dimen/border_width"
+            android:layout_marginTop="15dp"
+            android:layout_centerHorizontal="true"
+            android:scaleType="centerInside" />
+            
+        <ImageView
+            android:id="@+id/capture_finger1_image"
+            android:layout_width="@dimen/fingerprint_width"
+            android:layout_height="@dimen/fingerprint_height"
+            android:layout_margin="@dimen/border_width"
+            android:background="@drawable/image_border"
+            android:padding="@dimen/border_width"
+            android:layout_marginTop="15dp"
+            android:layout_alignParentLeft="true"
+            android:scaleType="centerInside" 
+            android:visibility="invisible"/>
+            
+        <ImageView
+            android:id="@+id/capture_finger2_image"
+            android:layout_width="@dimen/fingerprint_width"
+            android:layout_height="@dimen/fingerprint_height"
+            android:layout_margin="@dimen/border_width"
+            android:background="@drawable/image_border"
+            android:padding="@dimen/border_width"
+            android:layout_marginTop="15dp"
+            android:layout_alignParentRight="true"
+            android:scaleType="centerInside" 
+            android:visibility="invisible" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/capture_1_btn"
+            style="@style/PageButton"
+            android:text="@string/capture" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/close_btn"
+            style="@style/PageButton"
+            android:text="@string/close" />
+        
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="2" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Spinner
+            android:id="@+id/scan_type_spinner"
+            style="@style/Spinner" />
+
+        <View
+            android:id="@+id/spinner_spacer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Spinner
+            android:id="@+id/bitrate_spinner"
+            android:spinnerMode="dialog"
+            style="@style/Spinner" />
+
+        <View
+            android:id="@+id/bitrate_spacer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/match_btn"
+            style="@style/PageButton"
+            android:text="@string/match" />
+
+        <View
+            android:id="@+id/match_spacer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/info"
+        style="@style/StatusInfo" />
+
+    <TextView
+        android:id="@+id/status"
+        style="@style/StatusInfo" />
+
+</LinearLayout>

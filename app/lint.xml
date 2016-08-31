@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <issue id="ContentDescription" severity="ignore" />
+    <issue id="DefaultLocale">
+        <ignore path="src/com/credenceid/sdkapp/FaceCameraPage.java" />
+        <ignore path="src/com/credenceid/sdkapp/FingerprintPage.java" />
+        <ignore path="src/com/credenceid/sdkapp/IrisPage.java" />
+    </issue>
+    <issue id="IconLocation" severity="ignore" />
+    <issue id="OldTargetApi" severity="ignore" />
+    <issue id="Overdraw">
+        <ignore path="res/layout/activity_sample.xml" />
+    </issue>
+    <issue id="SelectableText" severity="ignore" />
+    <issue id="UnusedResources">
+        <ignore path="res/values/strings.xml" />
+    </issue>
+</lint>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Credence SDK App</string>
+    <string name="menu_exit">Exit</string>
+
+    <!-- About -->
+    <string name="product_name">Product name:</string>
+    <string name="device_id">Device ID: </string>
+    <string name="sdk_version">SDK version: </string>
+    <string name="device_library_version">Library version: </string>
+    <string name="app_version">App version: </string>
+    <string name="license_status">License status: </string>
+    <string name="obtained">obtained</string>
+    <string name="not_obtained">not obtained</string>
+    <string name="obtaining">obtaining</string>
+
+    <!-- Face Camera -->
+    <string name="title_face_camera">Face Camera</string>
+    <string name="preview">Preview</string>
+    <string name="capture">Capture</string>
+    <string name="flash">Flash</string>
+    <string name="image_captured">Image captured</string>
+
+    <string-array name="quality_array">
+        <item>quality 100</item>
+        <item>quality 75</item>
+        <item>quality 50</item>
+        <item>quality 25</item>
+        <item>quality 0</item>
+    </string-array>
+
+    <!-- Fingerprint -->
+    <string name="title_fingerprint">Fingerprint</string>
+    <string name="match">Match</string>
+    <string name="match_function_coming_soon">Match function coming soon</string>
+
+    <string-array name="scan_type">
+        <item>Single finger</item>
+        <item>Two fingers</item>
+        <item>Roll finger</item>
+        <item>Two fingers split</item>
+    </string-array>
+    <string-array name="bitrate_array">
+        <item>bitrate 1.00</item>
+        <item>bitrate 0.75</item>
+        <item>bitrate 0.60</item>
+        <item>bitrate 0.50</item>
+        <item>bitrate 0.40</item>
+        <item>bitrate 0.25</item>
+        <item>bitrate 0.10</item>
+        <item>bitrate 0.0</item>
+    </string-array>
+
+    <!-- Iris -->
+    <string name="title_iris">Iris</string>
+
+    <string-array name="iris_scan_type">
+        <item>Both eyes</item>
+        <item>Left eye</item>
+        <item>Right eye</item>
+    </string-array>
+
+    <!-- Card Reader -->
+    <string name="title_card_reader">Card Reader</string>
+    <string name="card_reader_hint">Enter text to be written to the memory card</string>
+    <string name="data_header">Data:</string>
+    <string name="reader_detected_header">Reader detected: </string>
+    <string name="card_detected_header">Card detected: </string>
+    <string name="read_card">Read Card</string>
+    <string name="write_card">Write Card</string>
+    <string name="read_id">Read ID</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="card_read_succeeded">card read succeeded</string>
+    <string name="card_read_failed">card read failed</string>
+    <string name="card_write_succeeded">card write succeeded</string>
+    <string name="card_write_failed">card write failed</string>
+    <string name="select_applet_failed">select applet failed</string>
+    <string name="get_citizen_number_succeeded">get citizen number succeeded</string>
+    <string name="get_citizen_number_failed">get citizen number failed</string>
+
+    <!-- Encryption -->
+    <string name="title_encryption">AES Encryption</string>
+    <string name="encrypt">Encrypt</string>
+    <string name="decrypt">Decrypt</string>
+    <string name="passphrase_header">Passphrase:</string>
+    <string name="generate">Generate</string>
+    <string name="passphrase_hint">Enter passphrase here, click Generate to create key</string>
+    <string name="key_heading">Key:</string>
+    <string name="random">Random</string>
+    <string name="key_hint">Use random key, or generate from passphrase</string>
+
+    <!-- USB Access -->
+    <string name="usb_access_header">USB File Access</string>
+    <string name="enable">Enable</string>
+    <string name="disable">Disable</string>
+    <string name="usb_access_enabled">USB file access enabled</string>
+    <string name="usb_access_disabled">USB file access disabled</string><string name="title_nfc_card_reader">NFC Card Reader</string>
+    
+    <!-- Extracted strings -->
+    <string name="mrz_page_title">MRZ Reader</string>
+    
+    <!-- Perferences -->
+    <string-array name="preferences_key_list">
+		<item>PREF_TIMEOUT</item>
+		<item>PREF_SIMULTANEOUS_DEVICES</item>
+		<item>-----</item>
+		<item>Dummy</item>
+		<item>Null</item>
+		<item>123456</item>
+	</string-array>
+    
+    <string-array name="preferences_value_list">
+        <item>PREF_TIMEOUT</item>
+        <item>60</item>
+        <item>300</item>
+        <item>900</item>
+        <item>3600</item>
+        <item>36000</item>
+        <item>-1</item>
+		<item> </item>
+		<item>PREF_SIMULTANEOUS_DEVICES</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+		<item> </item>
+		</string-array>
+
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="close_id">Close</string>
+    
+</resources>
