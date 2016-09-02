@@ -1,20 +1,5 @@
 package com.credenceid.sdkapp;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import com.credenceid.biometrics.Biometrics;
-import com.credenceid.biometrics.Biometrics.CloseReasonCode;
-import com.credenceid.biometrics.Biometrics.FingerprintScannerType;
-import com.credenceid.biometrics.Biometrics.OnCompareFmdListener;
-import com.credenceid.biometrics.Biometrics.OnConvertToFmdListener;
-import com.credenceid.biometrics.Biometrics.OnConvertToWsqListener;
-import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedFullListener;
-import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedListener;
-import com.credenceid.biometrics.Biometrics.ResultCode;
-import com.credenceid.biometrics.Biometrics.ScanType;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.SystemClock;
@@ -30,6 +15,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.credenceid.biometrics.Biometrics;
+import com.credenceid.biometrics.Biometrics.CloseReasonCode;
+import com.credenceid.biometrics.Biometrics.FingerprintScannerType;
+import com.credenceid.biometrics.Biometrics.OnCompareFmdListener;
+import com.credenceid.biometrics.Biometrics.OnConvertToFmdListener;
+import com.credenceid.biometrics.Biometrics.OnConvertToWsqListener;
+import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedFullListener;
+import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedListener;
+import com.credenceid.biometrics.Biometrics.ResultCode;
+import com.credenceid.biometrics.Biometrics.ScanType;
+
+import java.io.File;
 
 public class FingerprintPage extends LinearLayout implements PageView {
     private static final String TAG = FingerprintPage.class.getName();
@@ -519,7 +517,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         mMatchBtn.setActivated(false);
         // If the NFC object is initialized then set button label and turn on button
         if (nfcHelperObject.isInitialized()) {
-            mMatchBtn.setText(R.string.fingerprintpage_nfc_button_label);
+            mMatchBtn.setText("NFC Match");
             mMatchBtn.setEnabled(true);
         }
         // Set match button enable based on previous line #517
@@ -547,7 +545,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             // Actually let user click button based on variables
             mMatchBtn.setEnabled(mHasMatcher && (mFmd1 != null));
             if (nfcHelperObject.isInitialized()) {
-                mMatchBtn.setText(R.string.fingerprintpage_nfc_button_label);
+                mMatchBtn.setText("NFC Match");
             } else {
                 mMatchBtn.setActivated(true);
                 mMatchBtn.setEnabled(false);

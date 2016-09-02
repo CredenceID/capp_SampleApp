@@ -10,10 +10,28 @@ android {
         targetSdkVersion 18
     }
 
-    buildTypes {
+    signingConfigs {
+        debug {
+        }
         release {
+            keyAlias 'platform'
+            keyPassword 'credenceid'
+            storeFile file('../../CredenceKeys/platform.jks')
+            storePassword 'credenceid'
+        }
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
+            zipAlignEnabled true
         }
     }
 }
