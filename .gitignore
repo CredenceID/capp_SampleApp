@@ -6,7 +6,7 @@ gradle
 *.iml
 /app/build
 /app/*.iml
-/.DS_Store
+.DS_Store
 /build
 /captures
 /.project
