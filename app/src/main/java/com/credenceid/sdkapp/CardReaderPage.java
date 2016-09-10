@@ -1,15 +1,5 @@
 package com.credenceid.sdkapp;
 
-import java.util.Hashtable;
-
-import com.credenceid.biometrics.ApduCommand;
-import com.credenceid.biometrics.Biometrics;
-import com.credenceid.biometrics.Biometrics.CardReaderStatusListner;
-import com.credenceid.biometrics.Biometrics.OnCardCommandListener;
-import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
-import com.credenceid.biometrics.Biometrics.CloseReasonCode;
-import com.credenceid.biometrics.Biometrics.ResultCode;
-
 import android.content.Context;
 import android.os.SystemClock;
 import android.util.AttributeSet;
@@ -19,6 +9,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.credenceid.biometrics.ApduCommand;
+import com.credenceid.biometrics.Biometrics;
+import com.credenceid.biometrics.Biometrics.CardReaderStatusListner;
+import com.credenceid.biometrics.Biometrics.CloseReasonCode;
+import com.credenceid.biometrics.Biometrics.OnCardCommandListener;
+import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
+import com.credenceid.biometrics.Biometrics.ResultCode;
+
+import java.util.Hashtable;
 
 public class CardReaderPage extends LinearLayout implements PageView {
     // Log tag for debugging
@@ -285,7 +285,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
 
     private void cardOpened(boolean readCard) {
         button_open_close.setEnabled(true);
-        button_open_close.setText(R.string.close);
+        button_open_close.setText(readCard ? R.string.close : R.string.open);
         button_view.setEnabled(readCard);
     }
 

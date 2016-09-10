@@ -188,15 +188,15 @@ public class IrisPage extends LinearLayout implements PageView {
 					convertToKind7(mPathnameLeft, mPathnameRight);
 
 				}
-
 			}
 
 			@Override
 			public void onCloseIrisScanner(Biometrics.CloseReasonCode closeReasonCode) {
 				// Log output for debugging
-				Log.d(TAG, "Iris Scanner closed:" + closeReasonCode.toString());
+				Log.d(TAG, "Iris Scanner closed: " + closeReasonCode.toString());
 				// Let uesr know why scanner reader closed
-				setStatusText("Iris Scanner closed:" + closeReasonCode.toString());
+				setStatusText("Iris Scanner closed: " + closeReasonCode.toString());
+				enableCapture(true);
 				// Make close button unclickable, since the scanner has just closed
 				mCloseBtn.setEnabled(false);
 			}
