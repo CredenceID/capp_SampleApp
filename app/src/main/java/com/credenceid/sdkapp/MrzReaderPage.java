@@ -1,14 +1,5 @@
 package com.credenceid.sdkapp;
 
-import com.credenceid.biometrics.ApduCommand;
-import com.credenceid.biometrics.Biometrics;
-import com.credenceid.biometrics.Biometrics.CloseReasonCode;
-import com.credenceid.biometrics.Biometrics.MRZStatusListener;
-import com.credenceid.biometrics.Biometrics.OnMrzDocumentStatusListener;
-import com.credenceid.biometrics.Biometrics.OnEpassportCardStatusListener;
-import com.credenceid.biometrics.Biometrics.OnMrzReadListener;
-import com.credenceid.biometrics.Biometrics.ResultCode;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -17,6 +8,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.credenceid.biometrics.ApduCommand;
+import com.credenceid.biometrics.Biometrics;
+import com.credenceid.biometrics.Biometrics.CloseReasonCode;
+import com.credenceid.biometrics.Biometrics.MRZStatusListener;
+import com.credenceid.biometrics.Biometrics.OnEpassportCardStatusListener;
+import com.credenceid.biometrics.Biometrics.OnMrzDocumentStatusListener;
+import com.credenceid.biometrics.Biometrics.OnMrzReadListener;
+import com.credenceid.biometrics.Biometrics.ResultCode;
 
 public class MrzReaderPage extends LinearLayout implements PageView {
 	private static final String TAG = MrzReaderPage.class.getName();
@@ -97,7 +97,7 @@ public class MrzReaderPage extends LinearLayout implements PageView {
 		
 		
 		mMrzRfReadBtn = (Button) findViewById(R.id.mrz_RF_button);
-		//mMrzRfReadBtn.setEnabled(false);
+		mMrzRfReadBtn.setEnabled(false);
 		mMrzRfReadBtn.setText("Open RF");
 		mMrzRfReadBtn.setOnClickListener(new OnClickListener() {
 			
@@ -175,6 +175,7 @@ public class MrzReaderPage extends LinearLayout implements PageView {
 					mMrzOpenCloseBtn.setEnabled(true);
 					mMrzOpenCloseBtn.setText("Close");
 					mMrzReadBtn.setEnabled(true);
+					mMrzRfReadBtn.setEnabled(true);
 					mBiometrics.registerMrzReadListener(mrzReadListener);
 					mBiometrics.registerMrzDocumentStatusListener(mrzDocumentStatusListener);
 				}
@@ -196,6 +197,11 @@ public class MrzReaderPage extends LinearLayout implements PageView {
 	private void doClose(){
 		close_cmd_counter=0;
 		Log.d(TAG, "Calling CloseMRZ");
+		// Turn off RF if open
+		if (mMrzRfReadBtn.getText().toString().equals("Close RF")) {
+			doEpassportClose();
+		}
+		mMrzRfReadBtn.setEnabled(false);
 		mStatusTextView.setText("Closing MRZ Reader");
 		mMrzReadBtn.setEnabled(false);
 		mBiometrics.closeMRZ();
