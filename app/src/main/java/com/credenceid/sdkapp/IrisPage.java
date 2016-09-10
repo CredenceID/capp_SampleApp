@@ -137,7 +137,6 @@ public class IrisPage extends LinearLayout implements PageView {
 
 	@Override
 	public void doResume() {
-		setStatusText("");
 		setInfoText("");
 	}
 
@@ -156,7 +155,6 @@ public class IrisPage extends LinearLayout implements PageView {
 		mCaptureLeft.setImageDrawable(null);
 		mPathnameLeft = null;
 		mPathnameRight = null;
-		setStatusText("");
 		setInfoText("");
 	}
 
@@ -186,7 +184,11 @@ public class IrisPage extends LinearLayout implements PageView {
 				if (result == ResultCode.OK) {
 					enableCapture(false);
 					convertToKind7(mPathnameLeft, mPathnameRight);
-
+				}
+				// If result failed
+				if (result == ResultCode.FAIL) {
+					mCloseBtn.setEnabled(false);
+					enableCapture(true);
 				}
 			}
 
@@ -194,6 +196,7 @@ public class IrisPage extends LinearLayout implements PageView {
 			public void onCloseIrisScanner(Biometrics.CloseReasonCode closeReasonCode) {
 				// Log output for debugging
 				Log.d(TAG, "Iris Scanner closed: " + closeReasonCode.toString());
+				resetCapture();
 				// Let uesr know why scanner reader closed
 				setStatusText("Iris Scanner closed: " + closeReasonCode.toString());
 				enableCapture(true);
