@@ -179,6 +179,11 @@ public class MrzReaderPage extends LinearLayout implements PageView {
 					mBiometrics.registerMrzReadListener(mrzReadListener);
 					mBiometrics.registerMrzDocumentStatusListener(mrzDocumentStatusListener);
 				}
+				if (resultCode == ResultCode.FAIL) {
+					mMrzOpenCloseBtn.setEnabled(true);
+					mMrzOpenCloseBtn.setText("Open");
+					mMrzReadBtn.setEnabled(false);
+				}
 			}
 
 			@Override
@@ -306,6 +311,9 @@ public class MrzReaderPage extends LinearLayout implements PageView {
 					mStatusTextView.setText("ePassport Reader Open :"+mCallbackCount++);
 					//doEpassportTransmit();
 					
+				}
+				if (rc == ResultCode.FAIL) {
+					mMrzRfReadBtn.setText("Open RF");
 				}
 			}
 			
