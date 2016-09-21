@@ -136,6 +136,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         });
 
         mMatchBtn = (Button) findViewById(R.id.match_btn);
+        setMatchButtons(false);
         mMatchSpacer = findViewById(R.id.match_spacer);
         if (mMatchBtn != null) {
             mMatchBtn.setOnClickListener(new OnClickListener() {
@@ -452,6 +453,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     updateButtons(false);
                     // Make close button unclickable, since the fingerprint reader has just closed
                     mCloseBtn.setEnabled(false);
+                    // update match button
+                    mMatchBtn.setEnabled(false);
                 }
             });
         }
