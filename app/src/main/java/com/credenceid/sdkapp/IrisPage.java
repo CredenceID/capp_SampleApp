@@ -1,7 +1,5 @@
 package com.credenceid.sdkapp;
 
-import java.io.File;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.SystemClock;
@@ -24,6 +22,8 @@ import com.credenceid.biometrics.Biometrics.OnIrisesCapturedListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.biometrics.IrisQuality;
 
+import java.io.File;
+
 public class IrisPage extends LinearLayout implements PageView {
 	private static final String TAG = IrisPage.class.getName();
 
@@ -31,6 +31,7 @@ public class IrisPage extends LinearLayout implements PageView {
 	private SampleActivity mActivity;
 
 	private Button mCaptureBtn;
+	private Button mCloseBtn;
 	private ImageView mCaptureRight;
 	private ImageView mCaptureLeft;
 	private TextView mStatusTextView;
@@ -88,7 +89,15 @@ public class IrisPage extends LinearLayout implements PageView {
 		mCaptureBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onCapture(v);
+				onCapture();
+			}
+		});
+		mCloseBtn = (Button) findViewById(R.id.close_btn);
+		mCloseBtn.setEnabled(false);
+		mCloseBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onClose();
 			}
 		});
 		mStatusTextView = (TextView) findViewById(R.id.status);
@@ -105,7 +114,7 @@ public class IrisPage extends LinearLayout implements PageView {
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				mEyeSelection = eye_selection_types[position];
 				if (mCapturing)
-					onCapture(null);
+					onCapture();
 			}
 
 			@Override
@@ -128,34 +137,36 @@ public class IrisPage extends LinearLayout implements PageView {
 
 	@Override
 	public void doResume() {
-		setStatusText("");
 		setInfoText("");
-		setCapturing(false);
 	}
 
 	@Override
 	public void deactivate() {
 	}
-	
-	private void setCapturing(boolean is_capturing) {
-		mCaptureBtn.setActivated(is_capturing);
-		mCapturing = is_capturing;
+
+	private void enableCapture(boolean enable) {
+		// Enable capture by turning on capture button for user
+		mCaptureBtn.setEnabled(enable);
+		mCapturing = !enable;
 	}
 
-	private void onCapture(View v) {
+	private void resetCapture() {
 		mCaptureRight.setImageDrawable(null);
 		mCaptureLeft.setImageDrawable(null);
 		mPathnameLeft = null;
 		mPathnameRight = null;
-		setStatusText("");
 		setInfoText("");
-		setCapturing(true);
+	}
+
+	private void onCapture() {
+		resetCapture();
+		enableCapture(false);
 
 		mBiometrics.captureIrises(mEyeSelection, new OnIrisesCapturedListener() {
 
 			@Override
 			public void onIrisesCaptured(Biometrics.ResultCode result, Bitmap bmLeft,
-					Bitmap bmRight, String pathnameLeft, String pathnameRight, String status) {
+										 Bitmap bmRight, String pathnameLeft, String pathnameRight, String status) {
 				boolean ok = (result == ResultCode.OK);
 
 				if (mEyeSelection != Biometrics.EyeSelection.LEFT_EYE && bmRight != null) {
@@ -171,14 +182,45 @@ public class IrisPage extends LinearLayout implements PageView {
 				if (status != null)
 					setStatusText(status);
 				if (result == ResultCode.OK) {
-					setCapturing(false);
+					Log.i(TAG, "Iris Captured Completed");
+					enableCapture(false);
 					convertToKind7(mPathnameLeft, mPathnameRight);
-
 				}
+				// If result failed
+				if (result == ResultCode.FAIL) {
+					Log.e(TAG, "onIrisesCaptured - FAILED");
+					// Let user know captured failed
+					setStatusText("Iris Captured Open-FAILED");
+					mCloseBtn.setEnabled(false);
+					enableCapture(true);
+				}
+			}
 
+			@Override
+			public void onCloseIrisScanner(Biometrics.CloseReasonCode closeReasonCode) {
+				// Log output for debugging
+				Log.d(TAG, "Iris Scanner closed: " + closeReasonCode.toString());
+				resetCapture();
+				// Let uesr know why scanner reader closed
+				setStatusText("Iris Scanner closed: " + closeReasonCode.toString());
+				enableCapture(true);
+				// Make close button unclickable, since the scanner has just closed
+				mCloseBtn.setEnabled(false);
 			}
 		});
 
+		mCloseBtn.setEnabled(true);
+	}
+
+	private void onClose() {
+		resetCapture();
+		enableCapture(true);
+
+		// Turn off close button since we are going to close everything
+		mCloseBtn.setEnabled(false);
+
+		// Close Iris Scanner
+		mBiometrics.closeIrisScanner();
 	}
 
 	private long uncompressed_size;
@@ -199,7 +241,7 @@ public class IrisPage extends LinearLayout implements PageView {
 
 			@Override
 			public void onConvertToKind7(ResultCode result, String pathnameLeft,
-					IrisQuality iqLeft, String pathnameRight, IrisQuality iqRight) {
+										 IrisQuality iqLeft, String pathnameRight, IrisQuality iqRight) {
 				if (result == ResultCode.INTERMEDIATE) {
 					setInfoText("Algorithms initializing...");
 				} else if (result == ResultCode.FAIL) {
