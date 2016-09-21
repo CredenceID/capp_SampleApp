@@ -56,7 +56,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private String mPathnameFinger1;
     private String mPathnameFinger2;
     private float mBitrate = 0;
-    private boolean mHasMatcher = false;
+    private boolean mHasMatcher;
     private byte[] mFmd1 = null;
     private Bitmap mCurrentBitmap;
     private byte[] mFmd2 = null;
@@ -136,6 +136,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         });
 
         mMatchBtn = (Button) findViewById(R.id.match_btn);
+        setMatchButtons(false);
         mMatchSpacer = findViewById(R.id.match_spacer);
         if (mMatchBtn != null) {
             mMatchBtn.setOnClickListener(new OnClickListener() {
@@ -202,6 +203,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
     public void activate(Biometrics biometrics) {
         // Initialize new biometrics and set up page for usage
         this.mBiometrics = biometrics;
+        mHasMatcher = mActivity.hasFmdMatcher();
         boolean show_spinner = biometrics.getFingerprintScannerType() == FingerprintScannerType.FAP45;
         if (mScanTypeSpinner != null) {
             mScanTypeSpinner.setVisibility(show_spinner ? VISIBLE : GONE);
@@ -306,7 +308,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         Log.i(TAG, "Capture Complete in " + duration + "msec");
                         // Set text for user to see how long capturing process took
                         setStatusText("Capture Complete in " + duration + "msec");
-                        // mHasMatcher is set to false and never changed so this block will never run
+
                         if (mHasMatcher) {
                             // Set current bitmap image to captured image
                             mCurrentBitmap = bm;
@@ -334,6 +336,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         Log.e(TAG, "onFingerprintGrabbed - FAILED");
                         // Let user know captured failed
                         setStatusText("Fingerprint Open-FAILED");
+                        mCloseBtn.setEnabled(false);
                     }
                 }
 
@@ -402,19 +405,41 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             if (mCaptureImageFinger2 != null)
                                 mCaptureImageFinger2.setVisibility(INVISIBLE);
                         }
-                        // Set global path variables for image locations
-                        mPathname = filepath;
-                        mPathnameFinger1 = filepath_finger1;
-                        mPathnameFinger2 = filepath_finger2;
-                        // If invalid path then log output for user
-                        if (mPathname == null) {
-                            Log.w(TAG, "onFingerprintGrabbed - OK but filepath null");
-                            return;
-                        }
-                        // Convert bitmap image
-                        convertToWsq(mPathname);
+
                         // Update UI buttons for user
                         updateButtons();
+
+                        if (mHasMatcher) {
+                            // Set current bitmap image to captured image
+                            mCurrentBitmap = bm;
+                            // Convert image
+                            convertToFmd(mCurrentBitmap);
+                        } else {
+                            // Set global path variables for image locations
+                            mPathname = filepath;
+                            mPathnameFinger1 = filepath_finger1;
+                            mPathnameFinger2 = filepath_finger2;
+                            // If there is no associated path name with image
+                            if (mPathname == null) {
+                                // Log there is no associated path name
+                                Log.w(TAG, "onFingerprintGrabbed - OK but filepath null");
+                                // Exit outof function, nothing else to do since null path
+                                return;
+                            }
+                            // Convert to different file type
+                            convertToWsq(mPathname);
+                        }
+                    }
+
+                    // If fingerprint read failed
+                    if (result == ResultCode.FAIL) {
+                        // Turn off UI buttons
+                        updateButtons(false);
+                        // Log output error
+                        Log.e(TAG, "onFingerprintGrabbed - FAILED");
+                        // Let user know captured failed
+                        setStatusText("Fingerprint Open-FAILED");
+                        mCloseBtn.setEnabled(false);
                     }
                 }
 
@@ -428,6 +453,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     updateButtons(false);
                     // Make close button unclickable, since the fingerprint reader has just closed
                     mCloseBtn.setEnabled(false);
+                    // update match button
+                    mMatchBtn.setEnabled(false);
                 }
             });
         }
