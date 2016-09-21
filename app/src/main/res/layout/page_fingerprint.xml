@@ -68,7 +68,7 @@
         android:layout_weight="1" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
@@ -91,8 +91,19 @@
             android:id="@+id/close_btn"
             style="@style/PageButton"
             android:text="@string/close" />
-        
+
         <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/match_btn"
+            style="@style/PageButton"
+            android:text="@string/match" />
+
+        <View
+            android:id="@+id/match_spacer"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
@@ -130,17 +141,6 @@
 
         <View
             android:id="@+id/bitrate_spacer"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/match_btn"
-            style="@style/PageButton"
-            android:text="@string/match" />
-
-        <View
-            android:id="@+id/match_spacer"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
