@@ -440,6 +440,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         // Let user know captured failed
                         setStatusText("Fingerprint Open-FAILED");
                         mCloseBtn.setEnabled(false);
+                        // update match button
+                        mMatchBtn.setEnabled(false);
                     }
                 }
 
@@ -677,6 +679,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         setStatusText("FingerPrint reader closed:" + reasonCode.toString());
                         updateButtons(false);
                         mCloseBtn.setEnabled(false);
+                        // update match button
+                        mMatchBtn.setEnabled(false);
                     }
                 });
             }
