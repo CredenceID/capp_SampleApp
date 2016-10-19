@@ -179,7 +179,7 @@ public class AboutPage extends LinearLayout implements PageView {
 			@Override
 			protected Void doInBackground(Void... params) {
 	            Log.w(TAG, "doInBackground - getPreferences");
-				getPreferences("PREF_TIMEOUT");
+				getPreferences(mGetPrefName.getSelectedItem().toString());
 				return null;
 			}
 		};
