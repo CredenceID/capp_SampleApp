@@ -186,6 +186,11 @@ public class IrisPage extends LinearLayout implements PageView {
 					enableCapture(false);
 					convertToKind7(mPathnameLeft, mPathnameRight);
 				}
+
+				if (result == ResultCode.INTERMEDIATE && (status != null && status.equals("Capture Stopped"))) {
+					resetCapture();
+					enableCapture(true);
+				}
 				// If result failed
 				if (result == ResultCode.FAIL) {
 					Log.e(TAG, "onIrisesCaptured - FAILED");

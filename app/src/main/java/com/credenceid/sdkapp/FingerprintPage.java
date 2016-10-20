@@ -217,7 +217,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
     @Override
     public void doResume() {
         // Reset capture since user left activity
-        resetCapture();
+        if (mFmd1 == null) {
+            resetCapture();
+        }
     }
 
     @Override

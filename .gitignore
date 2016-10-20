@@ -12,3 +12,4 @@ gradle
 /.project
 /.classpath
 /projectFilesBackup
+/app/.DS_Store
