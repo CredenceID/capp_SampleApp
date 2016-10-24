@@ -210,8 +210,9 @@ public class AboutPage extends LinearLayout implements PageView {
 
         if(mBiometrics == null)
         	return;
-        
-		mBiometrics.getPreferences(name, new PreferencesListener() {
+
+		// Using singleton BiometricsManager to get Preferences
+		BiometricsManagerInstance.getInstance().getBiometricsManager().getPreferences(name, new PreferencesListener() {
 			@Override
 			public void onPreferences(ResultCode result, String key, String value) {
 		        Log.w(TAG, "onPreferences: " + key + ", " + value);
@@ -230,8 +231,9 @@ public class AboutPage extends LinearLayout implements PageView {
 
         if(mBiometrics == null)
         	return;
-        
-		mBiometrics.setPreferences(name, value, new PreferencesListener() {
+
+		// Using singleton BiometricsManager to set Preferences
+		BiometricsManagerInstance.getInstance().getBiometricsManager().setPreferences(name, value, new PreferencesListener() {
 			@Override
 			public void onPreferences(ResultCode result, String key, String value) {
 		        Log.w(TAG, "onPreferences: " + key + ", " + value);

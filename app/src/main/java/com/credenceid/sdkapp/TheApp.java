@@ -1,6 +1,7 @@
 package com.credenceid.sdkapp;
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -9,6 +10,8 @@ public class TheApp extends Application {
 
 	public static boolean DEBUG = true;
 	private static TheApp mInstance;
+
+	private static Context mContext;
 
 	public TheApp() {
 		mInstance = this;
@@ -19,6 +22,16 @@ public class TheApp extends Application {
 	}
 
 	private Toast mToast;
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		mContext = this;
+	}
+
+	public static Context getContext(){
+		return mContext;
+	}
 
 	public void showToast(CharSequence cs) {
 		if (DEBUG)
