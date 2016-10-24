@@ -194,6 +194,8 @@ public class MrzReaderPage extends LinearLayout implements PageView {
 				mMrzOpenCloseBtn.setText("Open");
 				mMrzReadBtn.setEnabled(false);
 				mStatusTextView.setText("MRZ Closed:"+resultCode.toString());
+				mMrzRfReadBtn.setEnabled(false);
+				mMrzRfReadBtn.setText("Open RF");
 			}
 			
 		});
