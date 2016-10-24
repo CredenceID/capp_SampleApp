@@ -139,7 +139,7 @@ public class MrzReaderPage extends LinearLayout implements PageView {
 	@Override
 	public void activate(Biometrics biometrics) {
 		mBiometrics = biometrics;
-		mStatusTextView.setText("");
+		//mStatusTextView.setText("");
 		//mMrzReadBtn.setEnabled(true);
 	}
 
@@ -194,6 +194,8 @@ public class MrzReaderPage extends LinearLayout implements PageView {
 				mMrzOpenCloseBtn.setText("Open");
 				mMrzReadBtn.setEnabled(false);
 				mStatusTextView.setText("MRZ Closed:"+resultCode.toString());
+				mMrzRfReadBtn.setEnabled(false);
+				mMrzRfReadBtn.setText("Open RF");
 			}
 			
 		});

@@ -179,7 +179,7 @@ public class AboutPage extends LinearLayout implements PageView {
 			@Override
 			protected Void doInBackground(Void... params) {
 	            Log.w(TAG, "doInBackground - getPreferences");
-				getPreferences("PREF_TIMEOUT");
+				getPreferences(mGetPrefName.getSelectedItem().toString());
 				return null;
 			}
 		};
@@ -210,7 +210,8 @@ public class AboutPage extends LinearLayout implements PageView {
 
         if(mBiometrics == null)
         	return;
-        
+
+		// Using singleton BiometricsManager to get Preferences
 		mBiometrics.getPreferences(name, new PreferencesListener() {
 			@Override
 			public void onPreferences(ResultCode result, String key, String value) {
@@ -230,7 +231,8 @@ public class AboutPage extends LinearLayout implements PageView {
 
         if(mBiometrics == null)
         	return;
-        
+
+		// Using singleton BiometricsManager to set Preferences
 		mBiometrics.setPreferences(name, value, new PreferencesListener() {
 			@Override
 			public void onPreferences(ResultCode result, String key, String value) {

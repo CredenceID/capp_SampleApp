@@ -1,1 +1,1 @@
-include ':app', ':CredenceDeviceLib'
+include ':app'

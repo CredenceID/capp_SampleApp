@@ -1,12 +1,8 @@
 package com.credenceid.sdkapp;
 
-import java.io.ByteArrayInputStream;
-
-
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +17,13 @@ import com.credenceid.biometrics.Biometrics.CardReaderStatusListner;
 import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 public class NfcPage extends LinearLayout implements PageView {
 	private static final String TAG = NfcPage.class.getName();
@@ -187,12 +190,14 @@ public class NfcPage extends LinearLayout implements PageView {
 	private void doCardRead()
 	{
 		byte[] pin=null;
-		if(mBiometrics.getProductName().equalsIgnoreCase("Credence One eKTP"))
-		{
-			pin = new String(
-					"2015BB1218080000000000000000219661CFF281E0F1F921FE375C8C8D64FECA759173761A7859B52B3B4DEC036F41F6").getBytes();
+		pin=readSamPinFromFile();
+		Log.d("doRead", "Reading card");
+
+		if(pin==null){
+			cardReadDetailText+="SAM PIN ERROR, using Default \n";
+			mCardDetailsTextView.setText(cardReadDetailText);
 		}
-		Log.d("doRead", "REading");
+
 		mBiometrics.ektpCardReadCommand(1, pin, new Biometrics.OnEktpCardReadListener() {
 			
 			@Override
@@ -291,6 +296,49 @@ public class NfcPage extends LinearLayout implements PageView {
 	private void disableButtons() {
 		mOpenBtn.setEnabled(false);
 		mCloseBtn.setEnabled(false);
+	}
+
+	private String SAM_PIN_FILE = Environment.getExternalStorageDirectory().getPath() + "/ektp/config.properties";
+
+	private byte[] readSamPinFromFile() {
+		byte[] pin=null;
+		if(mBiometrics.getProductName().equalsIgnoreCase("Credence One eKTP")) {
+			pin = new String(
+					"2015BB1218080000000000000000219661CFF281E0F1F921FE375C8C8D64FECA759173761A7859B52B3B4DEC036F41F6").getBytes();
+		}
+
+		String samPinFile;
+		String samPin= null;
+		String line;
+		File f = new File(SAM_PIN_FILE);
+
+		if (f.exists()) {
+			samPinFile = SAM_PIN_FILE;
+			Log.d(TAG, " SAM PIN - file found: " + samPinFile);
+			try {
+				InputStream fis = new FileInputStream(samPinFile);
+				BufferedReader br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
+				while ((line = br.readLine()) != null) {
+					if (line != null) {
+						samPin=line;
+						break;
+					}
+				}
+
+				if(samPin!=null) {
+					samPin=samPin.substring(7);//remove the "samPin=" prefix to the actual data
+					Log.d(TAG, " readSamPinFromFile: Using Sam Pin ="+samPin);
+					pin = samPin.getBytes();
+				}
+			} catch(Exception ex) {
+				Log.d(TAG, " readSamPinFromFile exception " + ex.getLocalizedMessage());
+				ex.printStackTrace();
+				pin=null;
+			}
+		} else {
+			Log.d(TAG, " SAM PIN - not found");
+		}
+		return pin;
 	}
 
 	private void onLoad(View v) {

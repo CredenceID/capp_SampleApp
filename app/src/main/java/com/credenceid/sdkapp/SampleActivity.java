@@ -1,8 +1,7 @@
 package com.credenceid.sdkapp;
 
-import java.io.File;
-
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
@@ -15,7 +14,6 @@ import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -25,6 +23,8 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.credenceid.biometrics.BiometricsActivity;
+
+import java.io.File;
 
 public class SampleActivity extends BiometricsActivity {
     private static final String TAG = SampleActivity.class.getName();
@@ -160,6 +160,11 @@ public class SampleActivity extends BiometricsActivity {
         if (mCurrentPage != null) {
             mCurrentPage.doResume();
         }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // give BiometricsManager a chance to process onActivityResult
+        BiometricsManagerInstance.getInstance().getBiometricsManager().onActivityResult(requestCode, resultCode, data);
     }
 
     public void onAbout(View v) {

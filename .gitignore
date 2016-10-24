@@ -11,3 +11,5 @@ gradle
 /captures
 /.project
 /.classpath
+/projectFilesBackup
+/app/.DS_Store
