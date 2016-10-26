@@ -1,20 +1,24 @@
 package com.credenceid.sdkapp;
 
 import android.app.Application;
-import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.credenceid.biometrics.Biometrics;
+import com.credenceid.biometrics.BiometricsManager;
 
 public class TheApp extends Application {
 	private static final String TAG = TheApp.class.getName();
 
 	public static boolean DEBUG = true;
+
 	private static TheApp mInstance;
 
-	private static Context mContext;
+	private BiometricsManager biometrics_manager;
 
 	public TheApp() {
 		mInstance = this;
+		biometrics_manager = new BiometricsManager(this);
 	}
 
 	public static TheApp getInstance() {
@@ -26,11 +30,24 @@ public class TheApp extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		mContext = this;
+		biometrics_manager.initializeBiometrics(new Biometrics.OnInitializedListener() {
+			@Override
+			public void onInitialized(Biometrics.ResultCode resultCode, String sdk_version, String required_version) {
+				Log.d(TAG, "Test App product name is " + biometrics_manager.getProductName());
+				if (resultCode != Biometrics.ResultCode.OK) {
+					String str = String.format("Biometric initialization failed\nSDK version: %s\nRequired_version: %s", sdk_version, required_version);
+					Toast.makeText(TheApp.this, str, Toast.LENGTH_LONG).show();
+					Log.d(TAG, "Initaliation failed");
+				} else {
+					Toast.makeText(TheApp.this, "Biometrics Initialized in Application", Toast.LENGTH_LONG).show();
+					Log.d(TAG, "Initaliation success ");
+				}
+			}
+		});
 	}
 
-	public static Context getContext(){
-		return mContext;
+	public BiometricsManager getBiometricsManager() {
+		return biometrics_manager;
 	}
 
 	public void showToast(CharSequence cs) {

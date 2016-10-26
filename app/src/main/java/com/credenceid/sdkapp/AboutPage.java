@@ -32,6 +32,10 @@ public class AboutPage extends LinearLayout implements PageView {
 	private TextView mDeviceLibraryTextView;
 	private TextView mLicenseStatus;
 
+	private TextView mProductNameManTextView;
+	private TextView mSdkVersionManTextView;
+	private TextView mDeviceLibraryManTextView;
+
 	private Spinner mGetPrefName;
 	private Spinner mSetPrefName;
 	private TextView mGetPrefValue;
@@ -70,6 +74,10 @@ public class AboutPage extends LinearLayout implements PageView {
 		mSdkVersionTextView = (TextView) findViewById(R.id.sdk_version);
 		mDeviceLibraryTextView = (TextView) findViewById(R.id.device_library_version);
 		mLicenseStatus = (TextView) findViewById(R.id.license_status);
+
+		mProductNameManTextView = (TextView) findViewById(R.id.product_name_man);
+		mSdkVersionManTextView = (TextView) findViewById(R.id.sdk_version_man);
+		mDeviceLibraryManTextView = (TextView) findViewById(R.id.device_library_version_man);
 		
 		mGetPrefName = (Spinner) findViewById(R.id.get_pref_name);
 		mSetPrefName = (Spinner) findViewById(R.id.set_pref_name);;
@@ -126,6 +134,10 @@ public class AboutPage extends LinearLayout implements PageView {
 				
 			}
 		});
+
+		// Singleton instance of BiometricsManager
+		// this will initalize Service
+		BiometricsManagerInstance.getInstance();
 		
 	}
 
@@ -185,6 +197,10 @@ public class AboutPage extends LinearLayout implements PageView {
 		};
 		
 		task.execute();
+
+		mProductNameManTextView.setText(TheApp.getInstance().getBiometricsManager().getProductName());
+		mSdkVersionManTextView.setText(TheApp.getInstance().getBiometricsManager().getSDKVersion());
+		mDeviceLibraryManTextView.setText(BiometricsManagerInstance.getInstance().getBiometricsManager().getDeviceLibraryVersion());
 	}
 
 	@Override
@@ -211,7 +227,6 @@ public class AboutPage extends LinearLayout implements PageView {
         if(mBiometrics == null)
         	return;
 
-		// Using singleton BiometricsManager to get Preferences
 		mBiometrics.getPreferences(name, new PreferencesListener() {
 			@Override
 			public void onPreferences(ResultCode result, String key, String value) {
@@ -232,7 +247,6 @@ public class AboutPage extends LinearLayout implements PageView {
         if(mBiometrics == null)
         	return;
 
-		// Using singleton BiometricsManager to set Preferences
 		mBiometrics.setPreferences(name, value, new PreferencesListener() {
 			@Override
 			public void onPreferences(ResultCode result, String key, String value) {

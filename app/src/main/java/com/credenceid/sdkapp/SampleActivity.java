@@ -164,7 +164,7 @@ public class SampleActivity extends BiometricsActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // give BiometricsManager a chance to process onActivityResult
-        BiometricsManagerInstance.getInstance().getBiometricsManager().onActivityResult(requestCode, resultCode, data);
+        TheApp.getInstance().getBiometricsManager().onActivityResult(requestCode, resultCode, data);
     }
 
     public void onAbout(View v) {
