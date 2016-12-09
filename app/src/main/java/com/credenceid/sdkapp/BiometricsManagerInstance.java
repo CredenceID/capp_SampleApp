@@ -9,8 +9,9 @@ import com.credenceid.biometrics.BiometricsManager;
 /**
  * Created by markevans on 10/24/16.
  */
-
-public class BiometricsManagerInstance {
+// Singleton that allow calls CredenceService APIs using one instance of BiometricsManager
+// This can be used globally
+class BiometricsManagerInstance {
     private static final String TAG = BiometricsManagerInstance.class.getName();
     private static BiometricsManagerInstance mInstance = null;
 
@@ -24,7 +25,7 @@ public class BiometricsManagerInstance {
     /**
      * Creates a new instance of BiometricsManagerInstance.
      */
-    public static BiometricsManagerInstance getInstance() {
+    static BiometricsManagerInstance getInstance() {
 
         if (mInstance == null) {
             mInstance = new BiometricsManagerInstance();
@@ -45,7 +46,6 @@ public class BiometricsManagerInstance {
                     Toast.makeText(TheApp.getInstance(), str, Toast.LENGTH_LONG).show();
                     Log.d(TAG, "Initaliation failed");
                 } else {
-                    Toast.makeText(TheApp.getInstance(), "Biometrics Initialized in Singleton", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "Initaliation success ");
                 }
             }

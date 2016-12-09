@@ -3,11 +3,11 @@ package com.credenceid.sdkapp;
 import com.credenceid.biometrics.Biometrics;
 
 public interface PageView {
-	public void activate(Biometrics biometrics);
+	void activate(Biometrics biometrics);
 
-	public void deactivate();
+	void deactivate();
 
-	public String getTitle();
+	String getTitle();
 
-	public void doResume();
+	void doResume();
 }

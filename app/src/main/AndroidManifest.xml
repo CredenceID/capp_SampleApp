@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.credenceid.sdkapp"
     android:versionCode="7"
-    android:versionName="1.12.00" >
+    android:versionName="1.12.01" >
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -30,14 +30,6 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".PowerEvent"
-            android:enabled="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

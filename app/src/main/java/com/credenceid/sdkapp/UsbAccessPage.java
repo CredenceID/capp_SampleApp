@@ -15,8 +15,6 @@ public class UsbAccessPage extends LinearLayout implements PageView {
 	private static final String TAG = UsbAccessPage.class.getName();
 
 	private Biometrics mBiometrics;
-	private Button mEnableBtn;
-	private Button mDisableBtn;
 	private TextView mStatusTextView;
 
 	public UsbAccessPage(Context context) {
@@ -36,20 +34,20 @@ public class UsbAccessPage extends LinearLayout implements PageView {
 
 	private void initialize() {
 		Log.d(TAG, "initialize");
-		LayoutInflater li = (LayoutInflater) getContext().getSystemService(
-				Context.LAYOUT_INFLATER_SERVICE);
+
+		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		li.inflate(R.layout.page_usb_access, this, true);
 
-		mEnableBtn = (Button) findViewById(R.id.enable_btn);
-		mEnableBtn.setOnClickListener(new OnClickListener() {
+		Button enableBtn = (Button) findViewById(R.id.enable_btn);
+		enableBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				onEnable(v);
 			}
 		});
-		mDisableBtn = (Button) findViewById(R.id.disable_btn);
-		mDisableBtn.setOnClickListener(new OnClickListener() {
+		Button disableBtn = (Button) findViewById(R.id.disable_btn);
+		disableBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -79,11 +77,13 @@ public class UsbAccessPage extends LinearLayout implements PageView {
 	public void deactivate() {
 	}
 
+	// Enables USB file access
 	private void onEnable(View v) {
 		mBiometrics.enableFileAccessOverUsb(true);
 		mStatusTextView.setText(R.string.usb_access_enabled);
 	}
 
+	// Disables USB file access
 	private void onDisable(View v) {
 		mBiometrics.enableFileAccessOverUsb(false);
 		mStatusTextView.setText(R.string.usb_access_disabled);

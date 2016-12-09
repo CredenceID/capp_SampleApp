@@ -14,11 +14,12 @@ public class TheApp extends Application {
 
 	private static TheApp mInstance;
 
-	private BiometricsManager biometrics_manager;
+	// Example on how to use BiometricsManger in a Application class that can be used globally
+	private BiometricsManager mBiometricsManager;
 
 	public TheApp() {
 		mInstance = this;
-		biometrics_manager = new BiometricsManager(this);
+		mBiometricsManager = new BiometricsManager(this);
 	}
 
 	public static TheApp getInstance() {
@@ -30,16 +31,16 @@ public class TheApp extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		biometrics_manager.initializeBiometrics(new Biometrics.OnInitializedListener() {
+		// Need to initialize Biometrics manually as BiometricsManager does not do it automatically
+		mBiometricsManager.initializeBiometrics(new Biometrics.OnInitializedListener() {
 			@Override
 			public void onInitialized(Biometrics.ResultCode resultCode, String sdk_version, String required_version) {
-				Log.d(TAG, "Test App product name is " + biometrics_manager.getProductName());
+				Log.d(TAG, "Test App product name is " + mBiometricsManager.getProductName());
 				if (resultCode != Biometrics.ResultCode.OK) {
 					String str = String.format("Biometric initialization failed\nSDK version: %s\nRequired_version: %s", sdk_version, required_version);
 					Toast.makeText(TheApp.this, str, Toast.LENGTH_LONG).show();
 					Log.d(TAG, "Initaliation failed");
 				} else {
-					Toast.makeText(TheApp.this, "Biometrics Initialized in Application", Toast.LENGTH_LONG).show();
 					Log.d(TAG, "Initaliation success ");
 				}
 			}
@@ -47,7 +48,7 @@ public class TheApp extends Application {
 	}
 
 	public BiometricsManager getBiometricsManager() {
-		return biometrics_manager;
+		return mBiometricsManager;
 	}
 
 	public void showToast(CharSequence cs) {

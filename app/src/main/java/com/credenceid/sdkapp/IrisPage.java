@@ -36,11 +36,14 @@ public class IrisPage extends LinearLayout implements PageView {
 	private ImageView mCaptureLeft;
 	private TextView mStatusTextView;
 	private TextView mInfoTextView;
-	private Spinner mIrisTypeSpinner;
 
 	private String mPathnameLeft;
 	private String mPathnameRight;
 	private boolean mCapturing = false;
+
+	private long uncompressed_size;
+	private long compressed_size;
+	private long start_time;
 
 	private Biometrics.EyeSelection mEyeSelection = Biometrics.EyeSelection.BOTH_EYES;
 
@@ -68,8 +71,8 @@ public class IrisPage extends LinearLayout implements PageView {
 
 	private void initialize() {
 		Log.d(TAG, "initialize");
-		LayoutInflater li = (LayoutInflater) getContext().getSystemService(
-				Context.LAYOUT_INFLATER_SERVICE);
+
+		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		li.inflate(R.layout.page_iris, this, true);
 		mCaptureRight = (ImageView) findViewById(R.id.capture_1_image);
 		mCaptureRight.setOnClickListener(new OnClickListener() {
@@ -103,18 +106,18 @@ public class IrisPage extends LinearLayout implements PageView {
 		mStatusTextView = (TextView) findViewById(R.id.status);
 		mInfoTextView = (TextView) findViewById(R.id.info);
 
-		mIrisTypeSpinner = (Spinner) findViewById(R.id.iris_type_spinner);
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-				R.array.iris_scan_type, android.R.layout.simple_spinner_item);
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.iris_scan_type, android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		mIrisTypeSpinner.setAdapter(adapter);
-		mIrisTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
+		Spinner irisTypeSpinner = (Spinner) findViewById(R.id.iris_type_spinner);
+		irisTypeSpinner.setAdapter(adapter);
+		irisTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				mEyeSelection = eye_selection_types[position];
-				if (mCapturing)
+				if (mCapturing) {
 					onCapture();
+				}
 			}
 
 			@Override
@@ -144,20 +147,6 @@ public class IrisPage extends LinearLayout implements PageView {
 	public void deactivate() {
 	}
 
-	private void enableCapture(boolean enable) {
-		// Enable capture by turning on capture button for user
-		mCaptureBtn.setEnabled(enable);
-		mCapturing = !enable;
-	}
-
-	private void resetCapture() {
-		mCaptureRight.setImageDrawable(null);
-		mCaptureLeft.setImageDrawable(null);
-		mPathnameLeft = null;
-		mPathnameRight = null;
-		setInfoText("");
-	}
-
 	private void onCapture() {
 		resetCapture();
 		enableCapture(false);
@@ -170,17 +159,23 @@ public class IrisPage extends LinearLayout implements PageView {
 				boolean ok = (result == ResultCode.OK);
 
 				if (mEyeSelection != Biometrics.EyeSelection.LEFT_EYE && bmRight != null) {
-					if (!ok)
+					if (!ok) {
 						mCaptureRight.setImageBitmap(bmRight);
+					}
 					mPathnameRight = pathnameRight;
 				}
+
 				if (mEyeSelection != Biometrics.EyeSelection.RIGHT_EYE && bmLeft != null) {
-					if (!ok)
+					if (!ok) {
 						mCaptureLeft.setImageBitmap(bmLeft);
+					}
 					mPathnameLeft = pathnameLeft;
 				}
-				if (status != null)
+
+				if (status != null) {
 					setStatusText(status);
+				}
+
 				if (result == ResultCode.OK) {
 					Log.i(TAG, "Iris Captured Completed");
 					enableCapture(false);
@@ -191,6 +186,7 @@ public class IrisPage extends LinearLayout implements PageView {
 					resetCapture();
 					enableCapture(true);
 				}
+
 				// If result failed
 				if (result == ResultCode.FAIL) {
 					Log.e(TAG, "onIrisesCaptured - FAILED");
@@ -217,6 +213,23 @@ public class IrisPage extends LinearLayout implements PageView {
 		mCloseBtn.setEnabled(true);
 	}
 
+	// Enable/disable capture by updating Capture button based on parameter
+	private void enableCapture(boolean enable) {
+		// Enable capture by turning on capture button for user
+		mCaptureBtn.setEnabled(enable);
+		mCapturing = !enable;
+	}
+
+	// Resets capture state
+	private void resetCapture() {
+		mCaptureRight.setImageDrawable(null);
+		mCaptureLeft.setImageDrawable(null);
+		mPathnameLeft = null;
+		mPathnameRight = null;
+		setInfoText("");
+	}
+
+	// Closes Iris Scanner and puts state back to Close state
 	private void onClose() {
 		resetCapture();
 		enableCapture(true);
@@ -224,14 +237,13 @@ public class IrisPage extends LinearLayout implements PageView {
 		// Turn off close button since we are going to close everything
 		mCloseBtn.setEnabled(false);
 
+		setStatusText("Closing scanner, Please wait...");
+
 		// Close Iris Scanner
 		mBiometrics.closeIrisScanner();
 	}
 
-	private long uncompressed_size;
-	private long compressed_size;
-	private long start_time;
-
+	// Calls the convertToKind7 API call
 	private void convertToKind7(String left_pathname, String right_pathname) {
 		uncompressed_size = 0;
 		String pathname = left_pathname != null ? left_pathname : right_pathname;
@@ -243,7 +255,6 @@ public class IrisPage extends LinearLayout implements PageView {
 		}
 		start_time = SystemClock.elapsedRealtime();
 		mBiometrics.convertToKind7(left_pathname, right_pathname, new OnConvertToKind7Listener() {
-
 			@Override
 			public void onConvertToKind7(ResultCode result, String pathnameLeft,
 					IrisQuality iqLeft, String pathnameRight, IrisQuality iqRight) {
@@ -252,7 +263,6 @@ public class IrisPage extends LinearLayout implements PageView {
 				} else if (result == ResultCode.FAIL) {
 					setInfoText("Convert to Kind7 failed");
 				} else {
-
 					compressed_size = 0;
 					String pathname = pathnameLeft != null ? pathnameLeft : pathnameRight;
 					if (pathname != null) {
@@ -271,16 +281,19 @@ public class IrisPage extends LinearLayout implements PageView {
 		});
 	}
 
+	// Sets the Status TextView based on parameter string
 	private void setStatusText(String text) {
-		if (!text.isEmpty())
+		if (!text.isEmpty()) {
 			Log.d(TAG, "setStatusText: " + text);
+		}
 		mStatusTextView.setText(text);
 	}
 
+	// Sets the Info TextView based on parameter string
 	private void setInfoText(String text) {
-		if (!text.isEmpty())
+		if (!text.isEmpty()) {
 			Log.d(TAG, "setInfoText: " + text);
+		}
 		mInfoTextView.setText(text);
 	}
-
 }
