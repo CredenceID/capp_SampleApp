@@ -21,10 +21,7 @@ import com.credenceid.biometrics.Crypto;
 public class EncryptPage extends LinearLayout implements PageView {
 	private static final String TAG = EncryptPage.class.getName();
 
-	private final String mInitialPayload = "This text will be encrypted";
-
 	private Button mGenerateBtn;
-	private Button mRandomBtn;
 	private Button mEncryptBtn;
 	private Button mDecryptBtn;
 	private EditText mPassphraseEditText;
@@ -54,20 +51,21 @@ public class EncryptPage extends LinearLayout implements PageView {
 				Context.LAYOUT_INFLATER_SERVICE);
 		li.inflate(R.layout.page_encrypt, this, true);
 
+		Button randomBtn = (Button) findViewById(R.id.random_btn);
+		randomBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				onRandom(v);
+			}
+		});
+
 		mGenerateBtn = (Button) findViewById(R.id.generate_btn);
 		mGenerateBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				onGenerate(v);
-			}
-		});
-		mRandomBtn = (Button) findViewById(R.id.random_btn);
-		mRandomBtn.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				onRandom(v);
 			}
 		});
 		mEncryptBtn = (Button) findViewById(R.id.encrypt_btn);
@@ -165,19 +163,19 @@ public class EncryptPage extends LinearLayout implements PageView {
 	public void doResume() {
 		mPassphraseEditText.setText("");
 		mKeyEditText.setText("");
-		mPayloadEditText.setText(mInitialPayload);
+		mPayloadEditText.setText("This text will be encrypted");
 		mStatusTextView.setText("");
 
 		mGenerateBtn.setEnabled(false);
 		mEncryptBtn.setEnabled(false);
 		mDecryptBtn.setEnabled(false);
-
 	}
 
 	@Override
 	public void deactivate() {
 	}
 
+	// Generates a key from a passphrase
 	private void onGenerate(View v) {
 		hideSoftKeyboard();
 		String phrase = mPassphraseEditText.getText().toString();
@@ -186,6 +184,7 @@ public class EncryptPage extends LinearLayout implements PageView {
 		mStatusTextView.setText("Key generated from passphrase");
 	}
 
+	// Generates a random key
 	private void onRandom(View v) {
 		hideSoftKeyboard();
 		byte[] key_bytes = Crypto.aesRandomKey();
@@ -193,14 +192,14 @@ public class EncryptPage extends LinearLayout implements PageView {
 		mStatusTextView.setText("Random key created");
 	}
 
+	// Encrypt text
 	public void onEncrypt(View v) {
 		hideSoftKeyboard();
 		byte[] key_bytes = hexStringToBytes(mKeyEditText.getText().toString());
 		if (key_bytes == null) {
 			mStatusTextView.setText("Invalid key");
 		}
-		byte[] encrypted_bytes = Crypto
-				.aesEncrypt(key_bytes, mPayloadEditText.getText().toString());
+		byte[] encrypted_bytes = Crypto.aesEncrypt(key_bytes, mPayloadEditText.getText().toString());
 		if (encrypted_bytes == null) {
 			mStatusTextView.setText("Encryption failed");
 		} else {
@@ -211,6 +210,7 @@ public class EncryptPage extends LinearLayout implements PageView {
 		}
 	}
 
+	// Decrypt text
 	private void onDecrypt(View v) {
 		hideSoftKeyboard();
 		mEncryptBtn.setEnabled(true);
@@ -234,12 +234,14 @@ public class EncryptPage extends LinearLayout implements PageView {
 		}
 	}
 
+	// Convert bytes to HexString
 	private static String bytesToHexString(byte[] bytes) {
 		BigInteger bi = new BigInteger(1, bytes);
 		String str = String.format("%0" + (bytes.length << 1) + "X", bi);
 		return str;
 	}
 
+	// convert String to bytes
 	public static byte[] hexStringToBytes(String s) {
 		int len = s.length();
 		if (len == 0 || len % 2 != 0)
@@ -254,6 +256,7 @@ public class EncryptPage extends LinearLayout implements PageView {
 		return data;
 	}
 
+	// hides keyboard
 	private void hideSoftKeyboard() {
 		if (mCurrentEditText != null) {
 			InputMethodManager imm = (InputMethodManager) getContext().getSystemService(

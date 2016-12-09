@@ -5,6 +5,7 @@
     <string name="menu_exit">Exit</string>
 
     <!-- About -->
+    <string name="global_biometricsmanager">Global BiometricsManager</string>
     <string name="product_name">Product name:</string>
     <string name="device_id">Device ID: </string>
     <string name="sdk_version">SDK version: </string>
