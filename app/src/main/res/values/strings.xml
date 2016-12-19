@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Credence SDK App</string>
+    <string name="app_icon_name">C-SDK</string>
     <string name="menu_exit">Exit</string>
 
     <!-- About -->
