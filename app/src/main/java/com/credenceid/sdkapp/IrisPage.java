@@ -155,7 +155,7 @@ public class IrisPage extends LinearLayout implements PageView {
 
 			@Override
 			public void onIrisesCaptured(Biometrics.ResultCode result, Bitmap bmLeft,
-					Bitmap bmRight, String pathnameLeft, String pathnameRight, String status) {
+										 Bitmap bmRight, String pathnameLeft, String pathnameRight, String status) {
 				boolean ok = (result == ResultCode.OK);
 
 				if (mEyeSelection != Biometrics.EyeSelection.LEFT_EYE && bmRight != null) {
@@ -257,7 +257,7 @@ public class IrisPage extends LinearLayout implements PageView {
 		mBiometrics.convertToKind7(left_pathname, right_pathname, new OnConvertToKind7Listener() {
 			@Override
 			public void onConvertToKind7(ResultCode result, String pathnameLeft,
-					IrisQuality iqLeft, String pathnameRight, IrisQuality iqRight) {
+										 IrisQuality iqLeft, String pathnameRight, IrisQuality iqRight) {
 				if (result == ResultCode.INTERMEDIATE) {
 					setInfoText("Algorithms initializing...");
 				} else if (result == ResultCode.FAIL) {
