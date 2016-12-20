@@ -9,7 +9,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 18
         versionName '3.0.0'
-        setProperty("archivesBaseName", "Credence_StressApiTest-$versionName")
+        setProperty("archivesBaseName", "Credence_SdkApp-$versionName")
     }
 
     signingConfigs {
