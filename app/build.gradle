@@ -9,7 +9,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 18
         versionName '2.0.1'
-        setProperty("archivesBaseName", "Credence_SdkApp-$versionName")
+        archivesBaseName = "C-SdkApp"
     }
 
     signingConfigs {

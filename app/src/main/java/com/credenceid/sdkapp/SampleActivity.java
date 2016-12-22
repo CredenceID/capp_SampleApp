@@ -115,10 +115,10 @@ public class SampleActivity extends BiometricsActivity {
     @Override
     public void onBiometricsInitialized(ResultCode result, String sdk_version, String required_version) {
         Log.d(TAG, "Sdkapp product name is " + getProductName());
-        if (result != ResultCode.OK) {
-            String str = String.format("Biometric initialization failed\nSDK version: %s\nRequired_version: %s", sdk_version, required_version);
-            TheApp.getInstance().showToast(str);
-        }
+//        if (result != ResultCode.OK) {
+//            String str = String.format("Biometric initialization failed\nSDK version: %s\nRequired_version: %s", sdk_version, required_version);
+//            TheApp.getInstance().showToast(str);
+//        }
 
         // called here to enable all buttons
         enableButtons(true);
