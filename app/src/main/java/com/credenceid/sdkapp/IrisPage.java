@@ -20,6 +20,7 @@ import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.Biometrics.OnConvertToKind7Listener;
 import com.credenceid.biometrics.Biometrics.OnIrisesCapturedListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
+import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.IrisQuality;
 
 import java.io.File;
@@ -198,15 +199,23 @@ public class IrisPage extends LinearLayout implements PageView {
 			}
 
 			@Override
-			public void onCloseIrisScanner(Biometrics.CloseReasonCode closeReasonCode) {
-				// Log output for debugging
-				Log.d(TAG, "Iris Scanner closed: " + closeReasonCode.toString());
-				resetCapture();
-				// Let uesr know why scanner reader closed
-				setStatusText("Iris Scanner closed: " + closeReasonCode.toString());
-				enableCapture(true);
-				// Make close button unclickable, since the scanner has just closed
-				mCloseBtn.setEnabled(false);
+			public void onCloseIrisScanner(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+				if (resultCode == ResultCode.OK) {
+					// Log output for debugging
+					Log.d(TAG, "Iris Scanner closed: " + closeReasonCode.toString());
+					resetCapture();
+					// Let uesr know why scanner reader closed
+					setStatusText("Iris Scanner closed: " + closeReasonCode.toString());
+					enableCapture(true);
+					// Make close button unclickable, since the scanner has just closed
+					mCloseBtn.setEnabled(false);
+				} else if (resultCode == ResultCode.FAIL) {
+					mCloseBtn.setEnabled(true);
+					mCaptureBtn.setEnabled(false);
+					Log.d(TAG, "Iris Scanner closed: FAILED");
+					// Let uesr know why scanner reader closed
+					setStatusText("Iris Scanner closed: FAILED");
+				}
 			}
 		});
 
@@ -236,6 +245,9 @@ public class IrisPage extends LinearLayout implements PageView {
 
 		// Turn off close button since we are going to close everything
 		mCloseBtn.setEnabled(false);
+
+		// Disable capture button to avoid double clicks
+		mCaptureBtn.setEnabled(false);
 
 		setStatusText("Closing scanner, Please wait...");
 

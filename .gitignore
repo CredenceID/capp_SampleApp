@@ -13,3 +13,4 @@ gradle
 /.classpath
 /projectFilesBackup
 /app/.DS_Store
+app/src/main/java/com/credenceid/.DS_Store

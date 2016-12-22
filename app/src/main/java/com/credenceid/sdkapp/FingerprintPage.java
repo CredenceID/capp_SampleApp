@@ -305,12 +305,19 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 }
 
                 @Override
-                public void onCloseFingerprintReader(CloseReasonCode reasonCode) {
-                    // Log output for debugging
-                    Log.d(TAG, "FingerPrint reader closed:" + reasonCode.toString());
-                    // Let uesr know why finger print reader closed
-                    setStatusText("FingerPrint reader closed:" + reasonCode.toString());
-                    resetCapture();
+                public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode reasonCode) {
+                    if (resultCode == ResultCode.OK) {
+                        // Log output for debugging
+                        Log.d(TAG, "FingerPrint reader closed:" + reasonCode.toString());
+                        // Let uesr know why finger print reader closed
+                        setStatusText("FingerPrint reader closed:" + reasonCode.toString());
+                        resetCapture();
+                    } else if (resultCode == ResultCode.FAIL) {
+                        mCloseBtn.setEnabled(true);
+                        Log.d(TAG, "FingerPrint reader closed: FAILED");
+                        // Let uesr know why finger print reader closed
+                        setStatusText("FingerPrint reader closed: FAILED");
+                    }
                 }
             });
         } else { // If user newest API version
@@ -404,13 +411,20 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 }
 
                 @Override
-                public void onCloseFingerprintReader(CloseReasonCode reasonCode) {
-                    // Log output for debugging
-                    Log.d(TAG, "FingerPrint reader closed:" + reasonCode.toString());
-                    // Let uesr know why finger print reader closed
-                    setStatusText("FingerPrint reader closed:" + reasonCode.toString());
-                    // Turn off appropriate buttons
-                    resetCapture();
+                public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode reasonCode) {
+                    if (resultCode == ResultCode.OK) {
+                        // Log output for debugging
+                        Log.d(TAG, "FingerPrint reader closed:" + reasonCode.toString());
+                        // Let uesr know why finger print reader closed
+                        setStatusText("FingerPrint reader closed:" + reasonCode.toString());
+                        // Turn off appropriate buttons
+                        resetCapture();
+                    } else if (resultCode == ResultCode.FAIL) {
+                        mCloseBtn.setEnabled(true);
+                        Log.d(TAG, "FingerPrint reader closed: FAILED");
+                        // Let uesr know why finger print reader closed
+                        setStatusText("FingerPrint reader closed: FAILED");
+                    }
                 }
             });
         }
@@ -423,6 +437,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
         // Disable capture button to avoid double clicks
         mCaptureBtn.setEnabled(false);
+
+        mCloseBtn.setEnabled(false);
 
         setStatusText("Closing scanner, Please wait...");
 
@@ -503,12 +519,18 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 }
 
                 @Override
-                public void onCloseFingerprintReader(CloseReasonCode reasonCode) {
-                    // Log output for why reader closed
-                    Log.d(TAG, "FingerPrint reader closed:" + reasonCode.toString());
-                    // Let user know why closed
-                    setStatusText("FingerPrint reader closed:" + reasonCode.toString());
-                    closeState();
+                public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode reasonCode) {
+                    if (resultCode == ResultCode.OK) {
+                        // Log output for why reader closed
+                        Log.d(TAG, "FingerPrint reader closed:" + reasonCode.toString());
+                        // Let user know why closed
+                        setStatusText("FingerPrint reader closed:" + reasonCode.toString());
+                        closeState();
+                    } else if (resultCode == ResultCode.FAIL) {
+                        Log.d(TAG, "FingerPrint reader closed: FAILED");
+                        // Let uesr know why finger print reader closed
+                        setStatusText("FingerPrint reader closed: FAILED");
+                    }
                 }
             });
 
@@ -539,12 +561,19 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 }
 
                 @Override
-                public void onCloseFingerprintReader(CloseReasonCode reasonCode) {
-                    // Log output for why reader closed
-                    Log.d(TAG, "FingerPrint reader closed:" + reasonCode.toString());
-                    // Let user know why closed
-                    setStatusText("FingerPrint reader closed:" + reasonCode.toString());
-                    closeState();
+                public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode reasonCode) {
+                    if (resultCode == ResultCode.OK) {
+                        // Log output for why reader closed
+                        Log.d(TAG, "FingerPrint reader closed:" + reasonCode.toString());
+                        // Let user know why closed
+                        setStatusText("FingerPrint reader closed:" + reasonCode.toString());
+                        closeState();
+
+                    } else if (resultCode == ResultCode.FAIL) {
+                        Log.d(TAG, "FingerPrint reader closed: FAILED");
+                        // Let uesr know why finger print reader closed
+                        setStatusText("FingerPrint reader closed: FAILED");
+                    }
                 }
             });
         }

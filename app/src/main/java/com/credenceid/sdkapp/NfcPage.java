@@ -154,10 +154,15 @@ public class NfcPage extends LinearLayout implements PageView {
 			}
 			
 			@Override
-			public void onCardReaderClosed(CloseReasonCode arg0) {
-				mCardDetailsTextView.setText("Card Closed:"+arg0.toString());
-				disableCloseButton();
-				enableOpenButton();
+			public void onCardReaderClosed(ResultCode resultCode, CloseReasonCode arg0) {
+				if (resultCode == ResultCode.OK) {
+					mCardDetailsTextView.setText("Card Closed:"+arg0.toString());
+					disableCloseButton();
+					enableOpenButton();
+				} else if (resultCode == ResultCode.FAIL) {
+					Log.d(TAG, "onCardReaderClosed: FAILED");
+					mCardDetailsTextView.setText("Card Closed:"+arg0.toString());
+				}
 			}
 		});	
 	}

@@ -242,11 +242,18 @@ public class MrzReaderPage extends LinearLayout implements PageView {
 			}
 
 			@Override
-			public void onMRZClose(CloseReasonCode resultCode) {
-				close_cmd_counter++;
-				Log.d(TAG, "onMRZClose-" + close_cmd_counter);
-				setStatusText("MRZ Closed: " + resultCode.toString());
-				updateButtons(false);
+			public void onMRZClose(ResultCode resultCode, CloseReasonCode closeCode) {
+				if (resultCode == ResultCode.OK) {
+					close_cmd_counter++;
+					Log.d(TAG, "onMRZClose-" + close_cmd_counter);
+					setStatusText("MRZ Closed: " + closeCode.toString());
+					updateButtons(false);
+				} else if (resultCode == ResultCode.FAIL) {
+					Log.d(TAG, "onMRZClose: FAILED");
+					setStatusText("MRZ Closed: FAILED");
+					mMrzRfReadBtn.setEnabled(true);
+					mMrzReadBtn.setEnabled(true);
+				}
 			}
 			
 		});
@@ -287,9 +294,15 @@ public class MrzReaderPage extends LinearLayout implements PageView {
 			}
 			
 			@Override
-			public void onEpassportReaderClosed(CloseReasonCode rc) {
-				mMrzRfReadBtn.setText("Open RF");
-				setStatusText("ePassport Reader Close Result: " + rc.toString());
+			public void onEpassportReaderClosed(ResultCode resultCode, CloseReasonCode rc) {
+				if (resultCode == ResultCode.OK) {
+					mMrzRfReadBtn.setText("Open RF");
+					setStatusText("ePassport Reader Close Result: " + rc.toString());
+				} else if (resultCode == ResultCode.FAIL) {
+					Log.d(TAG, "onEpassportReaderClosed: FAILED");
+					setStatusText("ePassport Reader Close Result: FAILED");
+					mMrzRfReadBtn.setText("Close RF");
+				}
 			}
 		});
 	}

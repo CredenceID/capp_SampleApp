@@ -8,7 +8,7 @@ android {
         applicationId "com.credenceid.sdkapp"
         minSdkVersion 15
         targetSdkVersion 18
-        versionName '3.0.0'
+        versionName '2.0.1'
         setProperty("archivesBaseName", "Credence_SdkApp-$versionName")
     }
 

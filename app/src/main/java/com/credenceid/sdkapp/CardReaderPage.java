@@ -284,15 +284,22 @@ public class CardReaderPage extends LinearLayout implements PageView {
                 }
 
                 @Override
-                public void onCardReaderClosed(CloseReasonCode reasonCode) {
-                    // Increase counter of how many times card has been closed
-                    close_cmd_counter++;
-                    // Log output for debugging
-                    Log.d(TAG, "SmartCard reader closed-" + close_cmd_counter);
-                    // Set text view letting user know results from close
-                    status_text_view.setText("SmartCard reader closed:" + reasonCode.toString());
-                    // Turn on/off certain widgets
-                    cardClosed();
+                public void onCardReaderClosed(ResultCode resultCode, CloseReasonCode reasonCode) {
+                    if (resultCode == ResultCode.OK) {
+                        // Increase counter of how many times card has been closed
+                        close_cmd_counter++;
+                        // Log output for debugging
+                        Log.d(TAG, "SmartCard reader closed-" + close_cmd_counter);
+                        // Set text view letting user know results from close
+                        status_text_view.setText("SmartCard reader closed:" + reasonCode.toString());
+                        // Turn on/off certain widgets
+                        cardClosed();
+                    } else if (resultCode == ResultCode.FAIL) {
+                        Log.d(TAG, "SmartCard reader closed: FAILED");
+                        status_text_view.setText("SmartCard reader closed: FAILED");
+                        button_open_close.setEnabled(true);
+                    }
+
                 }
             });
         } else {
