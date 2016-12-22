@@ -42,8 +42,8 @@ class BiometricsManagerInstance {
             public void onInitialized(Biometrics.ResultCode resultCode, String sdk_version, String required_version) {
                 Log.d(TAG, "Test App product name is " + biometrics_manager.getProductName());
                 if (resultCode != Biometrics.ResultCode.OK) {
-                    String str = String.format("Biometric initialization failed\nSDK version: %s\nRequired_version: %s", sdk_version, required_version);
-                    Toast.makeText(TheApp.getInstance(), str, Toast.LENGTH_LONG).show();
+//                    String str = String.format("Biometric initialization failed\nSDK version: %s\nRequired_version: %s", sdk_version, required_version);
+//                    Toast.makeText(TheApp.getInstance(), str, Toast.LENGTH_LONG).show();
                     Log.d(TAG, "Initaliation failed");
                 } else {
                     Log.d(TAG, "Initaliation success ");
