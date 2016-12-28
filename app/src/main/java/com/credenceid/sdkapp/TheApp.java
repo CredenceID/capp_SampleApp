@@ -1,6 +1,7 @@
 package com.credenceid.sdkapp;
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -11,7 +12,7 @@ public class TheApp extends Application {
 	private static final String TAG = TheApp.class.getName();
 
 	public static boolean DEBUG = true;
-
+	private static Context mContext;
 	private static TheApp mInstance;
 
 	// Example on how to use BiometricsManger in a Application class that can be used globally
@@ -19,7 +20,12 @@ public class TheApp extends Application {
 
 	public TheApp() {
 		mInstance = this;
+		mContext = this;
 		mBiometricsManager = new BiometricsManager(this);
+	}
+
+	public static Context getAppContext(){
+		return mContext;
 	}
 
 	public static TheApp getInstance() {

@@ -179,6 +179,8 @@ public class IrisPage extends LinearLayout implements PageView {
 
 				if (result == ResultCode.OK) {
 					Log.i(TAG, "Iris Captured Completed");
+					// MEE 12/28/2016 - moved shutter from CredenceService to here in the client
+					Beeper.getInstance().click();
 					enableCapture(false);
 					convertToKind7(mPathnameLeft, mPathnameRight);
 				}
