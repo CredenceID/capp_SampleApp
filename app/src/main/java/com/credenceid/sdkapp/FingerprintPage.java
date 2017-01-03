@@ -266,6 +266,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     }
                     // If result was OK meaning proper image captured, then handle case
                     if (result == ResultCode.OK) {
+                        // MEE 12/28/2016 - moved shutter from CredenceService to here in the client
+                        Beeper.getInstance().click();
                         captureState();
 
                         // Calculate total time taken for image to return back as good
@@ -337,6 +339,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     }
                     // If image captured was good fingerprint
                     if (result == ResultCode.OK) {
+                        // MEE 12/28/2016 - moved shutter from CredenceService to here in the client
+                        Beeper.getInstance().click();
                         // Log output for debugging purposes
                         Log.d(TAG, "OnFingerprintGrabbedFullListener: mScanType        = [" + mScanType + "]");
                         Log.d(TAG, "OnFingerprintGrabbedFullListener: filepath         = [" + filepath + "]");
@@ -509,6 +513,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     }
                     // OK result and image
                     if (result == ResultCode.OK && bm != null) {
+                        // MEE 12/28/2016 - moved shutter from CredenceService to here in the client
+                        Beeper.getInstance().click();
                         convertMatchImage(bm);
                     }
                     // If result failed turn on button to match
@@ -551,6 +557,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     }
                     // If returned result was good, set match button on for user to match fingerprint and convert image
                     if (result == ResultCode.OK && bm != null) {
+                        // MEE 12/28/2016 - moved shutter from CredenceService to here in the client
+                        Beeper.getInstance().click();
                         convertMatchImage(bm);
                     }
                     // If result failed turn on button to match
