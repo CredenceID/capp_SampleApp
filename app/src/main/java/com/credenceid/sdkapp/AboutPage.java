@@ -35,7 +35,7 @@ public class AboutPage extends LinearLayout implements PageView {
 	private TextView mDeviceLibraryTextView;
 	private TextView mLicenseStatus;
 
-	private TextView mProductNameManTextView;
+	private TextView mProductNameManTextView;	
 	private TextView mSdkVersionManTextView;
 	private TextView mDeviceLibraryManTextView;
 
