@@ -137,10 +137,10 @@ public class SampleActivity extends BiometricsActivity {
                 @Override
                 public void onPreferences(ResultCode result, String key, String value) {
                     Log.w(TAG, "onPreferences: " + key + ", " + value);
-                    if(result == ResultCode.OK) {
+                    if (result == ResultCode.OK) {
 
                     } else {
-                        Toast.makeText(SampleActivity.this, "Error Setting Preferences",Toast.LENGTH_LONG).show();
+                        Toast.makeText(SampleActivity.this, "Error Setting Preferences", Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -170,7 +170,7 @@ public class SampleActivity extends BiometricsActivity {
         super.onPause();
         pause_time = SystemClock.elapsedRealtime();
         /*if (mCurrentPage != null) {
-			mCurrentPage.deactivate();
+            mCurrentPage.deactivate();
 		}*/
     }
 
@@ -293,6 +293,7 @@ public class SampleActivity extends BiometricsActivity {
 
     /****************************************************************/
     /* Button methods for onClick event setup in layout             */
+
     /****************************************************************/
     public void onAbout(View v) {
         setCurrentPage(v, mAboutPage);
@@ -333,6 +334,7 @@ public class SampleActivity extends BiometricsActivity {
         setCurrentPage(v, mNfcPage);
         mAboutBtn.setImageResource(R.drawable.ic_aboutoff);
     }
+
     /****************************************************************/
 
     // sets the page that the corresponding button to the current page and activates it

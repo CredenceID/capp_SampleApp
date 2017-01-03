@@ -3,10 +3,6 @@
     package="com.credenceid.sdkapp"
     android:versionCode="7">
 
-    <uses-sdk
-        android:minSdkVersion="15"
-        android:targetSdkVersion="18" />
-
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.credenceid.permission.SERVICE" />
@@ -18,10 +14,10 @@
         android:background="#CCCCCC"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_icon_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name="com.credenceid.sdkapp.SampleActivity"
-            android:label="@string/app_icon_name" >
+            android:label="@string/app_icon_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

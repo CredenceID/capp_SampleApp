@@ -194,9 +194,9 @@ public class AboutPage extends LinearLayout implements PageView {
 		};
 		task.execute();
 
-		mProductNameManTextView.setText(TheApp.getInstance().getBiometricsManager().getProductName());
-		mSdkVersionManTextView.setText(TheApp.getInstance().getBiometricsManager().getSDKVersion());
-		mDeviceLibraryManTextView.setText(BiometricsManagerInstance.getInstance().getBiometricsManager().getDeviceLibraryVersion());
+		mProductNameManTextView.setText(mBiometrics.getProductName());
+		mSdkVersionManTextView.setText(mBiometrics.getSDKVersion());
+		mDeviceLibraryManTextView.setText(mBiometrics.getDeviceLibraryVersion());
 	}
 
 	// For AsyncTask in doResume so it can call getPreferences()
