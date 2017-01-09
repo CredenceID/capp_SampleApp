@@ -29,9 +29,11 @@ public class CardReaderPage extends LinearLayout implements PageView {
     Button button_view;
     Button button_open_close;
 
-    private static Hashtable cardList = new Hashtable();
+    private static Hashtable mCardList = new Hashtable();
     private static int close_cmd_counter = 0;
     private static int open_cmd_counter = 0;
+
+    long start_time = 0;
 
     public static final int APDU_INIT = 1; // ready for first APDU
     public static final int APDU_PROCESS = 2; // process next APDU
@@ -132,10 +134,29 @@ public class CardReaderPage extends LinearLayout implements PageView {
         LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         li.inflate(R.layout.page_card_reader, this, true);
         // Initialize widgets
-        status_text_view = (TextView) findViewById(R.id.textView1);
-        button_view = (Button) findViewById(R.id.button1);
+        status_text_view = (TextView) findViewById(R.id.status_tv);
+
         button_open_close = (Button) findViewById(R.id.open_close);
+        button_open_close.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (button_open_close.getText().toString().equalsIgnoreCase(getResources().getString(R.string.open))) {
+                    openClose(true);
+                } else {
+                    openClose(false);
+                }
+                button_open_close.setEnabled(false);
+            }
+        });
+        button_view = (Button) findViewById(R.id.view);
         button_view.setText("Insert Card To Continue");
+        button_view.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                click();
+            }
+        });
+
         // Close card for new page
         cardClosed();
         // populate the table with the cards we know about
@@ -202,7 +223,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
                     CardInfo ci;
                     String cardname = "{unknown}";
                     // Check if card is valid for apdu
-                    if ((ci = (CardInfo) cardList.get(ATR)) != null) {
+                    if ((ci = (CardInfo) mCardList.get(ATR)) != null) {
                         // Get card name
                         cardname = ci.getCardName();
                         // Set card apdu table
@@ -223,26 +244,25 @@ public class CardReaderPage extends LinearLayout implements PageView {
                 }
             }
         });
-
-        button_open_close.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (button_open_close.getText().toString().equalsIgnoreCase(getResources().getString(R.string.open))) {
-                    openClose(true);
-                } else {
-                    openClose(false);
-                }
-                button_open_close.setEnabled(false);
-            }
-        });
-        button_view.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                click();
-            }
-        });
     }
 
+    @Override
+    public String getTitle() {
+        return getContext().getResources().getString(R.string.title_card_reader);
+    }
+
+    @Override
+    public void doResume() {
+        Log.d(TAG, "doResume ");
+    }
+
+    @Override
+    public void deactivate() {
+        Log.d(TAG, "deactivate ");
+
+    }
+
+    // Based on parameter will either call Open Card reader API or close API
     protected void openClose(boolean open) {
         // If we are opening the card
         if (open) {
@@ -264,15 +284,22 @@ public class CardReaderPage extends LinearLayout implements PageView {
                 }
 
                 @Override
-                public void onCardReaderClosed(CloseReasonCode reasonCode) {
-                    // Increase counter of how many times card has been closed
-                    close_cmd_counter++;
-                    // Log output for debugging
-                    Log.d(TAG, "SmartCard reader closed-" + close_cmd_counter);
-                    // Set text view letting user know results from close
-                    status_text_view.setText("SmartCard reader closed:" + reasonCode.toString());
-                    // Turn on/off certain widgets
-                    cardClosed();
+                public void onCardReaderClosed(ResultCode resultCode, CloseReasonCode reasonCode) {
+                    if (resultCode == ResultCode.OK) {
+                        // Increase counter of how many times card has been closed
+                        close_cmd_counter++;
+                        // Log output for debugging
+                        Log.d(TAG, "SmartCard reader closed-" + close_cmd_counter);
+                        // Set text view letting user know results from close
+                        status_text_view.setText("SmartCard reader closed:" + reasonCode.toString());
+                        // Turn on/off certain widgets
+                        cardClosed();
+                    } else if (resultCode == ResultCode.FAIL) {
+                        Log.d(TAG, "SmartCard reader closed: FAILED");
+                        status_text_view.setText("SmartCard reader closed: FAILED");
+                        button_open_close.setEnabled(true);
+                    }
+
                 }
             });
         } else {
@@ -283,23 +310,25 @@ public class CardReaderPage extends LinearLayout implements PageView {
         }
     }
 
+    // Update buttons state based on parameter
     private void cardOpened(boolean readCard) {
         button_open_close.setEnabled(true);
         button_open_close.setText(readCard ? R.string.close : R.string.open);
         button_view.setEnabled(readCard);
     }
 
+    // Update buttons to close state
     private void cardClosed() {
         button_open_close.setEnabled(true);
         button_open_close.setText(R.string.open);
         button_view.setEnabled(false);
     }
 
-    long start_time = 0;
-
+    // View button action for Read/View button to call Card Command API to see data on card based on states
     protected void click() {
         Log.d(TAG, "Button clicked !");
-// Reset apdu variables
+
+        // Reset apdu variables
         if (APDU_state == APDU_INIT) {
             APDU_state = APDU_PROCESS;
             APDU_idx = 0;
@@ -334,8 +363,9 @@ public class CardReaderPage extends LinearLayout implements PageView {
                         } else {
                             // If data available then create string from data
                             int di;
-                            for (di = 0; di < data.length; di++)
+                            for (di = 0; di < data.length; di++) {
                                 ds = ds + String.format("%02X", (0x0ff) & data[di]);
+                            }
                         }
                         // Calculate time taking for result to come back good
                         long duration = SystemClock.elapsedRealtime() - start_time;
@@ -377,36 +407,8 @@ public class CardReaderPage extends LinearLayout implements PageView {
         button_view.setText("APDU [" + APDU_table[APDU_idx + 1] + "]");
     }
 
-    @Override
-    public String getTitle() {
-        return getContext().getResources().getString(R.string.title_card_reader);
-    }
 
-    @Override
-    public void doResume() {
-        Log.d(TAG, "doResume ");
-//		if ( mBiometrics != null )
-//			mBiometrics.cardOpenCommand(new CardReaderStatusListner(){
-//				@Override
-//				public void onCardReaderOpen() {
-//					status_text_view.setText("onCardReaderOpen called");
-//					cardOpened();
-//				}
-//
-//				@Override
-//				public void onCardReaderClosed() {
-//					Log.d(TAG, "SmartCard reader closed  !");
-//					status_text_view.setText("SmartCard reader closed");
-//					cardClosed();	
-//				}
-//			});
-    }
-
-    @Override
-    public void deactivate() {
-
-    }
-
+    // Class to hold Card APDU info.  Will put each instance in the mCardList Hash table
     class CardInfo {
         // Holds card name, apdu table, and atr value
         private String mATR;
@@ -418,7 +420,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
             this.mCardName = CardName;
             this.mAPDU_table = APDU_table;
             // Add card atr to list
-            cardList.put(mATR, this);
+            mCardList.put(mATR, this);
         }
 
         public String getATR() {

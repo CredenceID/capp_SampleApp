@@ -8,6 +8,8 @@ android {
         applicationId "com.credenceid.sdkapp"
         minSdkVersion 15
         targetSdkVersion 18
+        versionName '1.15.0'
+        archivesBaseName = "C-SdkApp"
     }
 
     signingConfigs {
