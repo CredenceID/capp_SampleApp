@@ -277,14 +277,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         // Set text for user to see how long capturing process took
                         setStatusText("Capture Complete in " + duration + "msec");
 
+                        // Set global path variable of image
+                        mPathname = filepath;
+
                         if (mHasMatcher) {
                             // Set current bitmap image to captured image
                             mCurrentBitmap = bm;
                             // Convert image
                             convertToFmd(mCurrentBitmap);
                         } else {
-                            // Set global path variable of image
-                            mPathname = filepath;
                             // If there is no associated path name with image
                             if (mPathname == null) {
                                 // Log there is no associated path name
@@ -347,7 +348,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         Log.d(TAG, "OnFingerprintGrabbedFullListener: filepath_finger1 = [" + filepath_finger1 + "]");
                         Log.d(TAG, "OnFingerprintGrabbedFullListener: filepath_finger2 = [" + filepath_finger2 + "]");
                         // If Trident device & user did two fingers split image capture
-                        if (mScanType.equals(ScanType.TWO_FINGERS_SPLIT) && mBiometrics.getProductName().equalsIgnoreCase("Trident")) {
+                        if (mScanType.equals(ScanType.TWO_FINGERS_SPLIT)) {
                             // Log output saying what kind of image scan type was used
                             Log.d(TAG, "OnFingerprintGrabbedFullListener: Showing Split Images");
                             // Turn on main single finger image view
@@ -382,16 +383,17 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                         captureState();
 
+                        // Set global path variables for image locations
+                        mPathname = filepath;
+                        mPathnameFinger1 = filepath_finger1;
+                        mPathnameFinger2 = filepath_finger2;
+
                         if (mHasMatcher) {
                             // Set current bitmap image to captured image
                             mCurrentBitmap = bm;
                             // Convert image
                             convertToFmd(mCurrentBitmap);
                         } else {
-                            // Set global path variables for image locations
-                            mPathname = filepath;
-                            mPathnameFinger1 = filepath_finger1;
-                            mPathnameFinger2 = filepath_finger2;
                             // If there is no associated path name with image
                             if (mPathname == null) {
                                 // Log there is no associated path name
@@ -515,6 +517,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     if (result == ResultCode.OK && bm != null) {
                         // MEE 12/28/2016 - moved shutter from CredenceService to here in the client
                         Beeper.getInstance().click();
+
+                        // Set global path variable for image location
+                        mPathname = filepath;
                         convertMatchImage(bm);
                     }
                     // If result failed turn on button to match
@@ -559,6 +564,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     if (result == ResultCode.OK && bm != null) {
                         // MEE 12/28/2016 - moved shutter from CredenceService to here in the client
                         Beeper.getInstance().click();
+
+                        // Set global path variables for image locations
+                        mPathname = filepath;
+                        mPathnameFinger1 = filepath_finger1;
+                        mPathnameFinger2 = filepath_finger2;
                         convertMatchImage(bm);
                     }
                     // If result failed turn on button to match
