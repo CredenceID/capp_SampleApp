@@ -280,9 +280,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
                     // Set text view letting user know results from open
                     status_text_view.setText("SmartCard reader RESULT:" + resultCode.toString());
                     // Set certain widgets on/off based on if result was good
-                    if (resultCode != ResultCode.INTERMEDIATE) {
-                        cardOpened(resultCode == ResultCode.OK);
-                    }
+                    cardOpened(resultCode == ResultCode.OK);
                 }
 
                 @Override

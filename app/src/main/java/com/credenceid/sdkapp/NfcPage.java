@@ -146,8 +146,6 @@ public class NfcPage extends LinearLayout implements PageView {
 					mCardDetailsTextView.setText("Card Open Success.");
 					disableOpenButton();
 					enableCloseButton();
-				} else if (arg0 == ResultCode.INTERMEDIATE)  {
-					mCardDetailsTextView.setText("Card Open RESULT: " + arg0.toString());
 				} else {
 					mCardDetailsTextView.setText("Card Open: FAILED");
 					enableOpenButton();
