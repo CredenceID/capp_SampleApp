@@ -393,7 +393,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                         if (mHasMatcher) {
                             // Set current bitmap image to captured image
-                            mCurrentBitmap = bm;
+                            if (mScanType.equals(ScanType.TWO_FINGERS_SPLIT)) {
+                                mCurrentBitmap = bitmap_finger1;
+                            } else {
+                                mCurrentBitmap = bm;
+                            }
+
                             // Convert image
                             convertToFmd(mCurrentBitmap);
                         } else {
