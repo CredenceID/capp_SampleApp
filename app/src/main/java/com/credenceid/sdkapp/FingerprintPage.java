@@ -247,6 +247,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
         mIsCapturing = true;
 
+        // disable scanner
+        mScanTypeSpinner.setEnabled(false);
+
         // If using older version API
         if (!useOnFingerprintGrabbedFullListener) {
             // Keep a track of time. Used to check if peripheral has not responded in given time
@@ -277,14 +280,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         // Set text for user to see how long capturing process took
                         setStatusText("Capture Complete in " + duration + "msec");
 
+                        // Set global path variable of image
+                        mPathname = filepath;
+
                         if (mHasMatcher) {
                             // Set current bitmap image to captured image
                             mCurrentBitmap = bm;
                             // Convert image
                             convertToFmd(mCurrentBitmap);
                         } else {
-                            // Set global path variable of image
-                            mPathname = filepath;
                             // If there is no associated path name with image
                             if (mPathname == null) {
                                 // Log there is no associated path name
@@ -346,8 +350,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         Log.d(TAG, "OnFingerprintGrabbedFullListener: filepath         = [" + filepath + "]");
                         Log.d(TAG, "OnFingerprintGrabbedFullListener: filepath_finger1 = [" + filepath_finger1 + "]");
                         Log.d(TAG, "OnFingerprintGrabbedFullListener: filepath_finger2 = [" + filepath_finger2 + "]");
-                        // If Trident device & user did two fingers split image capture
-                        if (mScanType.equals(ScanType.TWO_FINGERS_SPLIT) && mBiometrics.getProductName().equalsIgnoreCase("Trident")) {
+                        // If user did two fingers split image capture
+                        if (mScanType.equals(ScanType.TWO_FINGERS_SPLIT)) {
                             // Log output saying what kind of image scan type was used
                             Log.d(TAG, "OnFingerprintGrabbedFullListener: Showing Split Images");
                             // Turn on main single finger image view
@@ -382,16 +386,22 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                         captureState();
 
+                        // Set global path variables for image locations
+                        mPathname = filepath;
+                        mPathnameFinger1 = filepath_finger1;
+                        mPathnameFinger2 = filepath_finger2;
+
                         if (mHasMatcher) {
                             // Set current bitmap image to captured image
-                            mCurrentBitmap = bm;
+                            if (mScanType.equals(ScanType.TWO_FINGERS_SPLIT)) {
+                                mCurrentBitmap = bitmap_finger1;
+                            } else {
+                                mCurrentBitmap = bm;
+                            }
+
                             // Convert image
                             convertToFmd(mCurrentBitmap);
                         } else {
-                            // Set global path variables for image locations
-                            mPathname = filepath;
-                            mPathnameFinger1 = filepath_finger1;
-                            mPathnameFinger2 = filepath_finger2;
                             // If there is no associated path name with image
                             if (mPathname == null) {
                                 // Log there is no associated path name
@@ -491,8 +501,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
             return;
         }
 
-        // Reset image view to empty, turn on appropriate buttons, reset all text views
-        mCaptureImage.setImageDrawable(null);
+        resetCaptureImages();
+
         mCaptureBtn.setEnabled(false);
         setStatusText("");
         setInfoText("");
@@ -515,6 +525,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     if (result == ResultCode.OK && bm != null) {
                         // MEE 12/28/2016 - moved shutter from CredenceService to here in the client
                         Beeper.getInstance().click();
+
+                        // Set global path variable for image location
+                        mPathname = filepath;
                         convertMatchImage(bm);
                     }
                     // If result failed turn on button to match
@@ -559,6 +572,47 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     if (result == ResultCode.OK && bm != null) {
                         // MEE 12/28/2016 - moved shutter from CredenceService to here in the client
                         Beeper.getInstance().click();
+                        // Log output for debugging purposes
+                        Log.d(TAG, "onMatch()::OnFingerprintGrabbedFullListener: mScanType        = [" + mScanType + "]");
+                        Log.d(TAG, "onMatch()::OnFingerprintGrabbedFullListener: filepath         = [" + filepath + "]");
+                        Log.d(TAG, "onMatch()::OnFingerprintGrabbedFullListener: filepath_finger1 = [" + filepath_finger1 + "]");
+                        Log.d(TAG, "onMatch()::OnFingerprintGrabbedFullListener: filepath_finger2 = [" + filepath_finger2 + "]");
+                        // If user did two fingers split image capture
+                        if (mScanType.equals(ScanType.TWO_FINGERS_SPLIT)) {
+                            // Log output saying what kind of image scan type was used
+                            Log.d(TAG, "OnFingerprintGrabbedFullListener: Showing Split Images");
+                            // Turn on main single finger image view
+                            mCaptureImage.setVisibility(INVISIBLE);
+                            // If finger one was valid set fingerOne image view to finger one image
+                            if (bitmap_finger1 != null) {
+                                mCaptureImageFinger1.setImageBitmap(bitmap_finger1);
+                            }
+                            // If finger two was valid set fingerTwo image view to finger two image
+                            if (bitmap_finger2 != null) {
+                                mCaptureImageFinger2.setImageBitmap(bitmap_finger2);
+                            }
+                            // Turn on individual finger capture image views for user to see
+                            mCaptureImageFinger1.setVisibility(VISIBLE);
+                            mCaptureImageFinger2.setVisibility(VISIBLE);
+                        } else { // else for any other device of capture type (single finger)
+                            // If image returned was valid set image view
+                            // Set image to image view for user to see
+                            mCaptureImage.setImageBitmap(bm);
+                            // Set image view visible so user may actually see it
+                            mCaptureImage.setVisibility(VISIBLE);
+                            // Based on which image view is valid turn each one off since single finger capture
+                            if (mCaptureImageFinger1 != null) {
+                                mCaptureImageFinger1.setVisibility(INVISIBLE);
+                            }
+                            if (mCaptureImageFinger2 != null) {
+                                mCaptureImageFinger2.setVisibility(INVISIBLE);
+                            }
+                        }
+
+                        // Set global path variables for image locations
+                        mPathname = filepath;
+                        mPathnameFinger1 = filepath_finger1;
+                        mPathnameFinger2 = filepath_finger2;
                         convertMatchImage(bm);
                     }
                     // If result failed turn on button to match
@@ -699,6 +753,21 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
     // Re-sets UI state
     private void resetCapture() {
+        // Reset all capture images
+        resetCaptureImages();
+
+        mFmd1 = null;
+
+        mIsCapturing = false;
+
+        // Clear text view
+        setInfoText("");
+
+        // set buttons to close state
+        closeState();
+    }
+
+    private void resetCaptureImages() {
         // Make image view visible
         mCaptureImage.setVisibility(VISIBLE);
         // Based on what image is available make image turned off for user
@@ -713,16 +782,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
         // Set image view to null for fresh capture
         mCaptureImage.setImageDrawable(null);
-
-        mFmd1 = null;
-
-        mIsCapturing = false;
-
-        // Clear text view
-        setInfoText("");
-
-        // set buttons to close state
-        closeState();
     }
 
     // Sets buttons to fingerprint capture state
@@ -741,6 +800,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
         mCaptureBtn.setEnabled(true);
         mCloseBtn.setEnabled(false);
         mMatchBtn.setEnabled(false);
+
+        mScanTypeSpinner.setEnabled(true);
     }
 
     // display status
