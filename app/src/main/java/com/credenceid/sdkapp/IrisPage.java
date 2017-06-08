@@ -152,6 +152,8 @@ public class IrisPage extends LinearLayout implements PageView {
 		resetCapture();
 		enableCapture(false);
 
+        setStatusText("initalizing...");
+
 		mBiometrics.captureIrises(mEyeSelection, new OnIrisesCapturedListener() {
 
 			@Override
@@ -173,7 +175,7 @@ public class IrisPage extends LinearLayout implements PageView {
 					mPathnameLeft = pathnameLeft;
 				}
 
-				if (status != null) {
+				if (status != null && !status.isEmpty()) {
 					setStatusText(status);
 				}
 

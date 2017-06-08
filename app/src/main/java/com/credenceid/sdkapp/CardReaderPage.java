@@ -194,7 +194,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
                 UAE_eID_APDU_table);
         //US Passport
         //new CardInfo("3b8980018091e165d0004600000b", "US Passport", US_ePassport_APDU_table);
-        new CardInfo("3b88800131cccc017781c1000e", "US Passport", US_ePassport_APDU_table);
+        new CardInfo("3bf99600008131fe454a434f50323432523327", "US Passport", US_ePassport_APDU_table);
         new CardInfo("3b8f8001804f0ca0000003060300020000000069", "MIfare 4K", MiFARE_APDU_table);
     }
 

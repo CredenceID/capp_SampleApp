@@ -129,7 +129,7 @@ public class SampleActivity extends BiometricsActivity {
             showValidPages();
             // redisplay AboutPage with correct device id and SDK version
             setCurrentPage(mAboutBtn, mAboutPage);
-            // set MRZ page again so it can show ePassport option for starlight.
+            // set MRZ page again so it can show ePassport option for starlight or credence tab.
             mMrzPage.setActivity(this);
             first_time = false;
 
