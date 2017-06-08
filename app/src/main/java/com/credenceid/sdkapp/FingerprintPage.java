@@ -692,12 +692,13 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     // dissimilarity score ranges from 0 to Integer.MAX_VALUE (2147483647)
                     // a score of less than 2147 is a match with false positive probability of 1 in million.
                     if (dissimilarity < (Integer.MAX_VALUE / 1000000)) {
-                        matchDecision = "Match";
+                        matchDecision = "HIT. ";
                     } else {
-                        matchDecision = "No Match";
+                        matchDecision = "NO-HIT. ";
                     }
                     String str = String.format(matchDecision + " Dur: %dms, Dissimilarity Score %d", duration, (int) dissimilarity);
-                    setStatusText(str);
+                    Log.d(TAG, str);
+                    setStatusText(matchDecision);
                 }
                 captureState();
             }
