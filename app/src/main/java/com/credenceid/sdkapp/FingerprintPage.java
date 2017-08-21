@@ -29,6 +29,9 @@ import com.credenceid.biometrics.Biometrics.ScanType;
 
 import java.io.File;
 
+import static android.R.attr.duration;
+import static com.credenceid.sdkapp.R.id.status;
+
 public class FingerprintPage extends LinearLayout implements PageView {
     private static final String TAG = FingerprintPage.class.getName();
 
@@ -71,6 +74,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
     // Set this to true to use the new Fingerprint callback API
     private boolean useOnFingerprintGrabbedFullListener = true;
+
+    // Set WSQ Fingerprint callback to false to determine later if device supports wsq
+    private boolean isOnFingerprintGrabbedWSQListener = false;
 
     public FingerprintPage(Context context) {
         super(context);
@@ -127,6 +133,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
             @Override
             public void onClick(View v) {
                 onCapture();
+
+                if (mCurrentBitmap != null) {
+                    getNfiqScore(mCurrentBitmap);
+                }
+
+                if (mPathname != null) {
+                    createWsqImage(mPathname);
+                }
             }
         });
 
@@ -147,7 +161,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         });
         mMatchSpacer = findViewById(R.id.match_spacer);
 
-        mStatusTextView = (TextView) findViewById(R.id.status);
+        mStatusTextView = (TextView) findViewById(status);
         mInfoTextView = (TextView) findViewById(R.id.info);
 
         mScanTypeSpinner = (Spinner) findViewById(R.id.scan_type_spinner);
@@ -215,6 +229,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
         mHasMatcher = mActivity.hasFmdMatcher();
         mMatchSpacer.setVisibility(mHasMatcher ? VISIBLE : GONE);
         mMatchBtn.setVisibility(mHasMatcher ? VISIBLE : GONE);
+
+        String name = mBiometrics.getProductName();
+
+        if (name.equals("Trident-1") || name.equals("Trident-2") || name.equals("Credence TAB") || name.equals("Credence TAB V1")
+                || name.equals("Credence TAB V2") || name.equals("Credence TAB V3") || name.equals("Credence TAB V4")) {
+            isOnFingerprintGrabbedWSQListener = true;
+        }
+
+
         doResume();
     }
 
@@ -250,15 +273,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
         // disable scanner
         mScanTypeSpinner.setEnabled(false);
 
-        // If using older version API
-        if (!useOnFingerprintGrabbedFullListener) {
-            // Keep a track of time. Used to check if peripheral has not responded in given time
-            start_time = SystemClock.elapsedRealtime();
-            // Call grabFingerprint functions
-            mBiometrics.grabFingerprint(mScanType, new OnFingerprintGrabbedListener() {
+
+        if (isOnFingerprintGrabbedWSQListener) {
+
+            mBiometrics.grabFingerprint(mScanType, new Biometrics.OnFingerprintGrabbedWSQListener() {
                 @Override
-                public void onFingerprintGrabbed(Biometrics.ResultCode result, Bitmap bm, byte[] iso, String filepath, String hint) {
-                    // Check to make sure that a fingerprint was actually taken
+                public void onFingerprintGrabbed(Biometrics.ResultCode result, Bitmap bm, byte[] iso, String filepath,
+                                                 String wsq, String hint, int nfiqScore) {
+
                     if (bm != null) {
                         // Set the image to image view for user to see
                         mCaptureImage.setImageBitmap(bm);
@@ -283,11 +305,112 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         // Set global path variable of image
                         mPathname = filepath;
 
+                        mCurrentBitmap = bm;
+
+                        // Get fingerprint quality
+                        setStatusText("NFIQ Score: " + nfiqScore);
+
+                        // show PNG and WSQ images
+                        showImageSize(filepath, wsq);
+                        Log.d(TAG, "wsqImage: " + wsq);
+
+
                         if (mHasMatcher) {
                             // Set current bitmap image to captured image
                             mCurrentBitmap = bm;
                             // Convert image
                             convertToFmd(mCurrentBitmap);
+
+                        } else {
+                            // If there is no associated path name with image
+                            if (mPathname == null) {
+                                // Log there is no associated path name
+                                Log.w(TAG, "onFingerprintGrabbed - OK but filepath null");
+                                // Exit outof function, nothing else to do since null path
+                                return;
+                            }
+                        }
+
+                    }
+                    // If fingerprint read failed
+                    if (result == ResultCode.FAIL) {
+                        // Log output error
+                        Log.e(TAG, "onFingerprintGrabbed - FAILED");
+                        // Let user know captured failed
+                        setStatusText("Fingerprint Open-FAILED");
+                        closeState();
+
+                    }
+
+                }
+
+                @Override
+                public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+
+                    if (resultCode == ResultCode.OK) {
+                        // Log output for debugging
+                        Log.d(TAG, "FingerPrint reader closed:" + closeReasonCode.toString());
+                        // Let uesr know why finger print reader closed
+                        setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
+                        resetCapture();
+                    } else if (resultCode == ResultCode.FAIL) {
+                        mCloseBtn.setEnabled(true);
+                        Log.d(TAG, "FingerPrint reader closed: FAILED");
+                        // Let uesr know why finger print reader closed
+                        setStatusText("FingerPrint reader closed: FAILED");
+                    }
+                }
+            });
+        }
+
+        //  If using older version API
+        else if (!useOnFingerprintGrabbedFullListener) {
+            // Keep a track of time. Used to check if peripheral has not responded in given time
+            start_time = SystemClock.elapsedRealtime();
+            // Call grabFingerprint functions
+
+            mBiometrics.grabFingerprint(mScanType, new OnFingerprintGrabbedListener() {
+                @Override
+                public void onFingerprintGrabbed(ResultCode result, Bitmap bm, byte[] iso, String filepath, String hint) {
+
+                    if (bm != null) {
+                        // Set the image to image view for user to see
+                        mCaptureImage.setImageBitmap(bm);
+                    }
+
+                    //  If hint was given back set text to passed hint
+                    if (hint != null && !hint.isEmpty()) {
+                        setStatusText(hint);
+                    }
+
+                    // If result was OK meaning proper image captured, then handle case
+                    if (result == ResultCode.OK) {
+                        // MEE 12/28/2016 - moved shutter from CredenceService to here in the client
+                        Beeper.getInstance().click();
+                        captureState();
+
+                        // Calculate total time taken for image to return back as good
+                        long duration = SystemClock.elapsedRealtime() - start_time;
+                        // Log output for debugging
+                        Log.i(TAG, "Capture Complete in " + duration + "msec");
+                        // Set text for user to see how long capturing process took
+                        //    setStatusText("Capture Complete in " + duration + "msec");
+
+                        // Set global path variable of image
+                        mPathname = filepath;
+
+                        // Get fingerprint quality
+                        getNfiqScore(mCurrentBitmap);
+
+                        if (mHasMatcher) {
+                            // Set current bitmap image to captured image
+                            mCurrentBitmap = bm;
+                            // Convert image
+                            convertToFmd(mCurrentBitmap);
+
+                            // Get fingerprint quality
+                            getNfiqScore(mCurrentBitmap);
+
                         } else {
                             // If there is no associated path name with image
                             if (mPathname == null) {
@@ -297,8 +420,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 return;
                             }
                             // Convert to different file type
-                            convertToWsq(mPathname);
+                            //  createWsqImage(mPathname);
                         }
+
                     }
                     // If fingerprint read failed
                     if (result == ResultCode.FAIL) {
@@ -307,11 +431,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         // Let user know captured failed
                         setStatusText("Fingerprint Open-FAILED");
                         closeState();
+
                     }
+
                 }
 
                 @Override
                 public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode reasonCode) {
+
                     if (resultCode == ResultCode.OK) {
                         // Log output for debugging
                         Log.d(TAG, "FingerPrint reader closed:" + reasonCode.toString());
@@ -326,6 +453,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     }
                 }
             });
+
         } else { // If user newest API version
             mBiometrics.grabFingerprint(mScanType, new OnFingerprintGrabbedFullListener() {
                 @Override
@@ -401,6 +529,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                             // Convert image
                             convertToFmd(mCurrentBitmap);
+
                         } else {
                             // If there is no associated path name with image
                             if (mPathname == null) {
@@ -410,7 +539,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 return;
                             }
                             // Convert to different file type
-                            convertToWsq(mPathname);
+                            //           createWsqImage(mPathname);
+
                         }
                     }
 
@@ -422,6 +552,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         setStatusText("Fingerprint Open-FAILED");
                         closeState();
                     }
+
                 }
 
                 @Override
@@ -506,6 +637,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         mCaptureBtn.setEnabled(false);
         setStatusText("");
         setInfoText("");
+
 
         // If using older API version
         if (!useOnFingerprintGrabbedFullListener) {
@@ -706,7 +838,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
     }
 
     // Will call if device is not FMD
-    private void convertToWsq(String pathname) {
+    private void createWsqImage(String pathname) {
         // Initialize variables for bitmap image conversion
         uncompressed_size = 0;
         File uncompressed = new File(pathname);
@@ -725,7 +857,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 // If result is in between FAIL and OK, it is still going through algorithms for result
                 // Log output letting user know it is still calculating
                 if (result == ResultCode.INTERMEDIATE) {
-                    setInfoText("Algorithms initializing...");
+                    setInfoText("Service initializing...");
                     // If result failed, let user know
                 } else if (result == ResultCode.FAIL) {
                     setInfoText("Convert to WSQ failed");
@@ -750,6 +882,27 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 captureState();
             }
         });
+    }
+
+    // Display uncompressed and compressed images
+    private void showImageSize(String png, String wsq) {
+        uncompressed_size = 0;
+        File uncompressed = new File(png);
+        if (uncompressed.exists()) {
+            uncompressed_size = uncompressed.length();
+        }
+
+        File compressed = new File(wsq);
+        if (compressed.exists()) {
+            compressed_size = compressed.length();
+        }
+
+        String str = String.format(
+                "PNG: %s, WSQ: %s",
+                TheApp.abbreviateNumber(uncompressed_size),
+                TheApp.abbreviateNumber(compressed_size));
+        setInfoText(str);
+
     }
 
     // Re-sets UI state
@@ -831,4 +984,26 @@ public class FingerprintPage extends LinearLayout implements PageView {
             setStatusText(text);
         }
     }
+
+    // get fingerprint quality
+    private void getNfiqScore(Bitmap bitmap) {
+
+        mBiometrics.getFingerQuality(bitmap, new Biometrics.OnGetFingerQualityListener() {
+            @Override
+            public void onGetFingerQuality(ResultCode resultCode, int nfiqScore) {
+
+                if (resultCode == ResultCode.OK) {
+                    Log.d(TAG, "NFIQ Score " + nfiqScore);
+                    setStatusText("NFIQ Score: " + nfiqScore);
+
+                } else {
+                    Log.d(TAG, "NFIQ Score " + resultCode + nfiqScore);
+                    setStatusText("NFIQ Score: " + nfiqScore);
+                }
+
+            }
+        });
+
+    }
+
 }
