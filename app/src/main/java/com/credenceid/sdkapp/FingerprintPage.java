@@ -133,14 +133,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
             @Override
             public void onClick(View v) {
                 onCapture();
-
-                if (mCurrentBitmap != null) {
-                    getNfiqScore(mCurrentBitmap);
-                }
-
-                if (mPathname != null) {
-                    createWsqImage(mPathname);
-                }
             }
         });
 
@@ -308,7 +300,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         mCurrentBitmap = bm;
 
                         // Get fingerprint quality
-                        setStatusText("NFIQ Score: " + nfiqScore);
+                        setStatusText("Fingerprint Quality: " + nfiqScore);
+                        Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
 
                         // show PNG and WSQ images
                         showImageSize(filepath, wsq);
@@ -402,6 +395,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         // Get fingerprint quality
                         getNfiqScore(mCurrentBitmap);
 
+                        // Create wsq image
+                        createWsqImage(mPathname);
+
                         if (mHasMatcher) {
                             // Set current bitmap image to captured image
                             mCurrentBitmap = bm;
@@ -419,8 +415,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 // Exit outof function, nothing else to do since null path
                                 return;
                             }
-                            // Convert to different file type
-                            //  createWsqImage(mPathname);
+
                         }
 
                     }
@@ -539,7 +534,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 return;
                             }
                             // Convert to different file type
-                            //           createWsqImage(mPathname);
+                            // createWsqImage(mPathname);
 
                         }
                     }
@@ -993,12 +988,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
             public void onGetFingerQuality(ResultCode resultCode, int nfiqScore) {
 
                 if (resultCode == ResultCode.OK) {
-                    Log.d(TAG, "NFIQ Score " + nfiqScore);
-                    setStatusText("NFIQ Score: " + nfiqScore);
+                    Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
+                    setStatusText("Fingerprint Quality: " + nfiqScore);
 
                 } else {
-                    Log.d(TAG, "NFIQ Score " + resultCode + nfiqScore);
-                    setStatusText("NFIQ Score: " + nfiqScore);
+                    Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + resultCode + nfiqScore);
+                    setStatusText("Fingerprint Quality: " + nfiqScore);
                 }
 
             }
