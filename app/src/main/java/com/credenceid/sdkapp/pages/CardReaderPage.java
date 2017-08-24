@@ -1,4 +1,4 @@
-package com.credenceid.sdkapp;
+package com.credenceid.sdkapp.pages;
 
 import android.content.Context;
 import android.os.SystemClock;
@@ -17,6 +17,8 @@ import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.OnCardCommandListener;
 import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
+import com.credenceid.sdkapp.models.PageView;
+import com.credenceid.sdkapp.R;
 
 import java.util.Hashtable;
 

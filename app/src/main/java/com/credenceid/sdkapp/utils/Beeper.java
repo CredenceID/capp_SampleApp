@@ -1,4 +1,4 @@
-package com.credenceid.sdkapp;
+package com.credenceid.sdkapp.utils;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -10,6 +10,8 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.util.Log;
+
+import com.credenceid.sdkapp.TheApp;
 
 import java.io.IOException;
 

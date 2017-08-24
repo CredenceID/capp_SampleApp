@@ -1,4 +1,4 @@
-package com.credenceid.sdkapp;
+package com.credenceid.sdkapp.pages;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -26,10 +26,14 @@ import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedFullListener;
 import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.biometrics.Biometrics.ScanType;
+import com.credenceid.sdkapp.R;
+import com.credenceid.sdkapp.SampleActivity;
+import com.credenceid.sdkapp.TheApp;
+import com.credenceid.sdkapp.models.PageView;
+import com.credenceid.sdkapp.utils.Beeper;
 
 import java.io.File;
 
-import static android.R.attr.duration;
 import static com.credenceid.sdkapp.R.id.status;
 
 public class FingerprintPage extends LinearLayout implements PageView {
@@ -314,7 +318,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         showImageSize(filepath, wsq);
                         Log.d(TAG, "wsqImage: " + wsq);
 
-
                         if (mHasMatcher) {
                             // Set current bitmap image to captured image
                             mCurrentBitmap = bm;
@@ -339,9 +342,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         // Let user know captured failed
                         setStatusText("Fingerprint Open-FAILED");
                         closeState();
-
                     }
-
                 }
 
                 @Override

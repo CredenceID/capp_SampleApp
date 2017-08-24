@@ -1,4 +1,4 @@
-package com.credenceid.sdkapp;
+package com.credenceid.sdkapp.pages;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -17,6 +17,8 @@ import com.credenceid.biometrics.Biometrics.CardReaderStatusListner;
 import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
+import com.credenceid.sdkapp.R;
+import com.credenceid.sdkapp.models.PageView;
 
 import java.io.BufferedReader;
 import java.io.File;

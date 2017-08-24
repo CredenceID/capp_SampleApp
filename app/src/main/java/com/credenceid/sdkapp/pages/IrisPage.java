@@ -1,4 +1,4 @@
-package com.credenceid.sdkapp;
+package com.credenceid.sdkapp.pages;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -22,6 +22,11 @@ import com.credenceid.biometrics.Biometrics.OnIrisesCapturedListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.IrisQuality;
+import com.credenceid.sdkapp.R;
+import com.credenceid.sdkapp.SampleActivity;
+import com.credenceid.sdkapp.TheApp;
+import com.credenceid.sdkapp.models.PageView;
+import com.credenceid.sdkapp.utils.Beeper;
 
 import java.io.File;
 

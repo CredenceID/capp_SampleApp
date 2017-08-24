@@ -1,4 +1,4 @@
-package com.credenceid.sdkapp;
+package com.credenceid.sdkapp.pages;
 
 import java.math.BigInteger;
 
@@ -17,6 +17,8 @@ import android.widget.TextView;
 
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.Crypto;
+import com.credenceid.sdkapp.R;
+import com.credenceid.sdkapp.models.PageView;
 
 public class EncryptPage extends LinearLayout implements PageView {
 	private static final String TAG = EncryptPage.class.getName();
