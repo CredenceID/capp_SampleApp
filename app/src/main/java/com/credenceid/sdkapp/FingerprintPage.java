@@ -304,9 +304,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
 
                         // show PNG and WSQ images
-                        showImageSize(filepath, wsq);
-                        Log.d(TAG, "wsqImage: " + wsq);
-
+                        if (filepath != null && wsq != null) {
+                            showImageSize(filepath, wsq);
+                            Log.d(TAG, "wsqImage: " + wsq);
+                        }
 
                         if (mHasMatcher) {
                             // Set current bitmap image to captured image
