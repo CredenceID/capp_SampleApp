@@ -860,6 +860,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     if (compressed.exists()) {
                         compressed_size = compressed.length();
                     }
+
                     // Calculate total time taken for image conversion
                     long duration = SystemClock.elapsedRealtime() - start_time;
                     // Set textview letting user know image conversion specifications & duration
