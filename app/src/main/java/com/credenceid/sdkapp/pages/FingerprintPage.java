@@ -321,6 +321,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         pathName = filepath;
                         currentBitmap = bm;
 
+                        /* Display uncompressed, compressed and time taken
+                        for conversion of a fingerprint image */
                         showImageSize(filepath, wsq, duration);
 
                         /* Display captured finger quality. */
@@ -377,7 +379,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                          * simply get its NFIQ score.
                          */
                         getFingerQuality(currentBitmap);
-                        //createWsqImage(pathName);
+                        /* convert bitmap image to compressed WSQ format */
+                        createWsqImage(pathName);
 
                         if (hasFmdMatcher) convertToFmd(currentBitmap);
                         else if (pathName == null)
@@ -772,9 +775,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
         if (compressed.exists()) this.compressedImageSize = compressed.length();
 
         String str = String.format(Locale.getDefault(),
-                "PNG: %s, WSQ: %s",
-                TheApp.abbreviateNumber(this.originalImageSize),
-                TheApp.abbreviateNumber(this.compressedImageSize));
+                "PNG: %s, WSQ: %s, Dur: %dms",
+                TheApp.abbreviateNumber(originalImageSize),
+                TheApp.abbreviateNumber(compressedImageSize),
+                duration);
         this.setInfoText(str);
     }
 
