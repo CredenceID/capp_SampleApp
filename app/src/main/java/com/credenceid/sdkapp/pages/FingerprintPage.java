@@ -373,11 +373,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         currentBitmap = bm;
 
                         /* With the resulting Bitmap we may either calcualte its NFIQ score,
-                         * compress image down to a WSQ format, or do both. In this case we will
-                         * simply get its NFIQ score.
+                         * compress image down to a WSQ format, or do both.
                          */
                         getFingerQuality(currentBitmap);
-                        //createWsqImage(pathName);
+                        createWsqImage(pathName);
 
                         if (hasFmdMatcher) convertToFmd(currentBitmap);
                         else if (pathName == null)
@@ -420,7 +419,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         resetToOneFingerCaptureState();
                     } else if (result == ResultCode.OK) {
                         Beeper.getInstance().click();
-
                         getNfiqScore(bitmap_finger1);
 
                         /* If scan type initiated was TWO_FINGERS_SPLIT then we need to display
@@ -437,10 +435,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 imageViewCapturedImageFinger1.setImageBitmap(bitmap_finger1);
                             if (bitmap_finger2 != null)
                                 imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
+
+                            createWsqImage(filepath_finger1);
                         } else {
                             imageViewCapturedImage.setImageBitmap(bm);
                             imageViewCapturedImage.setVisibility(VISIBLE);
-                            createWsqImage(filepath);
+                            createWsqImage(filepath_finger1);
                         }
 
                         /* set global path variables for image locations. There are used later on
@@ -724,16 +724,21 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
     /* Make API call to convert Bitmap image to compressed WSQ format. */
     private void createWsqImage(final String originalFilePath) {
-            /* Get original image size. */
+        Log.i(TAG, "createWsqImage(final String filePath)");
+
+        /* Get original image size. */
+        Log.i(TAG, "getting original image size)");
         this.originalImageSize = 0;
         File uncompressed = new File(originalFilePath);
-        if (uncompressed.exists())
+        if (uncompressed.exists()) {
             this.originalImageSize = uncompressed.length();
+        }
 
-            /* Keep track of initialize time to see how long conversions takes. */
+        /* Keep track of initialize time to see how long conversions takes. */
         final long startTime = SystemClock.elapsedRealtime();
 
         // Call biometrics API for converting images
+        Log.i(TAG, "Making convertToWsq API call");
         this.biometrics.convertToWsq(originalFilePath, bitrate, new OnConvertToWsqListener() {
             @Override
             public void onConvertToWsq(ResultCode result, String pathname) {
@@ -741,15 +746,16 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 if (result == ResultCode.INTERMEDIATE) setInfoText("Converting to WSQ...");
                 else if (result == ResultCode.FAIL) setInfoText("Convert to WSQ failed.");
                 else {
-                        /* Get converted image size. */
+                    Log.i(TAG, "onConvertToWsq(OK, " + pathname + ")");
+                    /* Get converted image size. */
                     compressedImageSize = 0;
                     File compressed = new File(pathname);
                     if (compressed.exists())
                         compressedImageSize = compressed.length();
 
-                        /* Similar to showImageSize() method, but this block of code would also display
-                         * time taken for conversion.
-                         */
+                    /* Similar to showImageSize() method, but this block of code would also display
+                     * time taken for conversion.
+                     */
                     long duration = SystemClock.elapsedRealtime() - startTime;
                     String str = String.format(Locale.getDefault(),
                             "PNG: %s, WSQ: %s, Dur: %dms",
