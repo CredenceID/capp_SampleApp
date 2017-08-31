@@ -56,6 +56,7 @@ public class BiometricsManagerInstance {
         });
     }
 
+    @SuppressWarnings("unused")
     public BiometricsManager getBiometricsManager() {
         return this.biometricsManager;
     }

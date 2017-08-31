@@ -34,7 +34,7 @@ public class IrisPage extends LinearLayout implements PageView {
 	private static final String TAG = IrisPage.class.getName();
 
 	private Biometrics mBiometrics;
-	private SampleActivity mActivity;
+	private SampleActivity sampleActivity;
 
 	private Button mCaptureBtn;
 	private Button mCloseBtn;
@@ -72,7 +72,7 @@ public class IrisPage extends LinearLayout implements PageView {
 	}
 
 	public void setActivity(SampleActivity activity) {
-		mActivity = activity;
+		sampleActivity = activity;
 	}
 
 	private void initialize() {
@@ -84,14 +84,14 @@ public class IrisPage extends LinearLayout implements PageView {
 		mCaptureRight.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mActivity.showFullScreen(mPathnameRight);
+				sampleActivity.showFullScreenScannedImage(mPathnameRight);
 			}
 		});
 		mCaptureLeft = (ImageView) findViewById(R.id.capture_2_image);
 		mCaptureLeft.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mActivity.showFullScreen(mPathnameLeft);
+				sampleActivity.showFullScreenScannedImage(mPathnameLeft);
 			}
 		});
 		mCaptureBtn = (Button) findViewById(R.id.capture_btn);

@@ -15,135 +15,137 @@ import com.credenceid.sdkapp.TheApp;
 
 import java.io.IOException;
 
-
+/* This class is used to play the "click" sound you hear when doing a Fingerprint capture. This
+ * class a custom Audio file we have placed inside the <assets/> directory.
+ */
 public class Beeper {
-	private final String TAG = Beeper.class.getName();
+    private final static String CLICK_ASSET = "camera_click.ogg";
+    private static Beeper instance;
+    private final String TAG = Beeper.class.getName();
+    private final int beepDurationInSeconds = 1;
+    private final int sampleRate = 8000;
+    private final int sampleCount = beepDurationInSeconds * sampleRate;
+    private int audioStreamType = AudioManager.STREAM_ALARM;
+    private double beepSamples[];
+    private byte generatedBeep[];
+    private MediaPlayer soundPlayer = null;
 
-	private int audio_stream_type = AudioManager.STREAM_ALARM;
-	private final int beep_duration = 1; // seconds
-	private final int sample_rate = 8000;
-	private final double freq_of_tone = 880; // hz
-	private final int num_samples = beep_duration * sample_rate;
-	private double beep_samples[];
-	private byte generated_beep[];
-	
-	private static Beeper instance;
-	private AudioManager mgr = null;
+    private Beeper() {
+    }
 
-	public static Beeper getInstance() {
-		if (instance == null)
-			instance = new Beeper();
-		return instance;
-	}
+    public static Beeper getInstance() {
+        if (instance == null) instance = new Beeper();
+        return instance;
+    }
 
-	private Beeper() {
-	}
+    @SuppressWarnings("unused")
+    public void beep() {
+        if (this.beepSamples == null)
+            createBeepSamples();
 
-	// originally from
-	// http://marblemice.blogspot.com/2010/04/generate-and-play-tone-in-android.html
-	// and modified by Steve Pomeroy <steve@staticfree.info>
-	// by way of IBScan SDK
+        final AudioTrack audioTrack = new AudioTrack(this.audioStreamType,
+                this.sampleRate,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                this.sampleCount,
+                AudioTrack.MODE_STATIC);
 
-	public void beep() {
-		if (beep_samples == null)
-			createBeepSamples();
+        audioTrack.write(this.generatedBeep, 0, this.generatedBeep.length);
+        audioTrack.play();
+    }
 
-		final AudioTrack audioTrack = new AudioTrack(audio_stream_type, sample_rate,
-				AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, num_samples,
-				AudioTrack.MODE_STATIC);
-		audioTrack.write(generated_beep, 0, generated_beep.length);
-		audioTrack.play();
-	}
-	public void releaseBeeper() {
-		if ( sound_player != null )  {
-			sound_player.release();
-			sound_player = null;
-		}
-	}
+    @SuppressWarnings("unused")
+    public void releaseBeeper() {
+        if (this.soundPlayer != null) {
+            this.soundPlayer.release();
+            this.soundPlayer = null;
+        }
+    }
 
-	private void createBeepSamples() {
-		beep_samples = new double[num_samples];
-		generated_beep = new byte[2 * num_samples];
-		for (int i = 0; i < num_samples; ++i) {
-			beep_samples[i] = Math.sin(2 * Math.PI * i / (sample_rate / freq_of_tone));
-		}
+    private void createBeepSamples() {
+        final double TONE_FREQUENCY_HZ = 880;
 
-		// convert to 16 bit pcm sound array
-		// assumes the sample buffer is normalised.
-		int idx = 0;
-		for (final double dVal : beep_samples) {
-			// scale to maximum amplitude
-			final short val = (short) ((dVal * 32767));
-			// in 16 bit wav PCM, first byte is the low order byte
-			generated_beep[idx++] = (byte) (val & 0x00ff);
-			generated_beep[idx++] = (byte) ((val & 0xff00) >>> 8);
+        this.beepSamples = new double[this.sampleCount];
+        this.generatedBeep = new byte[2 * this.sampleCount];
 
-		}
-	}
+        for (int i = 0; i < this.sampleCount; ++i)
+            this.beepSamples[i] =
+                    Math.sin(2 * Math.PI * i / (this.sampleRate / TONE_FREQUENCY_HZ));
 
-	private MediaPlayer sound_player = null;
-	private static String CLICK_ASSET = "camera_click.ogg";
+        // convert to 16 bit pcm sound array
+        // assumes the sample buffer is normalised.
+        int idx = 0;
 
-	public void click() {
-		Log.d(TAG, "Beeper::click");
-		try {
-			if (sound_player == null) {
-				mgr = (AudioManager) TheApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
-				if ( mgr != null ) {
-					mgr.setSpeakerphoneOn(true);
-				}
-				sound_player = new MediaPlayer();
-				sound_player.setAudioStreamType(audio_stream_type);
-				sound_player.setOnCompletionListener(new OnCompletionListener() {
-					@Override
-					public void onCompletion(MediaPlayer mp) {
-						Log.d(TAG, "Shutter finished release it now....");
-						mp.release();
-						if ( mgr != null ) {
-							mgr.setSpeakerphoneOn(false);
-						}
-						sound_player = null;
-					}
-				});
-				sound_player.setOnPreparedListener(new OnPreparedListener() {
-    					@Override
-    					public void onPrepared(MediaPlayer mp) {
-							Log.d(TAG, "Shutter Onprepared, playing click now");
-							mp.seekTo(0);
-							mp.start();
-    					}
-				});	
-				sound_player.setOnErrorListener(new OnErrorListener() {
-    					@Override
-    					public boolean onError(MediaPlayer mp, int arg1, int arg2) {
-							Log.d(TAG, "Beeper onError");
-                            mp.release();
-							sound_player = null;
-							return true;
-    					}
-				});	
-				AssetFileDescriptor click_fd = TheApp.getAppContext().getAssets().openFd(CLICK_ASSET);
-				sound_player.setDataSource(click_fd.getFileDescriptor(), click_fd.getStartOffset(),
-						click_fd.getLength());
+        for (final double dVal : this.beepSamples) {
+            // scale to maximum amplitude
+            final short val = (short) ((dVal * 32767));
+            // in 16 bit wav PCM, first byte is the low order byte
+            this.generatedBeep[idx++] = (byte) (val & 0x00ff);
+            this.generatedBeep[idx++] = (byte) ((val & 0xff00) >>> 8);
 
-				Log.d(TAG, "Beeper prepare");
-				sound_player.prepare();
+        }
+    }
 
-			}
-			else {
-				Log.d(TAG, "sound_player is not null, stop the play and release it");
-				sound_player.stop();
-				sound_player.release();
-				sound_player = null;
-			}
-			
-		} catch (IllegalStateException e) {
-			Log.w(TAG, "click - IllegalStateException - " + e.getLocalizedMessage());
-		} catch (IOException e) {
-			Log.w(TAG, CLICK_ASSET + " not found");
-		}
+    public void click() {
+        Log.d(TAG, "Beeper::click");
+        try {
+            if (this.soundPlayer == null) {
+                final AudioManager mgr = (AudioManager) TheApp.getAppContext()
+                        .getSystemService(Context.AUDIO_SERVICE);
 
-	}
+                if (mgr != null) mgr.setSpeakerphoneOn(true);
 
+                this.soundPlayer = new MediaPlayer();
+                this.soundPlayer.setAudioStreamType(this.audioStreamType);
+                this.soundPlayer.setOnCompletionListener(new OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        Log.d(TAG, "Shutter finished release it now....");
+                        mp.release();
+                        if (mgr != null) {
+                            mgr.setSpeakerphoneOn(false);
+                        }
+                        soundPlayer = null;
+                    }
+                });
+                this.soundPlayer.setOnPreparedListener(new OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        Log.d(TAG, "Shutter Onprepared, playing click now");
+                        mp.seekTo(0);
+                        mp.start();
+                    }
+                });
+                this.soundPlayer.setOnErrorListener(new OnErrorListener() {
+                    @Override
+                    public boolean onError(MediaPlayer mp, int arg1, int arg2) {
+                        Log.d(TAG, "Beeper onError");
+                        mp.release();
+                        soundPlayer = null;
+                        return true;
+                    }
+                });
 
+                AssetFileDescriptor click_fd =
+                        TheApp.getAppContext().getAssets().openFd(CLICK_ASSET);
+
+                this.soundPlayer.setDataSource(click_fd.getFileDescriptor(),
+                        click_fd.getStartOffset(),
+                        click_fd.getLength());
+
+                Log.d(TAG, "Beeper prepare");
+                this.soundPlayer.prepare();
+            } else {
+                Log.d(TAG, "this.soundPlayer is not null, stop the play and release it");
+                this.soundPlayer.stop();
+                this.soundPlayer.release();
+                this.soundPlayer = null;
+            }
+
+        } catch (IllegalStateException e) {
+            Log.w(TAG, "click - IllegalStateException - " + e.getLocalizedMessage());
+        } catch (IOException e) {
+            Log.w(TAG, CLICK_ASSET + " not found");
+        }
+    }
 }

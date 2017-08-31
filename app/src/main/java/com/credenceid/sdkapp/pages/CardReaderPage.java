@@ -17,103 +17,91 @@ import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.OnCardCommandListener;
 import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
-import com.credenceid.sdkapp.models.PageView;
 import com.credenceid.sdkapp.R;
+import com.credenceid.sdkapp.models.ApduState;
+import com.credenceid.sdkapp.models.CardInfo;
+import com.credenceid.sdkapp.models.PageView;
 
 import java.util.Hashtable;
 
+import static com.credenceid.sdkapp.models.CardDataTables.GD_SmartCafe_Expert64_APDU_table;
+import static com.credenceid.sdkapp.models.CardDataTables.Gemalto_GemXpresso_64K_APDU_table;
+import static com.credenceid.sdkapp.models.CardDataTables.MPCOS_EMV_APDU_table;
+import static com.credenceid.sdkapp.models.CardDataTables.MiFARE_APDU_table;
+import static com.credenceid.sdkapp.models.CardDataTables.Oberthur_ID_One_128_v55_Dual_CAC_APDU_table;
+import static com.credenceid.sdkapp.models.CardDataTables.Oberthur_ID_One_v52a_Dual_CAC_APDU_table;
+import static com.credenceid.sdkapp.models.CardDataTables.Pakistan_eID_APDU_table;
+import static com.credenceid.sdkapp.models.CardDataTables.Payflex_1K_APDU_table;
+import static com.credenceid.sdkapp.models.CardDataTables.UAE_eID_APDU_table;
+import static com.credenceid.sdkapp.models.CardDataTables.US_ePassport_APDU_table;
+import static com.credenceid.sdkapp.models.CardDataTables.noAPDU_table;
+
 public class CardReaderPage extends LinearLayout implements PageView {
-    // Log tag for debugging
     private static final String TAG = CardReaderPage.class.getName();
-
-    private Biometrics mBiometrics;
-    TextView status_text_view;
-    Button button_view;
-    Button button_open_close;
-
-    private static Hashtable mCardList = new Hashtable();
-    private static int close_cmd_counter = 0;
-    private static int open_cmd_counter = 0;
-
-    long start_time = 0;
-
-    public static final int APDU_INIT = 1; // ready for first APDU
-    public static final int APDU_PROCESS = 2; // process next APDU
-
-    int APDU_state = APDU_INIT;
-    int APDU_idx = 0; // index into APDU table
+    /* Keeps track of how many times CardReader was opened/closed. */
+    private static int closeCommandCount = 0;
+    private static int openCommandCount = 0;
+    /* Hashtable to store all of our different known card types, CardInfo objects. */
+    private static Hashtable cardTable = new Hashtable();
     public String APDU_lastdesc = "{unknown}";
-    public String mCardName = "{unknown}";
-
-    // NULL (no card identified) APDU table
-    public String[] noAPDU_table = {"", "No APDUs Defined", // NULL APDU
-    };
-
-    // Gemalto MPCOS EMV APDU table
-    public String[] MPCOS_EMV_APDU_table = {
-            "00a4000c023f00", "SELECT MF 3F00", // select master file 0x3f00
-            "00a40100020100", "SELECT DF 0100", // select directory 0x0100
-            "00a40200020101", "SELECT EF 0101", // select elementary file 0x0101
-            "00b000000C", "READ BINARY",      // READ BINARY
-    };
-
-    // Payflex 1K APDU table
-    public String[] Payflex_1K_APDU_table = {
-            "00a40000020002", "SELECT FILE",
-            "00b2000008", "READ RECORD",
-    };
-
-    // G&D Sm@rtCafe Expert 64
-    public String[] GD_SmartCafe_Expert64_APDU_table = {
-            "80CA00C3", "GET DATA",
-    };
-
-    // Oberthur ID One 128 v5.5 Dual CAC
-    public String[] Oberthur_ID_One_128_v55_Dual_CAC_APDU_table = {
-            "00a4040007a0000000790201", "SELECT GC1 Applet",
-            "00a4040007a0000000790202", "SELECT GC2 Applet",
-            "00a4040007a0000000030000", "SELECT CM",
-            "80ca9f7f", "GET DATA",
-    };
-
-    // Oberthur ID One v5.2a Dual CAC
-    public String[] Oberthur_ID_One_v52a_Dual_CAC_APDU_table = {
-            "00a4040007a0000000790201", "SELECT GC1 Applet",
-            "00a4040007a0000000790202", "SELECT GC2 Applet",
-            "00a4040007a0000000030000", "SELECT CM",
-            "80ca9f7f", "GET DATA",
-    };
-
-    // Gemalto GemXpresso 64K
-    public String[] Gemalto_GemXpresso_64K_APDU_table = {
-            "00a4040007a000000018434d", "SELECT CM",
-            "80ca9f7f2d", "GET DATA",
-    };
-
-    // Pakistan eID
-    public String[] Pakistan_eID_APDU_table = {
-            "00A404000EA0000005176964656E7469747901", "SELECT eID Applet",
-            "EE490000", "READ Citizen ID",
-    };
-
-    public String[] UAE_eID_APDU_table = {
-            "00a404000CA00000024300130000000101", "SELECT eID Applet",
-            "EE490000", "READ Citizen ID",
-    };
-
-    //US Passport
-    public String[] US_ePassport_APDU_table = {
-            "00A4040C07A0000002471001", "Select eID Applet",
-            "0084000008", "GET DATA",
-    };
-
-    //MIFARE
-    public String[] MiFARE_APDU_table = {
-            "FFB00000000800", "Read 2K ",
-            "FFB00000001000", "Read 4K",
-    };
-
+    public String cardName = "{unknown}";
     public String[] APDU_table = noAPDU_table;
+    /* Current index in Hashtable for which we are referring to. */
+    int apduTableIndex = 0;
+    /* Holds current APDU command state of CardReader. */
+    ApduState apduState = ApduState.APDU_INIT;
+    /* Layout components. */
+    TextView textViewStatus;
+    Button buttonView;
+    Button buttonOpenClose;
+
+    /* Our custom listener to be invoked every time CardReader status changes. */
+    OnCardStatusListener onCardStatusListener = new OnCardStatusListener() {
+        @Override
+        public void onCardStatusChange(String ATR, int prevState, int currentState) {
+            Log.d(TAG, "Card status changed !");
+            Log.d(TAG, "ATR: [" + ATR + "] prevState: " + prevState + " currentState: " + currentState);
+
+            /* Every time status changes we need to reset our tables since we do not know what next
+             * card type could be.
+             */
+            APDU_table = noAPDU_table;
+            apduState = ApduState.APDU_INIT;
+            apduTableIndex = 0;
+
+            /* If there is no card present. */
+            if (currentState == 1) {
+                textViewStatus.setText("Card Removed.\nPrevious State:" + prevState + "\nCurrent State:" + currentState);
+                buttonView.setText(R.string.insert_card);
+            } else if (currentState >= 2 && currentState <= 6) {
+                /* Get respective CardInformation by ATR. */
+                CardInfo ci = (CardInfo) cardTable.get(ATR);
+                /* If it is a valid card then set our local cardname and the APDU table to use. */
+                String localCardName = (ci != null) ? ci.getCardName() : "{unknown}";
+                APDU_table = (ci != null) ? ci.getApduTable() : APDU_table;
+                /* Set global cardName variable to match local's. */
+                cardName = localCardName;
+
+                /* Set text view for user to see card info. */
+                textViewStatus.setText("Card Inserted" +
+                        "\nPrevious State:" + prevState +
+                        "\nCurrent State:" + currentState +
+                        "\nCard:" + localCardName +
+                        "\nATR:\n" + ATR);
+
+                buttonView.setText("APDU [" + APDU_table[apduTableIndex + 1] + "]");
+            } else if (prevState == 0 && currentState == 0 && ATR.equals("{ATR-null}")) {
+                /* This combination is an indicator that the reader has been disconnected due
+                 * to inactivity.
+                 */
+                textViewStatus.setText(R.string.card_reader_disconnected);
+                buttonView.setText(R.string.open_card_reader);
+            }
+        }
+    };
+
+    /* Biometrics object for making Credence API calls. */
+    private Biometrics biometrics;
 
     public CardReaderPage(Context context) {
         super(context);
@@ -132,120 +120,90 @@ public class CardReaderPage extends LinearLayout implements PageView {
 
     private void initialize() {
         Log.d(TAG, "initialize");
-        // Set proper xml page for this java file
         LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         li.inflate(R.layout.page_card_reader, this, true);
-        // Initialize widgets
-        status_text_view = (TextView) findViewById(R.id.status_tv);
 
-        button_open_close = (Button) findViewById(R.id.open_close);
-        button_open_close.setOnClickListener(new OnClickListener() {
+        this.initializeLayoutComponents();
+        this.populateCardTable();
+    }
+
+    private void initializeLayoutComponents() {
+        textViewStatus = (TextView) findViewById(R.id.status_tv);
+
+        buttonOpenClose = (Button) findViewById(R.id.open_close);
+        buttonOpenClose.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (button_open_close.getText().toString().equalsIgnoreCase(getResources().getString(R.string.open))) {
-                    openClose(true);
-                } else {
-                    openClose(false);
-                }
-                button_open_close.setEnabled(false);
+                if (buttonOpenClose.getText().toString().equalsIgnoreCase(getResources().getString(R.string.open)))
+                    openCardReader();
+                else closeCardReader();
+                buttonOpenClose.setEnabled(false);
             }
         });
-        button_view = (Button) findViewById(R.id.view);
-        button_view.setText("Insert Card To Continue");
-        button_view.setOnClickListener(new OnClickListener() {
+        buttonOpenClose.setEnabled(true);
+        buttonOpenClose.setText(R.string.open);
+
+        buttonView = (Button) findViewById(R.id.view);
+        buttonView.setText("Insert Card To Continue");
+        buttonView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 click();
             }
         });
+        buttonView.setEnabled(false);
+    }
 
-        // Close card for new page
-        cardClosed();
-        // populate the table with the cards we know about
-        // Gemalto MPCOS EMV 8K
+    private void populateCardTable() {
         new CardInfo("3b2a008065a20101014072d643",
                 "Gemalto MPCOS EMV",
-                MPCOS_EMV_APDU_table);
-        // Gemalto Payflex 1K
+                MPCOS_EMV_APDU_table,
+                cardTable);
         new CardInfo("3b6900002494010201000101a9",
                 "Gemalto Payflex 1K",
-                Payflex_1K_APDU_table);
-        // G&D Sm@rtCafe Expert 64
+                Payflex_1K_APDU_table,
+                cardTable);
         new CardInfo("3bfd1800ff80b1fe451f078073002113574a5448613147005f",
                 "G & D SmartCafe Expert 64",
-                GD_SmartCafe_Expert64_APDU_table);
-        // Oberthur ID One 128 v5.5 Dual CAC
+                GD_SmartCafe_Expert64_APDU_table,
+                cardTable);
         new CardInfo("3bdb9600801f030031c064b0f3100007900080",
                 "Oberthur 128 v5.5 D CAC",
-                Oberthur_ID_One_128_v55_Dual_CAC_APDU_table);
-        // Oberthur ID One v5.2a Dual CAC
+                Oberthur_ID_One_128_v55_Dual_CAC_APDU_table,
+                cardTable);
         new CardInfo("3bdb9600801f030031c06477e30300829000c1",
                 "Oberthur v5.2a D CAC",
-                Oberthur_ID_One_v52a_Dual_CAC_APDU_table);
-        // Gemalto GemXpresso 64K
+                Oberthur_ID_One_v52a_Dual_CAC_APDU_table,
+                cardTable);
         new CardInfo("3b6d000080318065b08302047e83009000",
                 "Gemalto GemXpresso 64K",
-                Gemalto_GemXpresso_64K_APDU_table);
-        // Pakistan eID
+                Gemalto_GemXpresso_64K_APDU_table,
+                cardTable);
         new CardInfo("3bdb960080b1fe451f830031c064b0fc100007900005",
                 "Pakistan eID",
-                Pakistan_eID_APDU_table);
-        // UAE eID
+                Pakistan_eID_APDU_table,
+                cardTable);
         new CardInfo("3b7a9500008065a20131013d72d641",
                 "UAE eID",
-                UAE_eID_APDU_table);
-        //US Passport
-        //new CardInfo("3b8980018091e165d0004600000b", "US Passport", US_ePassport_APDU_table);
-        new CardInfo("3bf99600008131fe454a434f50323432523327", "US Passport", US_ePassport_APDU_table);
-        new CardInfo("3b8f8001804f0ca0000003060300020000000069", "MIfare 4K", MiFARE_APDU_table);
+                UAE_eID_APDU_table,
+                cardTable);
+        new CardInfo("3bf99600008131fe454a434f50323432523327",
+                "US Passport",
+                US_ePassport_APDU_table,
+                cardTable);
+        new CardInfo("3b8f8001804f0ca0000003060300020000000069",
+                "MIfare 4K",
+                MiFARE_APDU_table,
+                cardTable);
     }
 
     @Override
     public void activate(Biometrics biometrics) {
-        // Initialize biometrics object
-        mBiometrics = biometrics;
-        // Make API call
-        mBiometrics.registerCardStatusListener(new OnCardStatusListener() {
-            @Override
-            public void onCardStatusChange(String ATR, int prevState, int currentState) {
-                // Log output debugging
-                Log.d(TAG, "Card status changed !");
-                Log.d(TAG, "ATR: [" + ATR + "] prevState: " + prevState + " currentState: " + currentState);
-                // Reset apdu table to use
-                APDU_table = noAPDU_table;
-                APDU_state = APDU_INIT;
-                APDU_idx = 0;
-                // If card is not inserted/touched
-                if (currentState == 1) {
-                    // update user on whats going on
-                    status_text_view.setText("Card Removed.\nPrevious State:" + prevState + "\nCurrent State:" + currentState);
-                    button_view.setText("Insert Card To Continue");
-                } else if (currentState == 2 || currentState == 4 || currentState == 5 || currentState == 6) {
-                    // Initialize variables with intial valus
-                    CardInfo ci;
-                    String cardname = "{unknown}";
-                    // Check if card is valid for apdu
-                    if ((ci = (CardInfo) mCardList.get(ATR)) != null) {
-                        // Get card name
-                        cardname = ci.getCardName();
-                        // Set card apdu table
-                        APDU_table = ci.getAPDU_table();
-                    }
-                    mCardName = cardname;
-                    // Set text view for user to see card info
-                    status_text_view.setText("Card Inserted" +
-                            "\nPrevious State:" + prevState +
-                            "\nCurrent State:" + currentState +
-                            "\nCard:" + cardname +
-                            "\nATR:\n" + ATR);
-                    button_view.setText("APDU [" + APDU_table[APDU_idx + 1] + "]");
-                } else if (prevState == 0 && currentState == 0 && ATR.equals("{ATR-null}")) {
-                    //this combination is an indicator that the reader has been disconnected due to inactivity
-                    status_text_view.setText("SmartCard reader disconnected");
-                    button_view.setText("Open reader To Continue");
-                }
-            }
-        });
+        this.biometrics = biometrics;
+        /* Every time we activate this page we need to register the card status change listener,
+         * since we unregister it during deactivate().
+         */
+        this.biometrics.registerCardStatusListener(this.onCardStatusListener);
     }
 
     @Override
@@ -261,125 +219,121 @@ public class CardReaderPage extends LinearLayout implements PageView {
     @Override
     public void deactivate() {
         Log.d(TAG, "deactivate ");
-
     }
 
-    // Based on parameter will either call Open Card reader API or close API
-    protected void openClose(boolean open) {
-        // If we are opening the card
-        if (open) {
-            // Set text view letting user know we are opening the card view
-            status_text_view.setText("Opening Card Reader");
-            open_cmd_counter = 0;
-            // Make API call to open card
-            mBiometrics.cardOpenCommand(new CardReaderStatusListner() {
-                @Override
-                public void onCardReaderOpen(ResultCode resultCode) {
-                    // Increase counter of how many times card has been opened
-                    open_cmd_counter++;
-                    // Log output for debugging
-                    Log.d(TAG, "SmartCard reader opened-" + open_cmd_counter + ", " + resultCode.name());
-                    // Set text view letting user know results from open
-                    status_text_view.setText("SmartCard reader RESULT:" + resultCode.toString());
-                    // Set certain widgets on/off based on if result was good
-                    cardOpened(resultCode == ResultCode.OK);
+    /* Based on parameter will either call Open Card reader API or close API. */
+    protected void openCardReader() {
+        // Set text view letting user know we are opening the card view
+        textViewStatus.setText(R.string.opening_card_reader);
+        openCommandCount = 0;
+
+        this.biometrics.cardOpenCommand(new CardReaderStatusListner() {
+            @Override
+            public void onCardReaderOpen(ResultCode resultCode) {
+                /* Increase counter of how many times card has been opened. */
+                ++openCommandCount;
+                Log.d(TAG, "SmartCard reader opened-" + openCommandCount + ", " + resultCode.name());
+
+                textViewStatus.setText(R.string.reader_result + resultCode.toString());
+                /* Set certain widgets on/off based on if result was good. */
+                cardOpened(resultCode == ResultCode.OK);
+            }
+
+            @Override
+            public void onCardReaderClosed(ResultCode resultCode, CloseReasonCode reasonCode) {
+                if (resultCode == ResultCode.OK) {
+                    /* Increase counter of how many times card has been closed. */
+                    closeCommandCount++;
+                    Log.d(TAG, "SmartCard reader closed-" + closeCommandCount);
+
+                    textViewStatus.setText("SmartCard reader closed:" + reasonCode.toString());
+                    /* Turn on/off certain widgets.*/
+                    cardClosed();
+                } else if (resultCode == ResultCode.FAIL) {
+                    Log.d(TAG, "SmartCard reader closed: FAILED");
+                    textViewStatus.setText("SmartCard reader closed: FAILED");
+                    buttonOpenClose.setEnabled(true);
                 }
 
-                @Override
-                public void onCardReaderClosed(ResultCode resultCode, CloseReasonCode reasonCode) {
-                    if (resultCode == ResultCode.OK) {
-                        // Increase counter of how many times card has been closed
-                        close_cmd_counter++;
-                        // Log output for debugging
-                        Log.d(TAG, "SmartCard reader closed-" + close_cmd_counter);
-                        // Set text view letting user know results from close
-                        status_text_view.setText("SmartCard reader closed:" + reasonCode.toString());
-                        // Turn on/off certain widgets
-                        cardClosed();
-                    } else if (resultCode == ResultCode.FAIL) {
-                        Log.d(TAG, "SmartCard reader closed: FAILED");
-                        status_text_view.setText("SmartCard reader closed: FAILED");
-                        button_open_close.setEnabled(true);
-                    }
-
-                }
-            });
-        } else {
-            // If we are turning off the card reader
-            status_text_view.setText("Closing Card Reader");
-            close_cmd_counter = 0;
-            mBiometrics.cardCloseCommand();
-        }
+            }
+        });
     }
 
-    // Update buttons state based on parameter
+    private void closeCardReader() {
+        textViewStatus.setText(R.string.closing_card_reader);
+        closeCommandCount = 0;
+        this.biometrics.cardCloseCommand();
+    }
+
+    /* Update buttons state based on parameter. */
     private void cardOpened(boolean readCard) {
-        button_open_close.setEnabled(true);
-        button_open_close.setText(readCard ? R.string.close : R.string.open);
-        button_view.setEnabled(readCard);
+        buttonOpenClose.setEnabled(true);
+        buttonOpenClose.setText(readCard ? R.string.close : R.string.open);
+        buttonView.setEnabled(readCard);
     }
 
-    // Update buttons to close state
+    /* Update buttons to close state. */
     private void cardClosed() {
-        button_open_close.setEnabled(true);
-        button_open_close.setText(R.string.open);
-        button_view.setEnabled(false);
+        buttonOpenClose.setEnabled(true);
+        buttonOpenClose.setText(R.string.open);
+        buttonView.setEnabled(false);
     }
 
-    // View button action for Read/View button to call Card Command API to see data on card based on states
+    /* This method calls Card Command API to see data on card based on states. */
     protected void click() {
         Log.d(TAG, "Button clicked !");
 
-        // Reset apdu variables
-        if (APDU_state == APDU_INIT) {
-            APDU_state = APDU_PROCESS;
-            APDU_idx = 0;
+        /* Reset apdu variables. */
+        if (apduState == ApduState.APDU_INIT) {
+            apduState = ApduState.APDU_PROCESS;
+            apduTableIndex = 0;
         }
 
-        // only call the service to send a non-empty APDU
-        if (APDU_table[APDU_idx].length() > 0) {
-            /* This portion of code creates a new ApduCommand using a byte array. Takes a command from the Apdu tables
-               and just converts it to a byte array.
+        /* Only call the service to send a non-empty APDU. */
+        if (APDU_table[apduTableIndex].length() > 0) {
+            /* This portion of code creates a new ApduCommand using a byte array. Takes a command
+             * from the Apdu tables and just converts it to a byte array.
+             */
+            /*
             byte[] command = new byte[7];
             for (int i = 0; i < 7; i++) {
-                command[i] = (byte) ((Character.digit(APDU_table[APDU_idx].charAt(i), 16) << 4) + Character.digit(APDU_table[APDU_idx].charAt(i + 1), 16));
+                command[i] =
+                        (byte) ((Character.digit(APDU_table[apduTableIndex].charAt(i), 16) << 4) +
+                                Character.digit(APDU_table[apduTableIndex].charAt(i + 1), 16));
             }
             ApduCommand temp = new ApduCommand(command);
             */
 
-            Log.d(TAG, APDU_table[APDU_idx]);
-            ApduCommand APDU = new ApduCommand(APDU_table[APDU_idx]);
-            APDU_lastdesc = APDU_table[APDU_idx + 1];
-            start_time = SystemClock.elapsedRealtime();
-            // Make API call to read card with created Apdu command
-            mBiometrics.cardCommand(APDU, true, new OnCardCommandListener() {
+            Log.d(TAG, APDU_table[apduTableIndex]);
+            ApduCommand APDU = new ApduCommand(APDU_table[apduTableIndex]);
+            APDU_lastdesc = APDU_table[apduTableIndex + 1];
+
+            /* Keep track of how long API call takes. */
+            final long startTime = SystemClock.elapsedRealtime();
+            this.biometrics.cardCommand(APDU, true, new OnCardCommandListener() {
                 @Override
                 public void onCardCommandComplete(ResultCode arg0, byte sw1, byte sw2, byte[] data) {
-                    // Clear variable and log output showing result
                     String ds = "";
                     Log.d(TAG, "Resultcode is : " + arg0.toString());
-                    // If result returned good
+
                     if (arg0 == ResultCode.OK) {
-                        if (data.length == 0) {
-                            ds = "{no data}";
-                        } else {
-                            // If data available then create string from data
-                            int di;
-                            for (di = 0; di < data.length; di++) {
-                                ds = ds + String.format("%02X", (0x0ff) & data[di]);
-                            }
-                        }
-                        // Calculate time taking for result to come back good
-                        long duration = SystemClock.elapsedRealtime() - start_time;
-                        // Log output for debugging
+                        /* Calculate time taking for result to come back good. */
+                        long duration = SystemClock.elapsedRealtime() - startTime;
+
+                        if (data.length == 0) ds = "{no data}";
+                        else
+                            /* If data available then create string from data. */
+                            for (byte peice : data)
+                                ds = ds + String.format("%02X", (0x0ff) & peice);
+
                         Log.i(TAG, "Capture Complete in " + duration + "msec");
-                        Log.d(TAG, "Card: " + mCardName
+                        Log.d(TAG, "Card: " + cardName
                                 + " APDU Result: SW1,SW2: "
                                 + String.format("%02x", (0x0ff) & sw1)
                                 + String.format("%02x", (0x0ff) & sw2)
                                 + " D(" + data.length + "): " + ds);
-                        // Set text view for user to see what is going on
-                        status_text_view.setText("Card: " + mCardName + "\n\n"
+
+                        textViewStatus.setText("Card: " + cardName + "\n\n"
                                 + "Mili-Seconds elapsed:" + duration + "\n\n"
                                 + "APDU [" + APDU_lastdesc + "]\n\n"
                                 + "SW1,SW2: "
@@ -388,53 +342,24 @@ public class CardReaderPage extends LinearLayout implements PageView {
                                 + "Data:\n" + ds + "\n\n" + "Length: "
                                 + data.length + " bytes");
                     } else {
-                        // If result did failed reset all variables and let user know failure
-                        APDU_state = APDU_INIT;
-                        APDU_idx = 0;
-                        status_text_view.setText("Error, Please Try Again");
+                        /* If result FAILED reset all variables and let user know failure. */
+                        apduState = ApduState.APDU_INIT;
+                        apduTableIndex = 0;
+                        textViewStatus.setText("Error, Please Try Again");
                     }
                 }
             });
         }
 
-        APDU_idx += 2; // skip descriptive string
+        /* Skip descriptive string. */
+        apduTableIndex += 2;
 
-        // reset APDU table index to top of table if done
-        if (APDU_idx >= APDU_table.length) {
-            Log.d(TAG, "Resetting APDU_idx to start of APDU_table");
-            APDU_state = APDU_INIT;
-            APDU_idx = 0;
+        /* Reset APDU table index to top of table if done. */
+        if (apduTableIndex >= APDU_table.length) {
+            Log.d(TAG, "Resetting apduTableIndex to start of APDU_table");
+            apduState = ApduState.APDU_PROCESS;
+            apduTableIndex = 0;
         }
-
-        button_view.setText("APDU [" + APDU_table[APDU_idx + 1] + "]");
-    }
-
-
-    // Class to hold Card APDU info.  Will put each instance in the mCardList Hash table
-    class CardInfo {
-        // Holds card name, apdu table, and atr value
-        private String mATR;
-        private String mCardName;
-        private String[] mAPDU_table;
-
-        public CardInfo(String ATR, String CardName, String[] APDU_table) {
-            this.mATR = ATR;
-            this.mCardName = CardName;
-            this.mAPDU_table = APDU_table;
-            // Add card atr to list
-            mCardList.put(mATR, this);
-        }
-
-        public String getATR() {
-            return (mATR);
-        }
-
-        public String getCardName() {
-            return (mCardName);
-        }
-
-        public String[] getAPDU_table() {
-            return (mAPDU_table);
-        }
+        buttonView.setText("APDU [" + APDU_table[apduTableIndex + 1] + "]");
     }
 }

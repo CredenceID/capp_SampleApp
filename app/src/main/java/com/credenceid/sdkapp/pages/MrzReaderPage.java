@@ -30,7 +30,7 @@ public class MrzReaderPage extends LinearLayout implements PageView {
             //"00A4020C023F00", "Get Challenge"
             //"0084000008", "Select MF"
     };
-    private SampleActivity mActivity;
+    private SampleActivity sampleActivity;
     private Biometrics mBiometrics;
     private Button mMrzReadBtn;
     private Button mMrzOpenCloseBtn;
@@ -182,7 +182,7 @@ public class MrzReaderPage extends LinearLayout implements PageView {
     }
 
     public void setActivity(SampleActivity activity) {
-        mActivity = activity;
+        sampleActivity = activity;
         String productName = activity.getProductName();
         Log.d(TAG, "Product Name= " + productName);
 

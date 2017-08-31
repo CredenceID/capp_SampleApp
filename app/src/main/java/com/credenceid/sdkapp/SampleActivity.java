@@ -14,7 +14,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ImageButton;
@@ -63,13 +62,8 @@ public class SampleActivity extends BiometricsActivity {
     private ImageButton imageButtonCurrentPage;
     /* Stores which current PageView the user is on. */
     private PageView currentPageView;
-    /* ViewGroup containing all different ImageButtons to swtich between PageViews. */
-    private ViewGroup imageButtonsViewGroup;
     /* WebView displaying device information. */
-    private WebView webView;
-    /* Flag to determine is Biometrics has already been initialized. */
-    private boolean biometricsInitialized = true;
-    /* Var used to determine time different between onResume/onPause. */
+    private WebView webView;    /* Var used to determine time different between onResume/onPause. */
     private long pauseTime = 0;
 
     @Override
@@ -85,7 +79,7 @@ public class SampleActivity extends BiometricsActivity {
         /* Disable allbuttons not  until Biometrics becomes initialized. This prevents users from
          * making API calls with null objects.
          */
-        this.enableButtons(false);
+        this.setGlobalButtonEnable(false);
     }
 
     /* Method used to set proper screen resolution. */
@@ -123,7 +117,6 @@ public class SampleActivity extends BiometricsActivity {
 
     /* Method used to load all buttons from layout file. */
     private void initializeLayoutButtons() {
-        this.imageButtonsViewGroup = (ViewGroup) findViewById(R.id.buttons);
         this.imageButtonAboutPage = (ImageButton) findViewById(R.id.about_btn);
         this.imageButtonFingerprintPage = (ImageButton) findViewById(R.id.fingerprint_btn);
         this.imageButtonIrisPage = (ImageButton) findViewById(R.id.iris_btn);
@@ -138,33 +131,29 @@ public class SampleActivity extends BiometricsActivity {
     public void onBiometricsInitialized(ResultCode result, String sdk_version, String required_version) {
         Log.d(TAG, "Sdkapp product name is " + getProductName());
 
-        /* Set our flag based on result code from initialization. */
-        biometricsInitialized = (result == ResultCode.OK);
         /* Once Biometrics initializes then set all of our buttons to be enabled. */
-        this.enableButtons(result == ResultCode.OK);
+        this.setGlobalButtonEnable(result == ResultCode.OK);
 
         if (result == ResultCode.OK) {
             /* Biometrics may initalize/un-initialize multiple times due to binding/un-binding. In
              * order to prevent "re-initialization" we have a check to see if it was already init.
              */
-            if (biometricsInitialized) {
-                this.saveValidPages();
-                this.showValidPages();
+            this.saveValidPages();
+            this.showValidPages();
                 /* Re-display AboutPage with correct device id and SDK version. */
-                this.setCurrentPage(this.imageButtonAboutPage, aboutPage);
-                // set MRZ page again so it can show ePassport option for starlight or credence tab.
-                this.mrzReaderPage.setActivity(this);
+            this.setCurrentPage(this.imageButtonAboutPage, aboutPage);
+            // set MRZ page again so it can show ePassport option for starlight or credence tab.
+            this.mrzReaderPage.setActivity(this);
 
-                setPreferences("PREF_TIMEOUT", "60", new PreferencesListener() {
-                    @Override
-                    public void onPreferences(ResultCode result, String key, String value) {
-                        Log.w(TAG, "onPreferences: " + key + ", " + value);
-                        if (result != ResultCode.OK)
-                            Toast.makeText(SampleActivity.this, "Error Setting Preferences",
-                                    Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
+            setPreferences("PREF_TIMEOUT", "60", new PreferencesListener() {
+                @Override
+                public void onPreferences(ResultCode result, String key, String value) {
+                    Log.w(TAG, "onPreferences: " + key + ", " + value);
+                    if (result != ResultCode.OK)
+                        Toast.makeText(SampleActivity.this, "Error Setting Preferences",
+                                Toast.LENGTH_LONG).show();
+                }
+            });
         }
 
         Toast.makeText(this, "Biometrics Initialized", Toast.LENGTH_LONG).show();
@@ -206,21 +195,19 @@ public class SampleActivity extends BiometricsActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        long SHORT_PAUSE = 500;
 
-        // if onResume happened right after onPause, do not pass it on to the
-        // pages
-        // as the onPause / onResume sequence was likely triggered by USB device
-        // activation
-        long time_since_pause = SystemClock.elapsedRealtime() - pauseTime;
-        if (time_since_pause < SHORT_PAUSE) {
+        /* if onResume happened right after onPause, do not pass it on to the pages
+         * as the onPause / onResume sequence was likely triggered by USB device activation.
+         */
+        final long SHORT_PAUSE = 500;
+        long timeSincePause = SystemClock.elapsedRealtime() - pauseTime;
+
+        if (timeSincePause < SHORT_PAUSE) {
             Log.d(TAG, "onResume - ignoring short pause");
             return;
         }
-        Log.d(TAG, "onResume");
-        if (currentPageView != null) {
+        if (currentPageView != null)
             currentPageView.doResume();
-        }
     }
 
     @Override
@@ -234,11 +221,11 @@ public class SampleActivity extends BiometricsActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // give BiometricsManager a chance to process onActivityResult
+        /* Give BiometricsManager a chance to process onActivityResult. */
         TheApp.getInstance().getBiometricsManager().onActivityResult(requestCode, resultCode, data);
     }
 
-    // this shows in logcat width and height of screen
+    /* Returns Point object containing screen dimensions. */
     private Point getDisplaySize() {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -247,25 +234,22 @@ public class SampleActivity extends BiometricsActivity {
         return size;
     }
 
-    // enables all page buttons fased on parameter
-    private void enableButtons(boolean enable) {
-        enableButton(imageButtonAboutPage, enable);
-        enableButton(imageButtonFingerprintPage, enable);
-        enableButton(imageButtonIrisPage, enable);
-        enableButton(imageButtonCardReaderPage, enable);
-        enableButton(imageButtonEncryptPage, enable);
-        enableButton(imageButtonNfcPage, enable);
-        enableButton(imageButtonUsbAccessPage, enable);
-        enableButton(imageButtonMrzPage, enable);
+    private void setGlobalButtonEnable(boolean enable) {
+        setButtonEnable(imageButtonAboutPage, enable);
+        setButtonEnable(imageButtonFingerprintPage, enable);
+        setButtonEnable(imageButtonIrisPage, enable);
+        setButtonEnable(imageButtonCardReaderPage, enable);
+        setButtonEnable(imageButtonEncryptPage, enable);
+        setButtonEnable(imageButtonNfcPage, enable);
+        setButtonEnable(imageButtonUsbAccessPage, enable);
+        setButtonEnable(imageButtonMrzPage, enable);
     }
 
-    // enables specific button based on parameter
-    private void enableButton(ImageButton button, boolean enabled) {
-        if (button != null)
-            button.setEnabled(enabled);
+    private void setButtonEnable(ImageButton button, boolean enabled) {
+        if (button != null) button.setEnabled(enabled);
     }
 
-    // Will set visibility of biometric pages based on device type from CredenceService
+    /* Set visibility of Biometric pages based on device type. */
     private void showValidPages() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -292,8 +276,8 @@ public class SampleActivity extends BiometricsActivity {
     }
 
     /* Based on what device CredenceService was initialized on, this will save what peripherals
-    * pages are valid with SharesPreferences.
-    */
+     * pages are valid with SharesPreferences.
+     */
     private void saveValidPages() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
@@ -308,53 +292,64 @@ public class SampleActivity extends BiometricsActivity {
         editor.apply();
     }
 
-    /* Called from menu or device backbutton to call finalize API and end application. */
+    /* Called from menu or device back button to call finalize API and end application. */
     private void onExit() {
         this.finalizeBiometrics(true);
         this.finish();
     }
 
     /* Sets current page based on which corresponding PageView button was clicked. */
-    private void setCurrentPage(View btn, View page) {
-        // call the old current page deactivate and cancelCapture API just in case it is fingerprint or Iris
+    private void setCurrentPage(View pageViewButton, View pageView) {
+        /* If application was on Fingerprint/Iris page, we need to cancel any on going captures. */
+        if (this.currentPageView == this.fingerprintPage || this.currentPageView == this.irisPage)
+            this.cancelCapture();
+        /* Deactivate current page application was on. */
         if (this.currentPageView != null) {
             this.currentPageView.deactivate();
-            cancelCapture();
             this.currentPageView = null;
         }
-        // deactivates old current button
+        /* Deactivates old current page's ImageButton. */
         if (this.imageButtonCurrentPage != null)
             this.imageButtonCurrentPage.setActivated(false);
 
-        if (btn == null || !(btn instanceof ImageButton)) {
+        /* If new button is IN-valid or button is not an ImageButton then we return, since that
+         * means a non-page view button was pressed.
+         */
+        if (pageViewButton == null || !(pageViewButton instanceof ImageButton)) {
             this.imageButtonCurrentPage = null;
             return;
         }
-
-        this.imageButtonCurrentPage = (ImageButton) btn;
+        /* Reaching here means all conditions were valid and met. Set current ImageButton to match
+         * passed argument and set button as activated.
+         */
+        this.imageButtonCurrentPage = (ImageButton) pageViewButton;
         this.imageButtonCurrentPage.setActivated(true);
 
-        int index = viewFlipper.indexOfChild(page);
-
-        if (index < 0)
-            Log.w(TAG, "invalid view");
+        /* Calculate index of page for which PageView we want to switch to. */
+        int index = viewFlipper.indexOfChild(pageView);
+        /* This would only be the case if we pass a custom PageView not belonging to any listed
+         * inside layout file. Otherwise can set respective page.
+         */
+        if (index < 0) Log.w(TAG, "invalid view");
         else {
             viewFlipper.setDisplayedChild(index);
-            // setting new page to current and calling its activate method
-            if (page instanceof PageView) {
-                currentPageView = (PageView) page;
+            if (pageView instanceof PageView) {
+                /* Update our current page variables and activate new page. */
+                currentPageView = (PageView) pageView;
                 currentPageView.activate(this);
-
+                /* Grab applications title, new Pagees title, and build fill title string. */
                 String title = getResources().getString(R.string.app_name);
                 String page_title = currentPageView.getTitle();
-                if (page_title != null) title += " - " + page_title;
+                title += (page_title != null) ? (" - " + page_title) : "";
                 setTitle(title);
             }
         }
     }
 
-    // Shows fingerprint or iris scanned image when user taps it and allows zooming
-    public void showFullScreen(String path_name) {
+    /* If user taps on scanned Fingerprint/Iris images, then application zooms in allowing user to
+     * interact with images in full screen "mode".
+     */
+    public void showFullScreenScannedImage(String path_name) {
         if (path_name == null || path_name.isEmpty()) return;
 
         webView.setVisibility(View.VISIBLE);
