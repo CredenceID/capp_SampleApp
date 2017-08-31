@@ -277,6 +277,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 public void onFingerprintGrabbed(Biometrics.ResultCode result, Bitmap bm, byte[] iso, String filepath,
                                                  String wsq, String hint, int nfiqScore) {
 
+                    start_time = SystemClock.elapsedRealtime();
+
                     if (bm != null) {
                         // Set the image to image view for user to see
                         mCaptureImage.setImageBitmap(bm);
@@ -291,6 +293,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         Beeper.getInstance().click();
                         captureState();
 
+
                         // Calculate total time taken for image to return back as good
                         long duration = SystemClock.elapsedRealtime() - start_time;
                         // Log output for debugging
@@ -302,6 +305,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         mPathname = filepath;
 
                         mCurrentBitmap = bm;
+
+                        showImageSize(filepath, wsq, duration);
 
                         // Get fingerprint quality
                         setStatusText("Fingerprint Quality: " + nfiqScore);
@@ -522,6 +527,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             // Convert image
                             convertToFmd(mCurrentBitmap);
 
+                            getNfiqScore(mCurrentBitmap);
+
                         } else {
                             // If there is no associated path name with image
                             if (mPathname == null) {
@@ -594,7 +601,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 // If result failed, log output
                 if (result != ResultCode.OK || fmd == null) {
                     Log.w(TAG, "convertToFmd failed so mFmd1 is null");
-                    setStatusText("convertToFmd failed so NO Fingerprint template");
+                    setStatusText("Failed to convert to FMD");
                 } else {   // If conversion succeeded set global Fmd image variable and set appropriate buttons
                     mFmd1 = fmd;
                     mMatchBtn.setEnabled(true);
@@ -877,7 +884,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
     }
 
     // Display uncompressed and compressed images
-    private void showImageSize(String png, String wsq) {
+    private void showImageSize(String png, String wsq, long duration) {
         uncompressed_size = 0;
         File uncompressed = new File(png);
         if (uncompressed.exists()) {
@@ -890,9 +897,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
         }
 
         String str = String.format(
-                "PNG: %s, WSQ: %s",
+                "PNG: %s, WSQ: %s, Dur: %dms",
                 TheApp.abbreviateNumber(uncompressed_size),
-                TheApp.abbreviateNumber(compressed_size));
+                TheApp.abbreviateNumber(compressed_size),
+                duration);
         setInfoText(str);
 
     }
