@@ -440,7 +440,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         } else {
                             imageViewCapturedImage.setImageBitmap(bm);
                             imageViewCapturedImage.setVisibility(VISIBLE);
-                            createWsqImage(filepath_finger1);
+                            createWsqImage(filepath);
                         }
 
                         /* set global path variables for image locations. There are used later on
