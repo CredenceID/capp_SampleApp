@@ -419,7 +419,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         resetToOneFingerCaptureState();
                     } else if (result == ResultCode.OK) {
                         Beeper.getInstance().click();
-                        getNfiqScore(bitmap_finger1);
 
                         /* If scan type initiated was TWO_FINGERS_SPLIT then we need to display
                          * each of the two split fingerprints in their own ImageViews.
@@ -437,10 +436,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
 
                             createWsqImage(filepath_finger1);
+                            getNfiqScore(bitmap_finger1);
                         } else {
                             imageViewCapturedImage.setImageBitmap(bm);
                             imageViewCapturedImage.setVisibility(VISIBLE);
                             createWsqImage(filepath);
+                            getNfiqScore(bm);
                         }
 
                         /* set global path variables for image locations. There are used later on
