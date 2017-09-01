@@ -779,9 +779,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
         if (compressed.exists()) this.compressedImageSize = compressed.length();
 
         String str = String.format(Locale.getDefault(),
-                "PNG: %s, WSQ: %s",
+                "PNG: %s, WSQ: %s, Dur: %s ms",
                 TheApp.abbreviateNumber(this.originalImageSize),
-                TheApp.abbreviateNumber(this.compressedImageSize));
+                TheApp.abbreviateNumber(this.compressedImageSize),
+                duration);
         this.setInfoText(str);
     }
 

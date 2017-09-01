@@ -8,7 +8,7 @@ android {
         applicationId "com.credenceid.sdkapp"
         minSdkVersion 15
         targetSdkVersion 18
-        versionName '1.18.3'
+        versionName '1.18.4'
         archivesBaseName = "C-SdkApp"
     }
 
