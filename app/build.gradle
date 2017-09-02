@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 18
-    buildToolsVersion "24.0.3"
+    buildToolsVersion '24.0.3'
 
     defaultConfig {
         applicationId "com.credenceid.sdkapp"
         minSdkVersion 15
         targetSdkVersion 18
-        versionName '1.17.0'
+        versionName '1.18.4'
         archivesBaseName = "C-SdkApp"
     }
 

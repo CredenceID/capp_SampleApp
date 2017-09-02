@@ -16,42 +16,42 @@
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_marginTop="@dimen/activity_vertical_margin" >
 
-        <com.credenceid.sdkapp.AboutPage
+        <com.credenceid.sdkapp.pages.AboutPage
             android:id="@+id/about_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.credenceid.sdkapp.NfcPage
+        <com.credenceid.sdkapp.pages.NfcPage
             android:id="@+id/nfc_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.credenceid.sdkapp.FingerprintPage
+        <com.credenceid.sdkapp.pages.FingerprintPage
             android:id="@+id/fingerprint_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.credenceid.sdkapp.IrisPage
+        <com.credenceid.sdkapp.pages.IrisPage
             android:id="@+id/iris_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.credenceid.sdkapp.CardReaderPage
+        <com.credenceid.sdkapp.pages.CardReaderPage
             android:id="@+id/card_reader_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
         
-         <com.credenceid.sdkapp.MrzReaderPage
+         <com.credenceid.sdkapp.pages.MrzReaderPage
             android:id="@+id/mrz_reader_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.credenceid.sdkapp.EncryptPage
+        <com.credenceid.sdkapp.pages.EncryptPage
             android:id="@+id/encrypt_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.credenceid.sdkapp.UsbAccessPage
+        <com.credenceid.sdkapp.pages.UsbAccessPage
             android:id="@+id/usb_access_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
