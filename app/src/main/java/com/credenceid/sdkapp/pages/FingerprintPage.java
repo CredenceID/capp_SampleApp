@@ -538,6 +538,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     } else if (result == ResultCode.OK && bm != null) {
                         Beeper.getInstance().click();
 
+                        Bitmap bitmapForMatching = bm;
+
                         /* If scan type initiated was TWO_FINGERS_SPLIT then we need to display
                          * each of the two split fingerprints in their own ImageViews.
                          */
@@ -552,6 +554,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 imageViewCapturedImageFinger1.setImageBitmap(bitmap_finger1);
                             if (bitmap_finger2 != null)
                                 imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
+
+                            bitmapForMatching = bitmap_finger1;
                         } else {
                             imageViewCapturedImage.setImageBitmap(bm);
                             imageViewCapturedImage.setVisibility(VISIBLE);
@@ -567,7 +571,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         /* Call method to convert Bitmap to FMD template and match it against first
                          * FMD template created.
                          */
-                        convertToFmdAndMatch(bitmap_finger1);
+                        convertToFmdAndMatch(bitmapForMatching);
                     }
                 }
 
