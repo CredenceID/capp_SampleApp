@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.credenceid.biometrics.ApduCommand;
 import com.credenceid.biometrics.Biometrics;
@@ -17,7 +18,9 @@ import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.OnCardCommandListener;
 import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
+import com.credenceid.biometrics.BiometricsManager;
 import com.credenceid.sdkapp.R;
+import com.credenceid.sdkapp.TheApp;
 import com.credenceid.sdkapp.models.ApduState;
 import com.credenceid.sdkapp.models.CardInfo;
 import com.credenceid.sdkapp.models.PageView;
@@ -54,6 +57,9 @@ public class CardReaderPage extends LinearLayout implements PageView {
     TextView textViewStatus;
     Button buttonView;
     Button buttonOpenClose;
+    Button buttonSyncAssync;
+    private boolean syncMode;
+    private int counter = 0;
 
     /* Our custom listener to be invoked every time CardReader status changes. */
     OnCardStatusListener onCardStatusListener = new OnCardStatusListener() {
@@ -103,6 +109,9 @@ public class CardReaderPage extends LinearLayout implements PageView {
     /* Biometrics object for making Credence API calls. */
     private Biometrics biometrics;
 
+    /* Alternatively BiometricsManager object for making Credence API calls. */
+    private BiometricsManager biometricsManager;
+
     public CardReaderPage(Context context) {
         super(context);
         initialize();
@@ -125,10 +134,30 @@ public class CardReaderPage extends LinearLayout implements PageView {
 
         this.initializeLayoutComponents();
         this.populateCardTable();
+
+        biometricsManager = TheApp.getInstance().getBiometricsManager();
     }
 
     private void initializeLayoutComponents() {
         textViewStatus = (TextView) findViewById(R.id.status_tv);
+
+        buttonSyncAssync = (Button) findViewById(R.id.sync_button);
+        buttonSyncAssync.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (counter % 2 == 0) {
+                    buttonSyncAssync.setText("Synchronous");
+                    Toast.makeText(getContext(), "Synchronous mode selected", Toast.LENGTH_SHORT).show();
+                    syncMode = true;
+                    counter++;
+                } else {
+                    buttonSyncAssync.setText("Asynchronous");
+                    Toast.makeText(getContext(), "Asynchronous mode selected", Toast.LENGTH_SHORT).show();
+                    syncMode = false;
+                    counter++;
+                }
+            }
+        });
 
         buttonOpenClose = (Button) findViewById(R.id.open_close);
         buttonOpenClose.setOnClickListener(new OnClickListener() {
@@ -310,56 +339,104 @@ public class CardReaderPage extends LinearLayout implements PageView {
 
             /* Keep track of how long API call takes. */
             final long startTime = SystemClock.elapsedRealtime();
-            this.biometrics.cardCommand(APDU, true, new OnCardCommandListener() {
-                @Override
-                public void onCardCommandComplete(ResultCode arg0, byte sw1, byte sw2, byte[] data) {
-                    String ds = "";
-                    Log.d(TAG, "Resultcode is : " + arg0.toString());
 
-                    if (arg0 == ResultCode.OK) {
+            if (!syncMode) {
+                biometricsManager.cardCommand(APDU, true, new OnCardCommandListener() {
+                    @Override
+                    public void onCardCommandComplete(ResultCode arg0, byte sw1, byte sw2, byte[] data) {
+                        String ds = "";
+                        Log.d(TAG, "Resultcode is : " + arg0.toString());
+                        Log.i(TAG, "Asynchronous mode");
+
+                        if (arg0 == ResultCode.OK) {
                         /* Calculate time taking for result to come back good. */
-                        long duration = SystemClock.elapsedRealtime() - startTime;
+                            long duration = SystemClock.elapsedRealtime() - startTime;
 
-                        if (data.length == 0) ds = "{no data}";
-                        else
+                            if (data.length == 0) ds = "{no data}";
+                            else
                             /* If data available then create string from data. */
-                            for (byte peice : data)
-                                ds = ds + String.format("%02X", (0x0ff) & peice);
+                                for (byte peice : data)
+                                    ds = ds + String.format("%02X", (0x0ff) & peice);
 
-                        Log.i(TAG, "Capture Complete in " + duration + "msec");
-                        Log.d(TAG, "Card: " + cardName
-                                + " APDU Result: SW1,SW2: "
-                                + String.format("%02x", (0x0ff) & sw1)
-                                + String.format("%02x", (0x0ff) & sw2)
-                                + " D(" + data.length + "): " + ds);
+                            Log.i(TAG, "Capture Complete in " + duration + "msec");
+                            Log.d(TAG, "Card: " + cardName
+                                    + " APDU Result: SW1,SW2: "
+                                    + String.format("%02x", (0x0ff) & sw1)
+                                    + String.format("%02x", (0x0ff) & sw2)
+                                    + " D(" + data.length + "): " + ds);
 
-                        textViewStatus.setText("Card: " + cardName + "\n\n"
-                                + "Mili-Seconds elapsed:" + duration + "\n\n"
-                                + "APDU [" + APDU_lastdesc + "]\n\n"
-                                + "SW1,SW2: "
-                                + String.format("%02x", (0x0ff) & sw1)
-                                + String.format("%02x", (0x0ff) & sw2) + "\n\n"
-                                + "Data:\n" + ds + "\n\n" + "Length: "
-                                + data.length + " bytes");
-                    } else {
+                            textViewStatus.setText("Card: " + cardName + "\n\n"
+                                    + "Mili-Seconds elapsed:" + duration + "\n\n"
+                                    + "APDU [" + APDU_lastdesc + "]\n\n"
+                                    + "SW1,SW2: "
+                                    + String.format("%02x", (0x0ff) & sw1)
+                                    + String.format("%02x", (0x0ff) & sw2) + "\n\n"
+                                    + "Data:\n" + ds + "\n\n" + "Length: "
+                                    + data.length + " bytes");
+                        } else {
                         /* If result FAILED reset all variables and let user know failure. */
-                        apduState = ApduState.APDU_INIT;
-                        apduTableIndex = 0;
-                        textViewStatus.setText("Error, Please Try Again");
+                            apduState = ApduState.APDU_INIT;
+                            apduTableIndex = 0;
+                            textViewStatus.setText("Error, Please Try Again");
+                        }
                     }
-                }
-            });
-        }
+                });
+
+            } else {
+                biometricsManager.cardCommandSync(APDU, true, new OnCardCommandListener() {
+                    @Override
+                    public void onCardCommandComplete(ResultCode arg0, byte sw1, byte sw2, byte[] data) {
+                        String ds = "";
+                        Log.d(TAG, "Resultcode is : " + arg0.toString());
+                        Log.i(TAG, "Synchronous mode");
+
+                        if (arg0 == ResultCode.OK) {
+                        /* Calculate time taking for result to come back good. */
+                            long duration = SystemClock.elapsedRealtime() - startTime;
+
+                            if (data.length == 0) ds = "{no data}";
+                            else
+                            /* If data available then create string from data. */
+                                for (byte peice : data)
+                                    ds = ds + String.format("%02X", (0x0ff) & peice);
+
+                            Log.i(TAG, "Capture Complete in " + duration + "msec");
+                            Log.d(TAG, "Card: " + cardName
+                                    + " APDU Result: SW1,SW2: "
+                                    + String.format("%02x", (0x0ff) & sw1)
+                                    + String.format("%02x", (0x0ff) & sw2)
+                                    + " D(" + data.length + "): " + ds);
+
+                            textViewStatus.setText("Card: " + cardName + "\n\n"
+                                    + "Mili-Seconds elapsed:" + duration + "\n\n"
+                                    + "APDU [" + APDU_lastdesc + "]\n\n"
+                                    + "SW1,SW2: "
+                                    + String.format("%02x", (0x0ff) & sw1)
+                                    + String.format("%02x", (0x0ff) & sw2) + "\n\n"
+                                    + "Data:\n" + ds + "\n\n" + "Length: "
+                                    + data.length + " bytes");
+                        } else {
+                        /* If result FAILED reset all variables and let user know failure. */
+                            apduState = ApduState.APDU_INIT;
+                            apduTableIndex = 0;
+                            textViewStatus.setText("Error, Please Try Again");
+                        }
+                    }
+
+                }, 5000);
+
+            }
 
         /* Skip descriptive string. */
-        apduTableIndex += 2;
+            apduTableIndex += 2;
 
         /* Reset APDU table index to top of table if done. */
-        if (apduTableIndex >= APDU_table.length) {
-            Log.d(TAG, "Resetting apduTableIndex to start of APDU_table");
-            apduState = ApduState.APDU_PROCESS;
-            apduTableIndex = 0;
+            if (apduTableIndex >= APDU_table.length) {
+                Log.d(TAG, "Resetting apduTableIndex to start of APDU_table");
+                apduState = ApduState.APDU_PROCESS;
+                apduTableIndex = 0;
+            }
+            buttonView.setText("APDU [" + APDU_table[apduTableIndex + 1] + "]");
         }
-        buttonView.setText("APDU [" + APDU_table[apduTableIndex + 1] + "]");
     }
 }
