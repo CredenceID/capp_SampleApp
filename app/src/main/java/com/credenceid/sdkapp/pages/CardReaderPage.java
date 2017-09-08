@@ -55,7 +55,6 @@ public class CardReaderPage extends LinearLayout implements PageView {
     ApduState apduState = ApduState.APDU_INIT;
     /* Layout components. */
     TextView textViewStatus;
-    TextView textViewSyncAssyncStatus;
     Button buttonView;
     Button buttonOpenClose;
     Button buttonSyncAssync;
@@ -141,23 +140,18 @@ public class CardReaderPage extends LinearLayout implements PageView {
 
     private void initializeLayoutComponents() {
         textViewStatus = (TextView) findViewById(R.id.status_tv);
-        textViewSyncAssyncStatus = (TextView) findViewById(R.id.mode_status);
 
         buttonSyncAssync = (Button) findViewById(R.id.sync_button);
         buttonSyncAssync.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (counter % 2 == 0) {
-                  //  buttonSyncAssync.setText("Synchronous");
-                    textViewSyncAssyncStatus.setText("");
-                    textViewSyncAssyncStatus.setText("Synchronous mode");
+                    buttonSyncAssync.setText("Sync");
                     Toast.makeText(getContext(), "Synchronous mode selected", Toast.LENGTH_SHORT).show();
                     syncMode = true;
                     counter++;
                 } else {
-               //     buttonSyncAssync.setText("Asynchronous");
-                    textViewSyncAssyncStatus.setText("");
-                    textViewSyncAssyncStatus.setText("Asynchronous mode");
+                    buttonSyncAssync.setText("Async");
                     Toast.makeText(getContext(), "Asynchronous mode selected", Toast.LENGTH_SHORT).show();
                     syncMode = false;
                     counter++;
