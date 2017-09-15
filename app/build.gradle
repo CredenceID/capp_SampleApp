@@ -10,6 +10,7 @@ android {
         targetSdkVersion 18
         versionName '1.18.4'
         archivesBaseName = "C-SdkApp"
+        multiDexEnabled true
     }
 
     signingConfigs {
