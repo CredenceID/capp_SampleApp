@@ -10,7 +10,6 @@ android {
         targetSdkVersion 18
         versionName '1.18.4'
         archivesBaseName = "C-SdkApp"
-        multiDexEnabled true
     }
 
     signingConfigs {
@@ -36,10 +35,6 @@ android {
             renderscriptDebuggable false
             zipAlignEnabled true
         }
-    }
-
-    dexOptions{
-        preDexLibraries = false
     }
 }
 
