@@ -20,14 +20,11 @@ import android.widget.Toast;
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.FingerprintScannerType;
-import com.credenceid.biometrics.Biometrics.OnCcfToFmdConverionListener;
 import com.credenceid.biometrics.Biometrics.OnCompareFmdListener;
 import com.credenceid.biometrics.Biometrics.OnConvertToFmdListener;
 import com.credenceid.biometrics.Biometrics.OnConvertToWsqListener;
 import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedFullListener;
 import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedListener;
-import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedWSQListener;
-import com.credenceid.biometrics.Biometrics.OnFmdToCcfConversionListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.biometrics.Biometrics.ScanType;
 import com.credenceid.sdkapp.R;
@@ -36,7 +33,9 @@ import com.credenceid.sdkapp.TheApp;
 import com.credenceid.sdkapp.models.PageView;
 import com.credenceid.sdkapp.utils.Beeper;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Locale;
 
 import static com.credenceid.biometrics.Biometrics.ResultCode.OK;
@@ -261,12 +260,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
         viewMatchButtonSpacer.setVisibility(hasFmdMatcher ? VISIBLE : GONE);
         buttonMatch.setVisibility(hasFmdMatcher ? VISIBLE : GONE);
 
-        /* Only Tridents/CredenceTABs support using the WSQ fingerprint listener. */
+        /* Only Tridents/CredenceTABs support using the WSQ fingerprint listener, but we only
+         * use listener for TABs so for Tridents we may instead demonstrate fullListener.
+         */
         String name = this.biometrics.getProductName();
-        if (name.equals("Credence TAB V1") || name.equals("Credence TAB V2") ||
-                name.equals("Credence TAB V3") || name.equals("Credence TAB V4")) {
-            useFingerprintWsqListener = true;
-        }
+        useFingerprintWsqListener = name.contains("TAB");
         /* Always reset our captures when we activate this page. */
         this.doResume();
     }
@@ -298,7 +296,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         final long startCaptureTime = SystemClock.elapsedRealtime();
 
         if (this.useFingerprintWsqListener)
-            this.biometrics.grabFingerprint(this.scanType, new OnFingerprintGrabbedWSQListener() {
+            this.biometrics.grabFingerprint(this.scanType, new Biometrics.OnFingerprintGrabbedWSQListener() {
                 @Override
                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                  Bitmap bm, byte[] iso,
@@ -321,17 +319,16 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         /* Calculate total time taken for image to return back as good. */
                         long duration = SystemClock.elapsedRealtime() - startCaptureTime;
                         setStatusText("Capture Complete in " + duration + "msec");
-
                         /* Set global path variables for Bitmap image. */
                         pathName = filepath;
                         currentBitmap = bm;
 
-                        showImageSize(filepath, wsq, duration);
+                        convertToFmd(wsq);
 
+                        showImageSize(filepath, wsq, duration);
                         /* Display captured finger quality. */
                         setStatusText("Fingerprint Quality: " + nfiqScore);
                         Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
-
                         /* If device supports creation of FMD templates then create first FMD
                          * template from Bitmap.
                          */
@@ -372,15 +369,17 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     } else if (result == OK) {
                         Beeper.getInstance().click();
                         resetToOneFingerCaptureState();
+
                         /* Set global image variables. */
                         pathName = filepath;
                         currentBitmap = bm;
+
                         /* With the resulting Bitmap we may either calcualte its NFIQ score,
                          * compress image down to a WSQ format, or do both.
                          */
                         getFingerQuality(currentBitmap);
                         createWsqImage(pathName);
-                        /* Convert to FMD if device supports it. */
+
                         if (hasFmdMatcher) convertToFmd(currentBitmap);
                         else if (pathName == null)
                             Log.w(TAG, "onFingerprintGrabbed - OK but filepath null");
@@ -492,7 +491,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.buttonClose.setEnabled(false);
     }
 
-    /* The match section works by first looking to make sure user has already made on+e successfull
+    /* The match section works by first looking to make sure user has already made on+e successful
      * fingerprint capture. If they have and a proper FMD template was created then it goes ahead
      * and captures another fingerprint image. It then converts this second image to a FMD template
      * then compares the two images.
@@ -642,7 +641,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 } else {
                     fmdFingerTemplate1 = fmd;
                     buttonMatch.setEnabled(true);
-                    convertFmdToCcf(fmdFingerTemplate1);
                 }
                 // Calculate total time for callback & log output for debugging purposes
                 long duration = SystemClock.elapsedRealtime() - startTime;
@@ -651,35 +649,29 @@ public class FingerprintPage extends LinearLayout implements PageView {
         });
     }
 
-    private void convertFmdToCcf(byte[] fmdTemplate) {
-        this.biometrics.convertFmdToCcf(fmdTemplate, new OnFmdToCcfConversionListener() {
-            @Override
-            public void onFmdToCcfConversion(ResultCode resultCode, byte[] bytes) {
-                if (resultCode == OK) {
-                    Toast.makeText(getContext(),
-                            "Successfully converted FMD Template to CCF Template.",
-                            Toast.LENGTH_SHORT).show();
-                    convertCcfToFmd(bytes);
-                } else
-                    Toast.makeText(getContext(),
-                            "Failed to convert FMD Template to CCF Template.",
-                            Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+    private void convertToFmd(String image_path) {
+        Log.i(TAG, "convertToFmd(String image_path[" + image_path + "])");
 
-    private void convertCcfToFmd(byte[] ccfTemplate) {
-        this.biometrics.convertCcfToFmd(ccfTemplate, new OnCcfToFmdConverionListener() {
+        File file = new File(image_path);
+        int size = (int) file.length();
+        byte[] bytes = new byte[size];
+        try {
+            Log.i(TAG, "reading file into byte array");
+            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
+            buf.read(bytes, 0, bytes.length);
+            buf.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Log.i(TAG, "now going to make CredenceSDK API call");
+        biometrics.convertToFmd(bytes, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
             @Override
-            public void onCcfToFmdConversion(ResultCode resultCode, byte[] bytes) {
-                if (resultCode == OK) {
-                    Toast.makeText(getContext(),
-                            "Successfully converted CCF Template back FMD Template.",
-                            Toast.LENGTH_SHORT).show();
-                } else
-                    Toast.makeText(getContext(),
-                            "Failed to convert CCF Template back FMD Template.",
-                            Toast.LENGTH_SHORT).show();
+            public void onConvertToFmd(ResultCode resultCode, byte[] bytes) {
+                Log.i(TAG, "onConvertToFmd(ResultCode, byte[]): CALLBACK INVOKED");
+                Toast.makeText(getContext(),
+                        "convertToFmd(wsq): " + (resultCode == OK ? "OK" : "FAIL") + ", " + bytes,
+                        Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -823,8 +815,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.setInfoText(str);
     }
 
-    /* Returns an NFIQ score of fingerprint bitmap passed as argument.
-     */
+    // get fingerprint quality
     private void getNfiqScore(Bitmap bitmap) {
         this.biometrics.getFingerQuality(bitmap, new Biometrics.OnGetFingerQualityListener() {
             @Override
