@@ -21,6 +21,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.credenceid.biometrics.BiometricsActivity;
+import com.credenceid.biometrics.BiometricsManager;
 import com.credenceid.sdkapp.models.PageView;
 import com.credenceid.sdkapp.pages.AboutPage;
 import com.credenceid.sdkapp.pages.CardReaderPage;
@@ -37,6 +38,8 @@ public class SampleActivity extends BiometricsActivity {
     private static final String TAG = SampleActivity.class.getName();
 
     private static final int MENU_EXIT = Menu.FIRST;
+
+    public static BiometricsManager biometricsManager;
 
     /* ViewFlipper is used to switch between different pages in our activity. */
     private ViewFlipper viewFlipper;
@@ -154,6 +157,8 @@ public class SampleActivity extends BiometricsActivity {
                                 Toast.LENGTH_LONG).show();
                 }
             });
+
+            biometricsManager = new BiometricsManager(this);
         }
 
         Toast.makeText(this, "Biometrics Initialized", Toast.LENGTH_LONG).show();

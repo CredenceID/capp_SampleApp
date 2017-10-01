@@ -18,6 +18,7 @@ import com.credenceid.biometrics.Biometrics.OnCardCommandListener;
 import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.sdkapp.R;
+import com.credenceid.sdkapp.SampleActivity;
 import com.credenceid.sdkapp.models.ApduState;
 import com.credenceid.sdkapp.models.CardInfo;
 import com.credenceid.sdkapp.models.PageView;
@@ -54,7 +55,8 @@ public class CardReaderPage extends LinearLayout implements PageView {
     TextView textViewStatus;
     Button buttonView;
     Button buttonOpenClose;
-
+    /* Keep track of how long API call takes. */
+    long startTime = SystemClock.elapsedRealtime();
     /* Our custom listener to be invoked every time CardReader status changes. */
     OnCardStatusListener onCardStatusListener = new OnCardStatusListener() {
         @Override
@@ -99,7 +101,20 @@ public class CardReaderPage extends LinearLayout implements PageView {
             }
         }
     };
-
+    OnCardCommandListener onCardCommandListenerAsyncCall = new OnCardCommandListener() {
+        @Override
+        public void onCardCommandComplete(ResultCode arg0, byte sw1, byte sw2, byte[] data) {
+            handleOnCardcommandComplete(arg0, sw1, sw2, data);
+        }
+    };
+    OnCardCommandListener onCardCommandListenerSyncCall = new OnCardCommandListener() {
+        @Override
+        public void onCardCommandComplete(ResultCode arg0, byte sw1, byte sw2, byte[] data) {
+            handleOnCardcommandComplete(arg0, sw1, sw2, data);
+        }
+    };
+    private Button buttonSyncAsync;
+    private boolean syncMode = false;
     /* Biometrics object for making Credence API calls. */
     private Biometrics biometrics;
 
@@ -116,6 +131,44 @@ public class CardReaderPage extends LinearLayout implements PageView {
     public CardReaderPage(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initialize();
+    }
+
+    private void handleOnCardcommandComplete(ResultCode arg0, byte sw1, byte sw2, byte[] data) {
+        Log.d(TAG, "Resultcode is : " + arg0.toString());
+
+        String ds = "";
+        if (arg0 == ResultCode.OK) {
+            /* Calculate time taking for result to come back good. */
+            long duration = SystemClock.elapsedRealtime() - startTime;
+
+            if (data.length == 0) ds = "{no data}";
+            else {
+                /* If data available then create string from data. */
+                for (byte peice : data)
+                    ds = ds + String.format("%02X", (0x0ff) & peice);
+            }
+
+            Log.i(TAG, "Capture Complete in " + duration + "msec");
+            Log.d(TAG, "Card: " + cardName
+                    + " APDU Result: SW1,SW2: "
+                    + String.format("%02x", (0x0ff) & sw1)
+                    + String.format("%02x", (0x0ff) & sw2)
+                    + " D(" + data.length + "): " + ds);
+
+            textViewStatus.setText("Card: " + cardName + "\n\n"
+                    + "Mili-Seconds elapsed:" + duration + "\n\n"
+                    + "APDU [" + APDU_lastdesc + "]\n\n"
+                    + "SW1,SW2: "
+                    + String.format("%02x", (0x0ff) & sw1)
+                    + String.format("%02x", (0x0ff) & sw2) + "\n\n"
+                    + "Data:\n" + ds + "\n\n" + "Length: "
+                    + data.length + " bytes");
+        } else {
+            /* If result FAILED reset all variables and let user know failure. */
+            apduState = ApduState.APDU_INIT;
+            apduTableIndex = 0;
+            textViewStatus.setText("Error, Please Try Again");
+        }
     }
 
     private void initialize() {
@@ -152,6 +205,15 @@ public class CardReaderPage extends LinearLayout implements PageView {
             }
         });
         buttonView.setEnabled(false);
+
+        buttonSyncAsync = (Button) findViewById(R.id.sync_button);
+        buttonSyncAsync.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                syncMode = !syncMode;
+                buttonSyncAsync.setText(syncMode ? "Sync" : "Async");
+            }
+        });
     }
 
     private void populateCardTable() {
@@ -294,61 +356,20 @@ public class CardReaderPage extends LinearLayout implements PageView {
             /* This portion of code creates a new ApduCommand using a byte array. Takes a command
              * from the Apdu tables and just converts it to a byte array.
              */
-            /*
-            byte[] command = new byte[7];
-            for (int i = 0; i < 7; i++) {
-                command[i] =
-                        (byte) ((Character.digit(APDU_table[apduTableIndex].charAt(i), 16) << 4) +
-                                Character.digit(APDU_table[apduTableIndex].charAt(i + 1), 16));
-            }
-            ApduCommand temp = new ApduCommand(command);
-            */
-
             Log.d(TAG, APDU_table[apduTableIndex]);
             ApduCommand APDU = new ApduCommand(APDU_table[apduTableIndex]);
             APDU_lastdesc = APDU_table[apduTableIndex + 1];
-
             /* Keep track of how long API call takes. */
-            final long startTime = SystemClock.elapsedRealtime();
-            this.biometrics.cardCommand(APDU, true, new OnCardCommandListener() {
-                @Override
-                public void onCardCommandComplete(ResultCode arg0, byte sw1, byte sw2, byte[] data) {
-                    String ds = "";
-                    Log.d(TAG, "Resultcode is : " + arg0.toString());
-
-                    if (arg0 == ResultCode.OK) {
-                        /* Calculate time taking for result to come back good. */
-                        long duration = SystemClock.elapsedRealtime() - startTime;
-
-                        if (data.length == 0) ds = "{no data}";
-                        else
-                            /* If data available then create string from data. */
-                            for (byte peice : data)
-                                ds = ds + String.format("%02X", (0x0ff) & peice);
-
-                        Log.i(TAG, "Capture Complete in " + duration + "msec");
-                        Log.d(TAG, "Card: " + cardName
-                                + " APDU Result: SW1,SW2: "
-                                + String.format("%02x", (0x0ff) & sw1)
-                                + String.format("%02x", (0x0ff) & sw2)
-                                + " D(" + data.length + "): " + ds);
-
-                        textViewStatus.setText("Card: " + cardName + "\n\n"
-                                + "Mili-Seconds elapsed:" + duration + "\n\n"
-                                + "APDU [" + APDU_lastdesc + "]\n\n"
-                                + "SW1,SW2: "
-                                + String.format("%02x", (0x0ff) & sw1)
-                                + String.format("%02x", (0x0ff) & sw2) + "\n\n"
-                                + "Data:\n" + ds + "\n\n" + "Length: "
-                                + data.length + " bytes");
-                    } else {
-                        /* If result FAILED reset all variables and let user know failure. */
-                        apduState = ApduState.APDU_INIT;
-                        apduTableIndex = 0;
-                        textViewStatus.setText("Error, Please Try Again");
-                    }
-                }
-            });
+            startTime = SystemClock.elapsedRealtime();
+            /* Based on status of "Mode" button run either Async|Sync version of cardCommand. */
+            if (!syncMode) {
+                Log.d(TAG, "cardCommand(APDU, true, onCardCommandListenerAsyncCall);");
+                this.biometrics.cardCommand(APDU, true, onCardCommandListenerAsyncCall);
+            } else {
+                Log.d(TAG, "cardCommandSync(APDU, true, onCardCommandListenerSyncCall, 5000);");
+                byte[] data = SampleActivity.biometricsManager.cardCommandSync(APDU, true, onCardCommandListenerSyncCall, 0);
+                Log.d(TAG, "cardCommandSync() HAS FINISHED[ " + data.toString() + "]");
+            }
         }
 
         /* Skip descriptive string. */
