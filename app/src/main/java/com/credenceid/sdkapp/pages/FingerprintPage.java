@@ -380,6 +380,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         getFingerQuality(currentBitmap);
                         createWsqImage(pathName);
 
+                        File temp = new File(filepath);
+                        Toast.makeText(getContext(), "Length: " + temp.length(), Toast.LENGTH_SHORT);
+
                         if (hasFmdMatcher) convertToFmd(currentBitmap);
                         else if (pathName == null)
                             Log.w(TAG, "onFingerprintGrabbed - OK but filepath null");
@@ -771,7 +774,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         Log.i(TAG, "Making convertToWsq API call");
         this.biometrics.convertToWsq(originalFilePath, bitrate, new OnConvertToWsqListener() {
             @Override
-            public void onConvertToWsq(ResultCode result, String pathname) {
+            public void onConvertToWsq(final ResultCode result, String pathname) {
                     /* If result is in between FAIL and OK, it is still being converted. */
                 if (result == ResultCode.INTERMEDIATE) setInfoText("Converting to WSQ...");
                 else if (result == ResultCode.FAIL) setInfoText("Convert to WSQ failed.");
@@ -793,8 +796,32 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             TheApp.abbreviateNumber(compressedImageSize),
                             duration);
                     setInfoText(str);
+
+                    /* Now that we have compressed fingerprint image we will also decompress it in
+                     * order to demonstrate another CredenceSDK API call.
+                     */
+                    decompressWsq(pathname);
                 }
                 resetToOneFingerCaptureState();
+            }
+        });
+    }
+
+    private void decompressWsq(String filePath) {
+        Log.i(TAG, "Going to call decompress API call");
+        biometrics.decompressWsq(null, new Biometrics.OnDecompressWsqListener() {
+            @Override
+            public void onDecompressWsq(ResultCode resultCode, byte[] bytes) {
+                String message = "De-CompressWsq was " + resultCode.toString();
+
+                if (bytes != null)
+                    Toast.makeText(getContext(),
+                            message + ", Length: " + bytes.length,
+                            Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(getContext(),
+                            message + ", Data was NULL.",
+                            Toast.LENGTH_LONG).show();
             }
         });
     }
