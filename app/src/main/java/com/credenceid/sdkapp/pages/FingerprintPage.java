@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.Biometrics.CloseReasonCode;
@@ -32,9 +33,12 @@ import com.credenceid.sdkapp.TheApp;
 import com.credenceid.sdkapp.models.PageView;
 import com.credenceid.sdkapp.utils.Beeper;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Locale;
 
+import static com.credenceid.biometrics.Biometrics.ResultCode.OK;
 import static com.credenceid.sdkapp.R.id.status;
 
 public class FingerprintPage extends LinearLayout implements PageView {
@@ -256,12 +260,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
         viewMatchButtonSpacer.setVisibility(hasFmdMatcher ? VISIBLE : GONE);
         buttonMatch.setVisibility(hasFmdMatcher ? VISIBLE : GONE);
 
-        /* Only Tridents/CredenceTABs support using the WSQ fingerprint listener. */
+        /* Only Tridents/CredenceTABs support using the WSQ fingerprint listener, but we only
+         * use listener for TABs so for Tridents we may instead demonstrate fullListener.
+         */
         String name = this.biometrics.getProductName();
-        if (name.equals("Credence TAB V1") || name.equals("Credence TAB V2") ||
-                name.equals("Credence TAB V3") || name.equals("Credence TAB V4")) {
-            useFingerprintWsqListener = true;
-        }
+        useFingerprintWsqListener = name.contains("TAB");
         /* Always reset our captures when we activate this page. */
         this.doResume();
     }
@@ -310,23 +313,22 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     if (result == ResultCode.FAIL) {
                         setStatusText("Fingerprint Open-FAILED");
                         resetToOneFingerCaptureState();
-                    } else if (result == ResultCode.OK) {
+                    } else if (result == OK) {
                         Beeper.getInstance().click();
                         resetToOneFingerCaptureState();
                         /* Calculate total time taken for image to return back as good. */
                         long duration = SystemClock.elapsedRealtime() - startCaptureTime;
                         setStatusText("Capture Complete in " + duration + "msec");
-
                         /* Set global path variables for Bitmap image. */
                         pathName = filepath;
                         currentBitmap = bm;
 
-                        showImageSize(filepath, wsq, duration);
+                        convertToFmd(wsq);
 
+                        showImageSize(filepath, wsq, duration);
                         /* Display captured finger quality. */
                         setStatusText("Fingerprint Quality: " + nfiqScore);
                         Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
-
                         /* If device supports creation of FMD templates then create first FMD
                          * template from Bitmap.
                          */
@@ -336,7 +338,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                 @Override
                 public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
-                    if (resultCode == ResultCode.OK) {
+                    if (resultCode == OK) {
                         setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
                         resetCapture();
                     } else if (resultCode == ResultCode.FAIL) {
@@ -364,7 +366,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     if (result == ResultCode.FAIL) {
                         setStatusText("Fingerprint Open-FAILED");
                         resetToOneFingerCaptureState();
-                    } else if (result == ResultCode.OK) {
+                    } else if (result == OK) {
                         Beeper.getInstance().click();
                         resetToOneFingerCaptureState();
 
@@ -378,6 +380,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         getFingerQuality(currentBitmap);
                         createWsqImage(pathName);
 
+                        File temp = new File(filepath);
+                        Toast.makeText(getContext(), "Length: " + temp.length(), Toast.LENGTH_SHORT);
+
                         if (hasFmdMatcher) convertToFmd(currentBitmap);
                         else if (pathName == null)
                             Log.w(TAG, "onFingerprintGrabbed - OK but filepath null");
@@ -386,7 +391,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                 @Override
                 public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode reasonCode) {
-                    if (resultCode == ResultCode.OK) {
+                    if (resultCode == OK) {
                         setStatusText("FingerPrint reader closed:" + reasonCode.toString());
                         resetCapture();
                     } else if (resultCode == ResultCode.FAIL) {
@@ -417,7 +422,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     if (result == ResultCode.FAIL) {
                         setStatusText("Matching Fingerprint Grab-FAILED");
                         resetToOneFingerCaptureState();
-                    } else if (result == ResultCode.OK) {
+                    } else if (result == OK) {
                         Beeper.getInstance().click();
 
                         /* If scan type initiated was TWO_FINGERS_SPLIT then we need to display
@@ -463,7 +468,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                 @Override
                 public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode reasonCode) {
-                    if (resultCode == ResultCode.OK) {
+                    if (resultCode == OK) {
                         setStatusText("FingerPrint reader closed:" + reasonCode.toString());
                         resetToClosedState();
                     } else if (resultCode == ResultCode.FAIL) {
@@ -489,7 +494,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.buttonClose.setEnabled(false);
     }
 
-    /* The match section works by first looking to make sure user has already made on+e successfull
+    /* The match section works by first looking to make sure user has already made on+e successful
      * fingerprint capture. If they have and a proper FMD template was created then it goes ahead
      * and captures another fingerprint image. It then converts this second image to a FMD template
      * then compares the two images.
@@ -535,7 +540,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     if (result == ResultCode.FAIL) {
                         setStatusText("Matching Fingerprint Grab-FAILED");
                         resetToOneFingerCaptureState();
-                    } else if (result == ResultCode.OK && bm != null) {
+                    } else if (result == OK && bm != null) {
                         Beeper.getInstance().click();
 
                         Bitmap bitmapForMatching = bm;
@@ -577,7 +582,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                 @Override
                 public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode reasonCode) {
-                    if (resultCode == ResultCode.OK) {
+                    if (resultCode == OK) {
                         setStatusText("FingerPrint reader closed:" + reasonCode.toString());
                         resetToClosedState();
                     } else if (resultCode == ResultCode.FAIL)
@@ -603,7 +608,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     if (result == ResultCode.FAIL) {
                         setStatusText("Matching Fingerprint Grab-FAILED");
                         resetToOneFingerCaptureState();
-                    } else if (result == ResultCode.OK && bm != null) {
+                    } else if (result == OK && bm != null) {
                         Beeper.getInstance().click();
 
                         /* Set global image variables. */
@@ -619,7 +624,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                 @Override
                 public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode reasonCode) {
-                    if (resultCode == ResultCode.OK) {
+                    if (resultCode == OK) {
                         setStatusText("FingerPrint reader closed:" + reasonCode.toString());
                         resetToClosedState();
                     } else if (resultCode == ResultCode.FAIL)
@@ -637,7 +642,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.biometrics.convertToFmd(capturedImage, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
             @Override
             public void onConvertToFmd(ResultCode result, byte[] fmd) {
-                if (result != ResultCode.OK || fmd == null) {
+                if (result != OK || fmd == null) {
                     Log.w(TAG, "convertToFmd failed so mFmd1 is null");
                     setStatusText("convertToFmd failed so NO Fingerprint template");
                 } else {
@@ -651,6 +656,33 @@ public class FingerprintPage extends LinearLayout implements PageView {
         });
     }
 
+    private void convertToFmd(String image_path) {
+        Log.i(TAG, "convertToFmd(String image_path[" + image_path + "])");
+
+        File file = new File(image_path);
+        int size = (int) file.length();
+        byte[] bytes = new byte[size];
+        try {
+            Log.i(TAG, "reading file into byte array");
+            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
+            buf.read(bytes, 0, bytes.length);
+            buf.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Log.i(TAG, "now going to make CredenceSDK API call");
+        biometrics.convertToFmd(bytes, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
+            @Override
+            public void onConvertToFmd(ResultCode resultCode, byte[] bytes) {
+                Log.i(TAG, "onConvertToFmd(ResultCode, byte[]): CALLBACK INVOKED");
+                Toast.makeText(getContext(),
+                        "convertToFmd(wsq): " + (resultCode == OK ? "OK" : "FAIL") + ", " + bytes,
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     /* After Match button was pressed, a fingerprint image was captured, was valid, then we call
      * this method to convert captured image to FMD template then compare against first FMD.
      */
@@ -659,7 +691,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.biometrics.convertToFmd(inputImage, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
             @Override
             public void onConvertToFmd(ResultCode result, byte[] fmd) {
-                if (result != ResultCode.OK || fmd == null) {
+                if (result != OK || fmd == null) {
                     Log.w(TAG, "convertMatchImage failed");
                     setStatusText("No Match: FMD convert fail");
                     resetToOneFingerCaptureState();
@@ -694,7 +726,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 /* Calculate time taken for result from API function call. */
                 final long duration = SystemClock.elapsedRealtime() - startTime;
 
-                if (result != ResultCode.OK) setStatusText("Failed To Compare Templates.");
+                if (result != OK) setStatusText("Failed To Compare Templates.");
                 else {
                     /* If result is good dissimilarity score ranges from 0 to
                      * Integer.MAX_VALUE(2147483647). A score of less than 2147 is a match with
@@ -720,7 +752,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.biometrics.getFingerQuality(bitmap, new Biometrics.OnGetFingerQualityListener() {
             @Override
             public void onGetFingerQuality(ResultCode resultCode, int nfiqScore) {
-                if (resultCode == ResultCode.OK)
+                if (resultCode == OK)
                     setStatusText("Fingerprint Quality: " + nfiqScore);
                 else setStatusText("Fingerprint Quality: " + nfiqScore);
             }
@@ -746,7 +778,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         Log.i(TAG, "Making convertToWsq API call");
         this.biometrics.convertToWsq(originalFilePath, bitrate, new OnConvertToWsqListener() {
             @Override
-            public void onConvertToWsq(ResultCode result, String pathname) {
+            public void onConvertToWsq(final ResultCode result, String pathname) {
                     /* If result is in between FAIL and OK, it is still being converted. */
                 if (result == ResultCode.INTERMEDIATE) setInfoText("Converting to WSQ...");
                 else if (result == ResultCode.FAIL) setInfoText("Convert to WSQ failed.");
@@ -768,8 +800,32 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             TheApp.abbreviateNumber(compressedImageSize),
                             duration);
                     setInfoText(str);
+
+                    /* Now that we have compressed fingerprint image we will also decompress it in
+                     * order to demonstrate another CredenceSDK API call.
+                     */
+                    decompressWsq(pathname);
                 }
                 resetToOneFingerCaptureState();
+            }
+        });
+    }
+
+    private void decompressWsq(String filePath) {
+        Log.i(TAG, "Going to call decompress API call");
+        biometrics.decompressWsq(null, new Biometrics.OnDecompressWsqListener() {
+            @Override
+            public void onDecompressWsq(ResultCode resultCode, byte[] bytes) {
+                String message = "De-CompressWsq was " + resultCode.toString();
+
+                if (bytes != null)
+                    Toast.makeText(getContext(),
+                            message + ", Length: " + bytes.length,
+                            Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(getContext(),
+                            message + ", Data was NULL.",
+                            Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -795,7 +851,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.biometrics.getFingerQuality(bitmap, new Biometrics.OnGetFingerQualityListener() {
             @Override
             public void onGetFingerQuality(ResultCode resultCode, int nfiqScore) {
-                if (resultCode == ResultCode.OK) {
+                if (resultCode == OK) {
                     Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
                     setStatusText("Fingerprint Quality: " + nfiqScore);
                 } else {
