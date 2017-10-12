@@ -39,8 +39,6 @@ public class SampleActivity extends BiometricsActivity {
 
     private static final int MENU_EXIT = Menu.FIRST;
 
-    public static BiometricsManager biometricsManager;
-
     /* ViewFlipper is used to switch between different pages in our activity. */
     private ViewFlipper viewFlipper;
     /* Every page's object. */
@@ -158,7 +156,6 @@ public class SampleActivity extends BiometricsActivity {
                 }
             });
 
-            biometricsManager = new BiometricsManager(this);
         }
 
         Toast.makeText(this, "Biometrics Initialized", Toast.LENGTH_LONG).show();
