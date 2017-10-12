@@ -17,8 +17,9 @@ import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.OnCardCommandListener;
 import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
+import com.credenceid.biometrics.BiometricsActivity;
+import com.credenceid.biometrics.CardCommandResponse;
 import com.credenceid.sdkapp.R;
-import com.credenceid.sdkapp.SampleActivity;
 import com.credenceid.sdkapp.models.ApduState;
 import com.credenceid.sdkapp.models.CardInfo;
 import com.credenceid.sdkapp.models.PageView;
@@ -107,12 +108,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
             handleOnCardcommandComplete(arg0, sw1, sw2, data);
         }
     };
-    OnCardCommandListener onCardCommandListenerSyncCall = new OnCardCommandListener() {
-        @Override
-        public void onCardCommandComplete(ResultCode arg0, byte sw1, byte sw2, byte[] data) {
-            handleOnCardcommandComplete(arg0, sw1, sw2, data);
-        }
-    };
+
     private Button buttonSyncAsync;
     private boolean syncMode = false;
     /* Biometrics object for making Credence API calls. */
@@ -364,11 +360,12 @@ public class CardReaderPage extends LinearLayout implements PageView {
             /* Based on status of "Mode" button run either Async|Sync version of cardCommand. */
             if (!syncMode) {
                 Log.d(TAG, "cardCommand(APDU, true, onCardCommandListenerAsyncCall);");
-                this.biometrics.cardCommand(APDU, true, onCardCommandListenerAsyncCall);
+                ((BiometricsActivity)this.getContext()).cardCommand(APDU, true, onCardCommandListenerAsyncCall);
             } else {
-                Log.d(TAG, "cardCommandSync(APDU, true, onCardCommandListenerSyncCall, 5000);");
-                byte[] data = SampleActivity.biometricsManager.cardCommandSync(APDU, true, onCardCommandListenerSyncCall, 0);
-                Log.d(TAG, "cardCommandSync() HAS FINISHED[ " + data.toString() + "]");
+                Log.d(TAG, "cardSyncCommand(APDU, true)");
+                CardCommandResponse data = ((BiometricsActivity)this.getContext()).cardSyncCommand(APDU,true);
+                Log.d(TAG, "cardSyncCommand(APDU, true) completed");
+                displayCardSyncData(data);
             }
         }
 
@@ -382,5 +379,46 @@ public class CardReaderPage extends LinearLayout implements PageView {
             apduTableIndex = 0;
         }
         buttonView.setText("APDU [" + APDU_table[apduTableIndex + 1] + "]");
+    }
+
+    private void displayCardSyncData(CardCommandResponse cardCommandResponse){
+
+        try {
+            Log.d(TAG,"Data length is : " + cardCommandResponse.getData().length );
+        }catch (NullPointerException ex){
+            /* If the received data is null, reset all variables and let user know failure. */
+            apduState = ApduState.APDU_INIT;
+            apduTableIndex = 0;
+            textViewStatus.setText("Error, Please Try Again");
+            Log.e(TAG,"Got null from card sync call" );
+            return;
+        }
+
+        String ds = "";
+        /* Calculate time taken for result */
+        long duration = SystemClock.elapsedRealtime() - startTime;
+
+        if (cardCommandResponse.getData().length == 0) ds = "{no data}";
+        else {
+            /* If data available then create string from data. */
+            for (byte piece : cardCommandResponse.getData())
+                ds = ds + String.format("%02X", (0x0ff) & piece);
+        }
+
+        Log.i(TAG, "Capture Complete in " + duration + "msec");
+        Log.d(TAG, "Card: " + cardName
+                + " APDU Result: SW1,SW2: "
+                + String.format("%02x", (0x0ff) & cardCommandResponse.getSw1())
+                + String.format("%02x", (0x0ff) & cardCommandResponse.getSw2())
+                + " D(" + cardCommandResponse.getData().length + "): " + ds);
+
+        textViewStatus.setText("Card: " + cardName + "\n\n"
+                + "Mili-Seconds elapsed:" + duration + "\n\n"
+                + "APDU [" + APDU_lastdesc + "]\n\n"
+                + "SW1,SW2: "
+                + String.format("%02x", (0x0ff) & cardCommandResponse.getSw1())
+                + String.format("%02x", (0x0ff) & cardCommandResponse.getSw2()) + "\n\n"
+                + "Data:\n" + ds + "\n\n" + "Length: "
+                + cardCommandResponse.getData().length + " bytes");
     }
 }
