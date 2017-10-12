@@ -110,7 +110,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
     };
 
     private Button buttonSyncAsync;
-    private boolean syncMode = false;
+    private boolean isSyncMode = false;
     /* Biometrics object for making Credence API calls. */
     private Biometrics biometrics;
 
@@ -206,8 +206,8 @@ public class CardReaderPage extends LinearLayout implements PageView {
         buttonSyncAsync.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                syncMode = !syncMode;
-                buttonSyncAsync.setText(syncMode ? "Sync" : "Async");
+                isSyncMode = !isSyncMode;
+                buttonSyncAsync.setText(isSyncMode ? "Sync" : "Async");
             }
         });
     }
@@ -358,14 +358,14 @@ public class CardReaderPage extends LinearLayout implements PageView {
             /* Keep track of how long API call takes. */
             startTime = SystemClock.elapsedRealtime();
             /* Based on status of "Mode" button run either Async|Sync version of cardCommand. */
-            if (!syncMode) {
+            if (!isSyncMode) {
                 Log.d(TAG, "cardCommand(APDU, true, onCardCommandListenerAsyncCall);");
                 ((BiometricsActivity)this.getContext()).cardCommand(APDU, true, onCardCommandListenerAsyncCall);
             } else {
                 Log.d(TAG, "cardSyncCommand(APDU, true)");
-                CardCommandResponse data = ((BiometricsActivity)this.getContext()).cardSyncCommand(APDU,true);
+                CardCommandResponse cardCommandResponseData = ((BiometricsActivity)this.getContext()).cardSyncCommand(APDU,true);
                 Log.d(TAG, "cardSyncCommand(APDU, true) completed");
-                displayCardSyncData(data);
+                displayCardSyncData(cardCommandResponseData);
             }
         }
 
@@ -384,7 +384,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
     private void displayCardSyncData(CardCommandResponse cardCommandResponse){
 
         try {
-            Log.d(TAG,"Data length is : " + cardCommandResponse.getData().length );
+            Log.d(TAG,"Data length is : " + cardCommandResponse.data.length );
         }catch (NullPointerException ex){
             /* If the received data is null, reset all variables and let user know failure. */
             apduState = ApduState.APDU_INIT;
@@ -398,27 +398,27 @@ public class CardReaderPage extends LinearLayout implements PageView {
         /* Calculate time taken for result */
         long duration = SystemClock.elapsedRealtime() - startTime;
 
-        if (cardCommandResponse.getData().length == 0) ds = "{no data}";
+        if (cardCommandResponse.data.length == 0) ds = "{no data}";
         else {
             /* If data available then create string from data. */
-            for (byte piece : cardCommandResponse.getData())
+            for (byte piece : cardCommandResponse.data)
                 ds = ds + String.format("%02X", (0x0ff) & piece);
         }
 
         Log.i(TAG, "Capture Complete in " + duration + "msec");
         Log.d(TAG, "Card: " + cardName
                 + " APDU Result: SW1,SW2: "
-                + String.format("%02x", (0x0ff) & cardCommandResponse.getSw1())
-                + String.format("%02x", (0x0ff) & cardCommandResponse.getSw2())
-                + " D(" + cardCommandResponse.getData().length + "): " + ds);
+                + String.format("%02x", (0x0ff) & cardCommandResponse.sw1)
+                + String.format("%02x", (0x0ff) & cardCommandResponse.sw2)
+                + " D(" + cardCommandResponse.data.length + "): " + ds);
 
         textViewStatus.setText("Card: " + cardName + "\n\n"
                 + "Mili-Seconds elapsed:" + duration + "\n\n"
                 + "APDU [" + APDU_lastdesc + "]\n\n"
                 + "SW1,SW2: "
-                + String.format("%02x", (0x0ff) & cardCommandResponse.getSw1())
-                + String.format("%02x", (0x0ff) & cardCommandResponse.getSw2()) + "\n\n"
+                + String.format("%02x", (0x0ff) & cardCommandResponse.sw1)
+                + String.format("%02x", (0x0ff) & cardCommandResponse.sw2) + "\n\n"
                 + "Data:\n" + ds + "\n\n" + "Length: "
-                + cardCommandResponse.getData().length + " bytes");
+                + cardCommandResponse.data.length + " bytes");
     }
 }
