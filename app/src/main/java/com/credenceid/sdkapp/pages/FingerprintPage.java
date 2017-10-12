@@ -809,7 +809,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
     private void decompressWsq(String filePath) {
         Log.i(TAG, "Going to call decompress API call");
-        biometrics.decompressWsq(null, new Biometrics.OnDecompressWsqListener() {
+        biometrics.decompressWsq(filePath, new Biometrics.OnDecompressWsqListener() {
             @Override
             public void onDecompressWsq(ResultCode resultCode, byte[] bytes) {
                 String message = "De-CompressWsq was " + resultCode.toString();
