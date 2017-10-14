@@ -572,7 +572,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         /* Call method to convert Bitmap to FMD template and match it against first
                          * FMD template created.
                          */
-                        convertToFmdAndMatch(bitmap_finger1);
+                        if (hasFmdMatcher) {
+                            //If the scan is for split fingers, then consider first fingerprint for matching
+                            if (scanType.equals(ScanType.TWO_FINGERS_SPLIT))
+                                convertToFmdAndMatch(bitmap_finger1);
+                            else
+                                convertToFmdAndMatch(bm);
+                        } else
+                            Log.w(TAG, "Fmd matcher is not present");
                     }
                 }
 
