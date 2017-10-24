@@ -133,6 +133,10 @@
     <string name="close">Close</string>
     <string name="close_id">Close</string>
 
+
+    <string name="open_card">Open Card</string>
+    <string name="close_card">Close Card</string>
+
     <string name="sync">Sync</string>
     <string name="assync">Assync</string>
 
@@ -142,4 +146,7 @@
     <string name="closing_card_reader">Closing CardReade</string>
     <string name="opening_card_reader">Opening CardReader</string>
     <string name="reader_result">"SmartCard reader RESULT: </string>
+    <string name="grab_fingerprint">Grab Fingerprint</string>
+    <string name="fingerprint_uninitialized">Fingerprint reader not initialized</string>
+    <string name="card_reader_uninitialized">Card reader not initialized</string>
 </resources>
