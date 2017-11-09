@@ -38,6 +38,8 @@ public class NfcPage extends LinearLayout implements PageView {
     private Button mCloseBtn;
     private ImageView mPhotoView;
     private Bitmap bm = null;
+    private TextView mFingerprintStatusTextView;
+    private Button mGrabFingerprintButton;
 
     public NfcPage(Context context) {
         super(context);
@@ -79,8 +81,37 @@ public class NfcPage extends LinearLayout implements PageView {
         if (mCardDetailsTextView != null) {
             mCardDetailsTextView.setHorizontallyScrolling(false);
             mCardDetailsTextView.setMaxLines(Integer.MAX_VALUE);
+            mCardDetailsTextView.setText(R.string.card_reader_uninitialized);
         }
         mPhotoView = (ImageView) findViewById(R.id.photo_view);
+        mFingerprintStatusTextView = (TextView) findViewById(R.id.tv_fingerprint_status);
+        if(mFingerprintStatusTextView != null){
+            mFingerprintStatusTextView.setMaxLines(Integer.MAX_VALUE);
+        }
+        mGrabFingerprintButton = (Button) findViewById(R.id.btn_grab_fingerprint);
+        mGrabFingerprintButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mFingerprintStatusTextView.setText(R.string.fingerprint_uninitialized);
+                mBiometrics.grabFingerprint(Biometrics.ScanType.SINGLE_FINGER, new Biometrics.OnFingerprintGrabbedListener() {
+                    @Override
+                    public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes, String s, String s1) {
+
+                        mFingerprintStatusTextView.setText("Fingerprint status :"+s1 +"\n"+
+                                "Result :"+resultCode.toString()+"\n"+
+                                "Bitmap size :"+ (bitmap==null? "0": bitmap.getByteCount())+" bytes");
+                    }
+
+                    @Override
+                    public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+                        mFingerprintStatusTextView.setText("Fingerprint reader closed :"+resultCode.toString()+"\n"+
+                                "Fingerprint reader closure reason :"+closeReasonCode.toString());
+
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -143,8 +174,10 @@ public class NfcPage extends LinearLayout implements PageView {
         mBiometrics.cardOpenCommand(new CardReaderStatusListner() {
             @Override
             public void onCardReaderOpen(ResultCode arg0) {
+
                 Log.d(TAG, "OnCardOpen:" + arg0.toString());
                 if (arg0 == ResultCode.OK) {
+
                     mCardDetailsTextView.setText("Card Open Success.");
                     disableOpenButton();
                     enableCloseButton();
@@ -167,11 +200,14 @@ public class NfcPage extends LinearLayout implements PageView {
                 }
             }
         });
+
     }
 
     // Calls the ektpCardReadCommand API call to read in data.
     private void doCardRead() {
         Log.d("doRead", "Reading card");
+
+
 
         // Gets SAM Pin to unlock card read
         byte[] pin;
