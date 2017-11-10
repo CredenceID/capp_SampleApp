@@ -307,8 +307,10 @@ public class SampleActivity extends BiometricsActivity {
             this.cancelCapture();
         /* Deactivate current page application was on. */
         if (this.currentPageView != null) {
-            this.currentPageView.deactivate();
-            this.currentPageView = null;
+//            if(currentPageView.getTitle().compareToIgnoreCase("Fingerprint") != 0){
+                this.currentPageView.deactivate();
+                this.currentPageView = null;
+//            }
         }
         /* Deactivates old current page's ImageButton. */
         if (this.imageButtonCurrentPage != null)
