@@ -290,7 +290,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         /* Turn on close button so user can close at anytime. */
         this.buttonClose.setEnabled(true);
 
-        setStatusText("initalizing...");
+        setStatusText("initializing...");
         this.isCapturing = true;
 
         final long startCaptureTime = SystemClock.elapsedRealtime();
