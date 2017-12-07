@@ -186,7 +186,8 @@ public class MrzReaderPage extends LinearLayout implements PageView {
         String productName = activity.getProductName();
         Log.d(TAG, "Product Name= " + productName);
 
-        if (productName.equalsIgnoreCase("starlight") || productName.equalsIgnoreCase("credence tab")) {
+        if (productName.equalsIgnoreCase("starlight") || productName.equalsIgnoreCase("credence tab")
+                || productName.equalsIgnoreCase("Credence TAB V3") || productName.equalsIgnoreCase("Credence TAB V4")) {
             mMrzRfReadBtn.setVisibility(VISIBLE);
         } else {
             mMrzRfReadBtn.setVisibility(GONE);
