@@ -187,7 +187,8 @@ public class MrzReaderPage extends LinearLayout implements PageView {
         Log.d(TAG, "Product Name= " + productName);
 
         if (productName.equalsIgnoreCase("starlight") || productName.equalsIgnoreCase("credence tab")
-                || productName.equalsIgnoreCase("Credence TAB V3") || productName.equalsIgnoreCase("Credence TAB V4")) {
+                || productName.equalsIgnoreCase("Credence TAB V3") || productName.equalsIgnoreCase("Credence TAB V4")
+                || productName.equalsIgnoreCase("Credence One V3") || productName.equalsIgnoreCase("CredenceOne-V3")) {
             mMrzRfReadBtn.setVisibility(VISIBLE);
         } else {
             mMrzRfReadBtn.setVisibility(GONE);
