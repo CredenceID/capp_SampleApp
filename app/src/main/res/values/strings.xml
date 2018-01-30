@@ -53,6 +53,10 @@
         <item>bitrate 0.10</item>
         <item>bitrate 0.0</item>
     </string-array>
+    <string-array name="save_to_disk_array">
+        <item>No PNG</item>
+        <item>Save as PNG</item>
+    </string-array>
 
     <!-- Iris -->
     <string name="title_iris">Iris</string>

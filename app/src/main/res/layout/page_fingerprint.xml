@@ -144,6 +144,17 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
+
+        <Spinner
+            android:id="@+id/save_to_disk_spinner"
+            android:spinnerMode="dialog"
+            style="@style/Spinner" />
+
+        <View
+            android:id="@+id/save_to_disk_spacer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
     </LinearLayout>
 
     <View

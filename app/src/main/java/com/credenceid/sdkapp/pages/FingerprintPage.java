@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +59,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private Spinner spinnerScanType;
     private View viewGenericSpinnerSpacer;
     private Spinner spinnerBitrate;
+    private Spinner spinnerSaveToDisk;
 
     private ImageView imageViewCapturedImage;
     private ImageView imageViewCapturedImageFinger1;
@@ -237,6 +239,33 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     String item = spinnerBitrate.getSelectedItem().toString();
                     String value = item.replaceAll(".*(\\d+\\.\\d+).*", "$1");
                     bitrate = Float.parseFloat(value);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+        }
+
+        spinnerSaveToDisk = (Spinner) findViewById(R.id.save_to_disk_spinner);
+        if (spinnerSaveToDisk != null) {
+            ArrayAdapter<CharSequence> save_to_disk_adapter =
+                    ArrayAdapter.createFromResource(getContext(),
+                            R.array.save_to_disk_array,
+                            android.R.layout.simple_spinner_item);
+            save_to_disk_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+            spinnerSaveToDisk.setAdapter(save_to_disk_adapter);
+            spinnerSaveToDisk.setSelection(0);
+            spinnerSaveToDisk.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if(position == 0) {
+                        saveToDisk = false;
+                    } else {
+                        saveToDisk = true;
+                    }
                 }
 
                 @Override
