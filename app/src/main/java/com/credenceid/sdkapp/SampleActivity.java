@@ -366,7 +366,9 @@ public class SampleActivity extends BiometricsActivity {
         webView.loadUrl("file:///" + file.getAbsolutePath());
     }
 
-    /* If the grabbed finger print is not saved to disk, show full screen with its Bitmap format
+    /*
+     * If user taps on scanned the fingerprint and it is not save to disk, then application zooms in
+     * allowing user to interact with images in full screen "mode" with its Bitmap format.
      */
     public void showFullScreenScannedImage(Bitmap bitmap) {
         if(bitmap == null) {

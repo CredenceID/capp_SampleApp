@@ -73,7 +73,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private float bitrate = 0;
     private boolean hasFmdMatcher;
 
-    /* global path variables for grabbed finger prints.*/
+    /* global path variables for grabbed fingerprints.*/
     private Bitmap currentBitmap;
     private Bitmap currentFingerprint1Bitmap;
     private Bitmap currentFingerprint2Bitmap;
@@ -85,7 +85,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private long compressedImageSize;
 
     private boolean isCapturing = false;
-    // indicates if the grabbed fingper print is saved to disk
+    // if true, save the grabbed fingerprint to disk
     private boolean saveToDisk = false;
 
     /* The newer API call of grabFingerprint() takes a "onFingerprintGrabbedFullListener" as its
@@ -135,6 +135,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
         imageViewCapturedImage.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                // if saveToDisk is true, show the full screen image with the PNG format;
+                // if saveToDisk is false, show the full screen image with the Bitmap format
                 if(saveToDisk) {
                     sampleActivity.showFullScreenScannedImage(pathName);
                 } else {
@@ -148,6 +150,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
         imageViewCapturedImageFinger1.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                // if saveToDisk is true, show the full screen image with the PNG format;
+                // if saveToDisk is false, show the full screen image with the Bitmap format
                 if(saveToDisk) {
                     sampleActivity.showFullScreenScannedImage(pathNameFingerprint1);
                 } else {
@@ -161,6 +165,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
         imageViewCapturedImageFinger2.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                // if saveToDisk is true, show the full screen image with the PNG format;
+                // if saveToDisk is false, show the full screen image with the Bitmap format
                 if(saveToDisk) {
                     sampleActivity.showFullScreenScannedImage(pathNameFingerprint2);
                 } else {
@@ -248,6 +254,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             });
         }
 
+        //spinner with the options of "No PNG" and "Save as PNG"
         spinnerSaveToDisk = (Spinner) findViewById(R.id.save_to_disk_spinner);
         if (spinnerSaveToDisk != null) {
             ArrayAdapter<CharSequence> save_to_disk_adapter =
@@ -370,6 +377,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         pathName = filepath;
                         currentBitmap = bm;
 
+                        //if saveToDisk is true, don't convert to wsq
                         if(saveToDisk) {
                             convertToFmd(wsq);
                             showImageSize(filepath, wsq, duration);
@@ -426,6 +434,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                          * compress image down to a WSQ format, or do both.
                          */
                         getFingerQuality(currentBitmap);
+                        //if saveToDisk is true, don't convert to wsq
                         if(saveToDisk) {
                             createWsqImage(pathName);
                             File temp = new File(filepath);
@@ -486,12 +495,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                             if (bitmap_finger1 != null) {
                                 imageViewCapturedImageFinger1.setImageBitmap(bitmap_finger1);
+                                //save to the global variable currentFingerprint1Bitmap
                                 currentFingerprint1Bitmap = bitmap_finger1;
                             }
                             if (bitmap_finger2 != null) {
                                 imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
+                                //save to the global variable currentFingerprint2Bitmap
                                 currentFingerprint2Bitmap = bitmap_finger2;
                             }
+                            //if saveToDisk is true, don't convert to wsq
                             if(saveToDisk) {
                                 createWsqImage(filepath_finger1);
                             }
@@ -499,6 +511,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         } else {
                             imageViewCapturedImage.setImageBitmap(bm);
                             imageViewCapturedImage.setVisibility(VISIBLE);
+                            //if saveToDisk is true, don't convert to wsq
                             if(saveToDisk) {
                                 createWsqImage(filepath);
                             }
@@ -598,6 +611,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         resetToOneFingerCaptureState();
                     } else if (result == OK && bm != null) {
                         Beeper.getInstance().click();
+                        //save to the global variable currentBitmap
                         currentBitmap = bm;
                         /* If scan type initiated was TWO_FINGERS_SPLIT then we need to display
                          * each of the two split fingerprints in their own ImageViews.
@@ -611,10 +625,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                             if (bitmap_finger1 != null) {
                                 imageViewCapturedImageFinger1.setImageBitmap(bitmap_finger1);
+                                //save to the global variable currentFingerprint1Bitmap
                                 currentFingerprint1Bitmap = bitmap_finger1;
                             }
                             if (bitmap_finger2 != null) {
                                 imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
+                                //save to the global variable currentFingerprint2Bitmap
                                 currentFingerprint2Bitmap = bitmap_finger2;
                             }
                         } else {
