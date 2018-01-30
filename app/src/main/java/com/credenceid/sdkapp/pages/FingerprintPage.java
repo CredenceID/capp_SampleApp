@@ -71,7 +71,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private float bitrate = 0;
     private boolean hasFmdMatcher;
 
+    /* global path variables for grabbed finger prints.*/
     private Bitmap currentBitmap;
+    private Bitmap currentFingerprint1Bitmap;
+    private Bitmap currentFingerprint2Bitmap;
+
     private byte[] fmdFingerTemplate1 = null;
     private byte[] fmdFingerTemplate2 = null;
 
@@ -142,7 +146,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
         imageViewCapturedImageFinger1.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                sampleActivity.showFullScreenScannedImage(pathNameFingerprint1);
+                if(saveToDisk) {
+                    sampleActivity.showFullScreenScannedImage(pathNameFingerprint1);
+                } else {
+                    sampleActivity.showFullScreenScannedImage(currentFingerprint1Bitmap);
+                }
             }
         });
 
@@ -151,7 +159,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
         imageViewCapturedImageFinger2.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                sampleActivity.showFullScreenScannedImage(pathNameFingerprint2);
+                if(saveToDisk) {
+                    sampleActivity.showFullScreenScannedImage(pathNameFingerprint2);
+                } else {
+                    sampleActivity.showFullScreenScannedImage(currentFingerprint2Bitmap);
+                }
             }
         });
 
@@ -443,11 +455,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             imageViewCapturedImageFinger1.setVisibility(VISIBLE);
                             imageViewCapturedImageFinger2.setVisibility(VISIBLE);
 
-                            if (bitmap_finger1 != null)
+                            if (bitmap_finger1 != null) {
                                 imageViewCapturedImageFinger1.setImageBitmap(bitmap_finger1);
-                            if (bitmap_finger2 != null)
+                                currentFingerprint1Bitmap = bitmap_finger1;
+                            }
+                            if (bitmap_finger2 != null) {
                                 imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
-
+                                currentFingerprint2Bitmap = bitmap_finger2;
+                            }
                             if(saveToDisk) {
                                 createWsqImage(filepath_finger1);
                             }
@@ -554,7 +569,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         resetToOneFingerCaptureState();
                     } else if (result == OK && bm != null) {
                         Beeper.getInstance().click();
-
+                        currentBitmap = bm;
                         /* If scan type initiated was TWO_FINGERS_SPLIT then we need to display
                          * each of the two split fingerprints in their own ImageViews.
                          */
@@ -565,10 +580,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             imageViewCapturedImageFinger1.setVisibility(VISIBLE);
                             imageViewCapturedImageFinger2.setVisibility(VISIBLE);
 
-                            if (bitmap_finger1 != null)
+                            if (bitmap_finger1 != null) {
                                 imageViewCapturedImageFinger1.setImageBitmap(bitmap_finger1);
-                            if (bitmap_finger2 != null)
+                                currentFingerprint1Bitmap = bitmap_finger1;
+                            }
+                            if (bitmap_finger2 != null) {
                                 imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
+                                currentFingerprint2Bitmap = bitmap_finger2;
+                            }
                         } else {
                             imageViewCapturedImage.setImageBitmap(bm);
                             imageViewCapturedImage.setVisibility(VISIBLE);
