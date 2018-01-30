@@ -79,6 +79,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private long compressedImageSize;
 
     private boolean isCapturing = false;
+    // indicates if the grabbed fingper print is saved to disk
+    private boolean saveToDisk = false;
 
     /* The newer API call of grabFingerprint() takes a "onFingerprintGrabbedFullListener" as its
      * listener. This "full" listener can be used on all device types, but to demonstrate the
@@ -127,7 +129,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
         imageViewCapturedImage.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                sampleActivity.showFullScreenScannedImage(pathName);
+                if(saveToDisk) {
+                    sampleActivity.showFullScreenScannedImage(pathName);
+                } else {
+                    sampleActivity.showFullScreenScannedImage(currentBitmap);
+                }
             }
         });
 
@@ -296,7 +302,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         final long startCaptureTime = SystemClock.elapsedRealtime();
 
         if (this.useFingerprintWsqListener)
-            this.biometrics.grabFingerprint(this.scanType, new Biometrics.OnFingerprintGrabbedWSQListener() {
+            this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new Biometrics.OnFingerprintGrabbedWSQListener() {
                 @Override
                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                  Bitmap bm, byte[] iso,
@@ -323,9 +329,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         pathName = filepath;
                         currentBitmap = bm;
 
-                        convertToFmd(wsq);
-
-                        showImageSize(filepath, wsq, duration);
+                        if(saveToDisk) {
+                            convertToFmd(wsq);
+                            showImageSize(filepath, wsq, duration);
+                        }
                         /* Display captured finger quality. */
                         setStatusText("Fingerprint Quality: " + nfiqScore);
                         Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
@@ -351,7 +358,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 }
             });
         else if (!useFingerprintFullListener)
-            this.biometrics.grabFingerprint(this.scanType, new OnFingerprintGrabbedListener() {
+            this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new OnFingerprintGrabbedListener() {
                 @Override
                 public void onFingerprintGrabbed(ResultCode result,
                                                  Bitmap bm,
@@ -378,10 +385,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
                          * compress image down to a WSQ format, or do both.
                          */
                         getFingerQuality(currentBitmap);
-                        createWsqImage(pathName);
-
-                        File temp = new File(filepath);
-                        Toast.makeText(getContext(), "Length: " + temp.length(), Toast.LENGTH_SHORT);
+                        if(saveToDisk) {
+                            createWsqImage(pathName);
+                            File temp = new File(filepath);
+                            Toast.makeText(getContext(), "Length: " + temp.length(), Toast.LENGTH_SHORT);
+                        }
 
                         if (hasFmdMatcher) convertToFmd(currentBitmap);
                         else if (pathName == null)
@@ -401,7 +409,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 }
             });
         else
-            this.biometrics.grabFingerprint(this.scanType, new OnFingerprintGrabbedFullListener() {
+            this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new OnFingerprintGrabbedFullListener() {
                 @Override
                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                  Bitmap bm,
@@ -440,12 +448,16 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             if (bitmap_finger2 != null)
                                 imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
 
-                            createWsqImage(filepath_finger1);
+                            if(saveToDisk) {
+                                createWsqImage(filepath_finger1);
+                            }
                             getNfiqScore(bitmap_finger1);
                         } else {
                             imageViewCapturedImage.setImageBitmap(bm);
                             imageViewCapturedImage.setVisibility(VISIBLE);
-                            createWsqImage(filepath);
+                            if(saveToDisk) {
+                                createWsqImage(filepath);
+                            }
                             getNfiqScore(bm);
                         }
 
@@ -520,7 +532,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.setInfoText("");
 
         if (this.useFingerprintFullListener)
-            this.biometrics.grabFingerprint(this.scanType, new OnFingerprintGrabbedFullListener() {
+            this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new OnFingerprintGrabbedFullListener() {
                 @Override
                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                  Bitmap bm,
@@ -593,7 +605,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 }
             });
         else
-            this.biometrics.grabFingerprint(this.scanType, new OnFingerprintGrabbedListener() {
+            this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new OnFingerprintGrabbedListener() {
                 @Override
                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                  Bitmap bm,

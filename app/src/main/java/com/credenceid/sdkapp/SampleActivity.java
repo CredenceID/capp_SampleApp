@@ -3,10 +3,12 @@ package com.credenceid.sdkapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -32,6 +34,7 @@ import com.credenceid.sdkapp.pages.MrzReaderPage;
 import com.credenceid.sdkapp.pages.NfcPage;
 import com.credenceid.sdkapp.pages.UsbAccessPage;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 public class SampleActivity extends BiometricsActivity {
@@ -361,6 +364,30 @@ public class SampleActivity extends BiometricsActivity {
 
         File file = new File(path_name);
         webView.loadUrl("file:///" + file.getAbsolutePath());
+    }
+
+    /* If the grabbed finger print is not saved to disk, show full screen with its Bitmap format
+     */
+    public void showFullScreenScannedImage(Bitmap bitmap) {
+        if(bitmap == null) {
+            return;
+        }
+
+        webView.setVisibility(View.VISIBLE);
+        webView.getSettings().setBuiltInZoomControls(true);
+
+        String html="<html><body><img src='{IMAGE_PLACEHOLDER}' /></body></html>";
+
+        // Convert bitmap to Base64 encoded image for web
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        String imgageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        String image = "data:image/png;base64," + imgageBase64;
+
+        // Use image for the img src parameter in html and load to webview
+        html = html.replace("{IMAGE_PLACEHOLDER}", image);
+        webView.loadData(html, "text/html", null);
     }
 
     /* Button methods for onClick event. These have already been specified inside corresponding
