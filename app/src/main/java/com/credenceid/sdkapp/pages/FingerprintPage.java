@@ -313,7 +313,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     if(position == 0) {
                         grabFingerprintAsync = true;
-                        grabFingerprintSync = true;
+                        grabFingerprintSync = false;
                         spinnerSaveToDisk.setEnabled(true);
                     } else {
                         grabFingerprintAsync = false;
