@@ -52,7 +52,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private SampleActivity sampleActivity;
     private Biometrics biometrics;
     private Button buttonCapture;
-    private Button buttonClose;
+    private Button buttonOpenClose;
     private Button buttonMatch;
 
     private View viewMatchButtonSpacer;
@@ -189,11 +189,16 @@ public class FingerprintPage extends LinearLayout implements PageView {
             }
         });
 
-        buttonClose = (Button) findViewById(R.id.close_btn);
-        buttonClose.setOnClickListener(new OnClickListener() {
+        buttonOpenClose = (Button) findViewById(R.id.open_close_btn);
+        buttonOpenClose.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                onClickCloseButton();
+                if (buttonOpenClose.getText().toString().equalsIgnoreCase(getResources().getString(R.string.open))) {
+                    openFingerprint();
+                } else {
+                    closeFingerprint();
+                }
+                buttonOpenClose.setEnabled(false);
             }
         });
 
@@ -342,7 +347,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         /* Start by resetting page for new capture. */
         this.resetCapture();
         /* Turn on close button so user can close at anytime. */
-        this.buttonClose.setEnabled(true);
+        updateToCloseButton();
 
         setStatusText("initializing...");
         this.isCapturing = true;
@@ -401,7 +406,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         /* If sensor failed to close, then close button should still be clickable
                          * since it did not actually close.
                          */
-                        buttonClose.setEnabled(true);
+                        updateToCloseButton();
                         setStatusText("FingerPrint reader closed: FAILED");
                     }
                 }
@@ -453,7 +458,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         setStatusText("FingerPrint reader closed:" + reasonCode.toString());
                         resetCapture();
                     } else if (resultCode == ResultCode.FAIL) {
-                        buttonClose.setEnabled(true);
+                        updateToCloseButton();
                         setStatusText("FingerPrint reader closed: FAILED");
                     }
                 }
@@ -541,26 +546,55 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         setStatusText("FingerPrint reader closed:" + reasonCode.toString());
                         resetToClosedState();
                     } else if (resultCode == ResultCode.FAIL) {
-                        buttonClose.setEnabled(true);
+                        updateToCloseButton();
                         setStatusText("FingerPrint reader closed: FAILED");
                     }
                 }
             });
     }
 
-    public void onClickCloseButton() {
+    private void openFingerprint() {
+        // Set text view letting user know we are opening the fingerprint reader
+        setStatusText("Openning scanner");
+        this.biometrics.openFingerprintReader(new Biometrics.FingerprintStatusListener() {
+            @Override
+            public void onFingerprintOpen(ResultCode resultCode) {
+                Log.d(TAG, "Fingerprint reader opened- " + resultCode.name());
+                setStatusText("Fingerprint reader opened: " + resultCode.toString());
+                /* Set certain widgets on/off based on if result was good. */
+                if(resultCode == ResultCode.OK) {
+                    updateToCloseButton();
+                    resetToOneFingerCaptureState();
+                } else {
+                    updateToOpenButton();
+                }
+            }
+
+            @Override
+            public void onFingerprintClosed(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+                if (resultCode == ResultCode.OK) {
+                    Log.d(TAG, "Fingerprint reader closed- " + resultCode.name());
+                    setStatusText("Fingerprint reader closed:" + closeReasonCode.toString());
+                    /* Turn on/off certain widgets.*/
+                    resetToClosedState();
+                } else if (resultCode == ResultCode.FAIL) {
+                    Log.d(TAG, "Fingerprint reader closed: FAILED");
+                    updateToCloseButton();
+                    setStatusText("Fingerprint reader closed: FAILED");
+                }
+            }
+        });
+    }
+
+    private void closeFingerprint() {
         setStatusText("Closing scanner, Please wait...");
 
         /* Disable capture button to avoid double clicks. */
         this.buttonCapture.setEnabled(false);
-        /* Update our status text for user. 8/
-        this.setStatusText("Closing scanner, Please wait...");
-        /* Start by resetting capture system. */
+         /* Start by resetting capture system. */
         this.resetCapture();
         /* Now close fingerprint sensor. */
         this.biometrics.closeFingerprintReader();
-        /* Re-enable button after operations. */
-        this.buttonClose.setEnabled(false);
     }
 
     /* The match section works by first looking to make sure user has already made on+e successful
@@ -974,16 +1008,28 @@ public class FingerprintPage extends LinearLayout implements PageView {
         /* Check if match button should be enabled. */
         boolean enable_match = this.hasFmdMatcher && this.fmdFingerTemplate1 != null;
         this.buttonMatch.setEnabled(enable_match);
-        this.buttonClose.setEnabled(true);
+        updateToCloseButton();
         /* set this to false to prevent onResume() method bing called. */
         this.isCapturing = false;
     }
 
     private void resetToClosedState() {
-        this.buttonCapture.setEnabled(true);
-        this.buttonClose.setEnabled(false);
+        this.buttonCapture.setEnabled(false);
+        updateToOpenButton();
         this.buttonMatch.setEnabled(false);
         this.spinnerScanType.setEnabled(true);
+    }
+
+    /* Update buttons to close. */
+    private void updateToCloseButton() {
+        buttonOpenClose.setEnabled(true);
+        buttonOpenClose.setText(R.string.close);
+    }
+
+    /* Update buttons to open. */
+    private void updateToOpenButton() {
+        buttonOpenClose.setEnabled(true);
+        buttonOpenClose.setText(R.string.open);
     }
 
     private void setStatusText(String text) {

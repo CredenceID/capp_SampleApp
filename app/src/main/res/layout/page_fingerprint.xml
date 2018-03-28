@@ -78,9 +78,9 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/capture_1_btn"
+            android:id="@+id/open_close_btn"
             style="@style/PageButton"
-            android:text="@string/capture" />
+            android:text="@string/open" />
 
         <View
             android:layout_width="0dp"
@@ -88,9 +88,9 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/close_btn"
+            android:id="@+id/capture_1_btn"
             style="@style/PageButton"
-            android:text="@string/close" />
+            android:text="@string/capture" />
 
         <View
             android:layout_width="0dp"
