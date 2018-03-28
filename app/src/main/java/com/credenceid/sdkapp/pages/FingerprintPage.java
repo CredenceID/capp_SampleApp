@@ -94,6 +94,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
     //
     private boolean grabFingerprintSync = false;
     //
+    private boolean grabFingerprintAsyncRaw = false;
+    //
     Handler syncHandler;
 
     /* The newer API call of grabFingerprint() takes a "onFingerprintGrabbedFullListener" as its
@@ -313,10 +315,18 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     if(position == 0) {
                         grabFingerprintAsync = true;
-                        grabFingerprintSync = true;
+                        grabFingerprintAsyncRaw = false;
+                        grabFingerprintSync = false;
                         spinnerSaveToDisk.setEnabled(true);
+                    } else if(position == 1){
+                        grabFingerprintAsync = false;
+                        grabFingerprintAsyncRaw = true;
+                        grabFingerprintSync = false;
+                        spinnerSaveToDisk.setSelection(0);
+                        spinnerSaveToDisk.setEnabled(false);
                     } else {
                         grabFingerprintAsync = false;
+                        grabFingerprintAsyncRaw = false;
                         grabFingerprintSync = true;
                         spinnerSaveToDisk.setSelection(0);
                         spinnerSaveToDisk.setEnabled(false);
@@ -422,6 +432,40 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 }
             };
             new Thread(mRunnable).start();
+        } else if (grabFingerprintAsyncRaw) {
+            this.biometrics.grabFingerprint(this.scanType, new Biometrics.OnFingerprintGrabbedRAWListener() {
+                @Override
+                public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes, String hint) {
+                    /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
+                    if (bitmap != null) imageViewCapturedImage.setImageBitmap(bitmap);
+                    /* If we got back a valid hint then set it to our status for user to see. */
+                    if (hint != null && !hint.isEmpty()) setStatusText(hint);
+
+                    /* If result code was FAIL that means fingerprint sensor could not open. */
+                    if (resultCode == ResultCode.FAIL) {
+                        setStatusText("Fingerprint Open-FAILED");
+                        resetToOneFingerCaptureState();
+                    } else if (resultCode == OK) {
+                        Beeper.getInstance().click();
+                        resetToOneFingerCaptureState();
+                        /* Calculate total time taken for image to return back as good. */
+                        long duration = SystemClock.elapsedRealtime() - startCaptureTime;
+                        setStatusText("Capture Complete in " + duration + " msec");
+                        setInfoText("Raw byte array length is " + bytes.length);
+                        /* Set global variables for Bitmap image. */
+                        currentBitmap = bitmap;
+                        /* If device supports creation of FMD templates then create first FMD
+                         * template from Bitmap.
+                         */
+                        if (hasFmdMatcher) convertToFmd(currentBitmap);
+                    }
+                }
+
+                @Override
+                public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+
+                }
+            });
         } else if (grabFingerprintAsync) {
             if (this.useFingerprintWsqListener)
                 this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new Biometrics.OnFingerprintGrabbedWSQListener() {
@@ -446,7 +490,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             resetToOneFingerCaptureState();
                         /* Calculate total time taken for image to return back as good. */
                             long duration = SystemClock.elapsedRealtime() - startCaptureTime;
-                            setStatusText("Capture Complete in " + duration + "msec");
+                            setStatusText("Capture Complete in " + duration + " msec");
                         /* Set global path variables for Bitmap image. */
                             pathName = filepath;
                             currentBitmap = bm;
@@ -720,6 +764,43 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 }
             };
             new Thread(mRunnable).start();
+        } else if (grabFingerprintAsyncRaw) {
+            this.biometrics.grabFingerprint(this.scanType, new Biometrics.OnFingerprintGrabbedRAWListener() {
+                @Override
+                public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes, String hint) {
+                    /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
+                    if (bitmap != null) imageViewCapturedImage.setImageBitmap(bitmap);
+                    /* If we got back a valid hint then set it to our status for user to see. */
+                    if (hint != null && !hint.isEmpty()) setStatusText(hint);
+
+                    /* If our result failed then turn OFF button to allow matching. Otherwise turn
+                     * ON button to match and also appropriately handle ScanType.
+                     */
+                    if (resultCode == ResultCode.FAIL) {
+                        setStatusText("Matching Fingerprint Grab-FAILED");
+                        resetToOneFingerCaptureState();
+                    } else if (resultCode == OK && bitmap != null) {
+                        Beeper.getInstance().click();
+                        //save to the global variable currentBitmap
+                        currentBitmap = bitmap;
+                        imageViewCapturedImage.setImageBitmap(bitmap);
+                        imageViewCapturedImage.setVisibility(VISIBLE);
+
+                        /* Call method to convert Bitmap to FMD template and match it against first
+                         * FMD template created.
+                         */
+                        if (hasFmdMatcher) {
+                            convertToFmdAndMatch(bitmap);
+                        } else
+                            Log.w(TAG, "Fmd matcher is not present");
+                    }
+                }
+
+                @Override
+                public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+
+                }
+            });
         } else if (grabFingerprintAsync) {
             if (this.useFingerprintFullListener)
                 this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new OnFingerprintGrabbedFullListener() {
