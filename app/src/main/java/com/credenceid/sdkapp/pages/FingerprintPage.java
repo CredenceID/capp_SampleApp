@@ -558,11 +558,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
         setStatusText("Openning scanner");
         this.biometrics.openFingerprintReader(new Biometrics.FingerprintStatusListener() {
             @Override
-            public void onFingerprintOpen(ResultCode resultCode) {
+            public void onFingerprintOpen(ResultCode resultCode, String hint) {
                 Log.d(TAG, "Fingerprint reader opened- " + resultCode.name());
-                setStatusText("Fingerprint reader opened: " + resultCode.toString());
+                if (hint != null && !hint.isEmpty()) {
+                    setStatusText(hint);
+                }
                 /* Set certain widgets on/off based on if result was good. */
                 if(resultCode == ResultCode.OK) {
+                    setStatusText("Fingerprint reader opened: " + resultCode.toString());
                     updateToCloseButton();
                     resetToOneFingerCaptureState();
                 } else {
