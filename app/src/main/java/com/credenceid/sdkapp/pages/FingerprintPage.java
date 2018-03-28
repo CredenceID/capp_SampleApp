@@ -570,6 +570,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     resetToOneFingerCaptureState();
                 } else {
                     updateToOpenButton();
+                    setStatusText("Fingerprint reader opened: FAILED");
                 }
             }
 
