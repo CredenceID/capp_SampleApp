@@ -57,6 +57,11 @@
         <item>No PNG</item>
         <item>Save as PNG</item>
     </string-array>
+    <string-array name="sync_disk_array">
+        <item>Sync</item>
+        <item>Async</item>
+        <item>Async w/ Raw Byte Array</item>
+    </string-array>
 
     <!-- Iris -->
     <string name="title_iris">Iris</string>
