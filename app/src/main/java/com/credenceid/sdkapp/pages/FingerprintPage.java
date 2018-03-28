@@ -94,8 +94,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
     //
     private boolean grabFingerprintSync = false;
     //
-    private boolean grabFingerprintRaw = false;
-    //
     Handler syncHandler;
 
     /* The newer API call of grabFingerprint() takes a "onFingerprintGrabbedFullListener" as its
@@ -288,7 +286,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         spinnerSynch.setEnabled(true);
                     } else {
                         saveToDisk = true;
-                        spinnerSynch.setSelection(1);
+                        spinnerSynch.setSelection(0);
                         spinnerSynch.setEnabled(false);
                     }
                 }
@@ -314,17 +312,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     if(position == 0) {
-                        grabFingerprintSync = true;
-                        grabFingerprintAsync = false;
-                        grabFingerprintRaw = false;
-                    } else if(position == 1) {
-                        grabFingerprintSync = false;
                         grabFingerprintAsync = true;
-                        grabFingerprintRaw = false;
+                        grabFingerprintSync = true;
+                        spinnerSaveToDisk.setEnabled(true);
                     } else {
-                        grabFingerprintSync = false;
                         grabFingerprintAsync = false;
-                        grabFingerprintRaw = true;
+                        grabFingerprintSync = true;
+                        spinnerSaveToDisk.setSelection(0);
+                        spinnerSaveToDisk.setEnabled(false);
                     }
                 }
 
