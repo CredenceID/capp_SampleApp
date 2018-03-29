@@ -419,6 +419,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         @Override
                         public void run () {
                             if (currentBitmap != null) {
+                                Beeper.getInstance().click();
+                                resetToOneFingerCaptureState();
                                 imageViewCapturedImage.setImageBitmap(currentBitmap);
                                 setStatusText("Capture Complete");
                                 if (hasFmdMatcher) {
@@ -463,7 +465,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                 @Override
                 public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
-
+                    if (resultCode == OK) {
+                        setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
+                        resetToClosedState();
+                    } else if (resultCode == ResultCode.FAIL)
+                        setStatusText("FingerPrint reader closed: FAILED");
                 }
             });
         } else if (grabFingerprintAsync) {
@@ -752,6 +758,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         @Override
                         public void run () {
                             if (currentBitmap != null) {
+                                Beeper.getInstance().click();
+                                resetToOneFingerCaptureState();
                                 imageViewCapturedImage.setImageBitmap(currentBitmap);
                                 setStatusText("Capture Complete");
                                 if (hasFmdMatcher) {
@@ -799,7 +807,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
                 @Override
                 public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
-
+                    if (resultCode == OK) {
+                        setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
+                        resetToClosedState();
+                    } else if (resultCode == ResultCode.FAIL)
+                        setStatusText("FingerPrint reader closed: FAILED");
                 }
             });
         } else if (grabFingerprintAsync) {
