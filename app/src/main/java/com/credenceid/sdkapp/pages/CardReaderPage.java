@@ -294,21 +294,29 @@ public class CardReaderPage extends LinearLayout implements PageView {
         Log.d(TAG, "deactivate ");
     }
 
+    /* Connect to card. Assume card reader is already open. */
     public void connectCardReader() {
         textViewStatus.setText(R.string.connecting);
-        boolean cardConnected = this.biometrics.cardConnectSync();
+        boolean cardConnected = this.biometrics.cardConnectSync(5000);
         if (cardConnected) {
             textViewStatus.setText(R.string.connected);
             buttonConnectDisconnect.setText(R.string.disconnect);
+        } else {
+            textViewStatus.setText(R.string.connected_fail);
+            buttonConnectDisconnect.setText(R.string.connect);
         }
     }
 
+    /* Disonnect to card. Assume card reader is already open. */
     public void disConnectCardReader() {
         textViewStatus.setText(R.string.disconnecting);
-        boolean cardDisconnected = this.biometrics.cardDisconnectSync();
+        boolean cardDisconnected = this.biometrics.cardDisconnectSync(5000);
         if (cardDisconnected) {
             textViewStatus.setText(R.string.disconnected);
             buttonConnectDisconnect.setText(R.string.connect);
+        } else {
+            textViewStatus.setText(R.string.disconnected_fail);
+            buttonConnectDisconnect.setText(R.string.disconnect);
         }
     }
 
