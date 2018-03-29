@@ -638,8 +638,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     setStatusText("Fingerprint reader opened: " + resultCode.toString());
                     updateToCloseButton();
                     resetToOneFingerCaptureState();
-                } else {
+                } else if (resultCode == ResultCode.FAIL){
                     updateToOpenButton();
+                    setStatusText("Fingerprint reader opened: FAILED");
                 }
             }
 
