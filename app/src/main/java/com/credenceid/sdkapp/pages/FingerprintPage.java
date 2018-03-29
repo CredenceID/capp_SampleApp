@@ -409,6 +409,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         @Override
                         public void run () {
                             if (currentBitmap != null) {
+                                Beeper.getInstance().click();
+                                resetToOneFingerCaptureState();
                                 imageViewCapturedImage.setImageBitmap(currentBitmap);
                                 setStatusText("Capture Complete");
                                 if (hasFmdMatcher) {
@@ -708,6 +710,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         @Override
                         public void run () {
                             if (currentBitmap != null) {
+                                Beeper.getInstance().click();
+                                resetToOneFingerCaptureState();
                                 imageViewCapturedImage.setImageBitmap(currentBitmap);
                                 setStatusText("Capture Complete");
                                 if (hasFmdMatcher) {
