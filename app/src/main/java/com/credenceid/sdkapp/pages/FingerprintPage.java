@@ -472,7 +472,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         setStatusText("FingerPrint reader closed: FAILED");
                 }
             });
-        } else if (grabFingerprintAsync) {
+        } else {
             if (this.useFingerprintWsqListener)
                 this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new Biometrics.OnFingerprintGrabbedWSQListener() {
                     @Override
@@ -814,7 +814,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         setStatusText("FingerPrint reader closed: FAILED");
                 }
             });
-        } else if (grabFingerprintAsync) {
+        } else {
             if (this.useFingerprintFullListener)
                 this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new OnFingerprintGrabbedFullListener() {
                     @Override
