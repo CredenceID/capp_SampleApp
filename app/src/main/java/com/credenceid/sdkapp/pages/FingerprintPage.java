@@ -285,11 +285,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     if(position == 0) {
                         saveToDisk = false;
-                        spinnerSynch.setEnabled(true);
                     } else {
                         saveToDisk = true;
-                        spinnerSynch.setSelection(0);
-                        spinnerSynch.setEnabled(false);
                     }
                 }
 
@@ -322,8 +319,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         grabFingerprintAsync = false;
                         grabFingerprintAsyncRaw = true;
                         grabFingerprintSync = false;
-                        spinnerSaveToDisk.setSelection(0);
-                        spinnerSaveToDisk.setEnabled(false);
+                        spinnerSaveToDisk.setEnabled(true);
                     } else {
                         grabFingerprintAsync = false;
                         grabFingerprintAsyncRaw = false;
@@ -435,7 +431,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             };
             new Thread(mRunnable).start();
         } else if (grabFingerprintAsyncRaw) {
-            this.biometrics.grabFingerprint(this.scanType, new Biometrics.OnFingerprintGrabbedRAWListener() {
+            this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new Biometrics.OnFingerprintGrabbedRAWListener() {
                 @Override
                 public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes, String hint) {
                     /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
@@ -774,7 +770,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             };
             new Thread(mRunnable).start();
         } else if (grabFingerprintAsyncRaw) {
-            this.biometrics.grabFingerprint(this.scanType, new Biometrics.OnFingerprintGrabbedRAWListener() {
+            this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new Biometrics.OnFingerprintGrabbedRAWListener() {
                 @Override
                 public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes, String hint) {
                     /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
