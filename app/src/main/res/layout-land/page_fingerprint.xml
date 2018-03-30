@@ -156,24 +156,16 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-    </LinearLayout>
-
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="2" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center_horizontal">
-
         <Spinner
             android:id="@+id/sync_spinner"
             android:spinnerMode="dialog"
             style="@style/Spinner" />
+
+        <View
+            android:id="@+id/sync_spinner_spacer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
     </LinearLayout>
 
     <View
