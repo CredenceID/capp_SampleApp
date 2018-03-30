@@ -89,13 +89,13 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private boolean isCapturing = false;
     // if true, save the grabbed fingerprint to disk
     private boolean saveToDisk = false;
-    //
-    private boolean grabFingerprintAsync = false;
-    //
+    // If true, grab fingerprint synchronously
     private boolean grabFingerprintSync = false;
-    //
+    // If true, grab fingerprint synchronously
+    private boolean grabFingerprintAsync = false;
+    // If true, return the raw byte array of fingerprint which grabbed asynchronously
     private boolean grabFingerprintAsyncRaw = false;
-    //
+    // Handler for display bitmap which grabbed synchronously
     Handler syncHandler;
 
     /* The newer API call of grabFingerprint() takes a "onFingerprintGrabbedFullListener" as its
@@ -670,6 +670,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
     }
 
     private void openFingerprint() {
+        /* Start by resetting page for new capture. */
+        this.resetCapture();
+
         // Set text view letting user know we are opening the fingerprint reader
         setStatusText("Openning scanner");
         this.biometrics.openFingerprintReader(new Biometrics.FingerprintStatusListener() {
@@ -755,13 +758,13 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         public void run () {
                             if (currentBitmap != null) {
                                 Beeper.getInstance().click();
-                                resetToOneFingerCaptureState();
                                 imageViewCapturedImage.setImageBitmap(currentBitmap);
                                 setStatusText("Capture Complete");
                                 if (hasFmdMatcher) {
                                     convertToFmdAndMatch(currentBitmap);
                                 }
                             } else {
+                                resetToOneFingerCaptureState();
                                 Log.v(TAG, "currentBitmap is null");
                             }
                         }
