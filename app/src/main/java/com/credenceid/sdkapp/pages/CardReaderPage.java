@@ -203,7 +203,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
         });
         buttonView.setEnabled(false);
 
-        buttonSyncAsync = (Button) findViewById(R.id.sync_button);
+        buttonSyncAsync = (Button) findViewById(R.id.sync_async_button);
         buttonSyncAsync.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -211,7 +211,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
                 buttonSyncAsync.setText(isSyncMode ? "Sync" : "Async");
             }
         });
-        buttonConnectDisconnect = (Button) findViewById(R.id.connect_button);
+        buttonConnectDisconnect = (Button) findViewById(R.id.connect_disconnect_button);
         buttonConnectDisconnect.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -221,7 +221,6 @@ public class CardReaderPage extends LinearLayout implements PageView {
                     connectCardReader();
                 } else {
                     disConnectCardReader();
-                    buttonConnectDisconnect.setText("Connect");
                 }
             }
         });

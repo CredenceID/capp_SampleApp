@@ -142,8 +142,8 @@
     <string name="close">Close</string>
     <string name="close_id">Close</string>
 
-    <string name="connect">Connect</string>
-    <string name="disconnect">Disconnect</string>
+    <string name="connect">Connect card</string>
+    <string name="disconnect">Disconnect card</string>
 
     <string name="connecting">Connecting card</string>
     <string name="connected">Card is connected</string>
