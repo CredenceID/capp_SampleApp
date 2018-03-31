@@ -433,7 +433,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
         } else if (grabFingerprintAsyncRaw) {
             this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new Biometrics.OnFingerprintGrabbedRAWListener() {
                 @Override
-                public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes, String hint) {
+                public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes,
+                                                 String filepath, String hint) {
                     /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
                     if (bitmap != null) imageViewCapturedImage.setImageBitmap(bitmap);
                     /* If we got back a valid hint then set it to our status for user to see. */
@@ -451,7 +452,13 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         setStatusText("Capture Complete in " + duration + " msec");
                         setInfoText("Raw byte array length is " + bytes.length);
                         /* Set global variables for Bitmap image. */
+                        pathName = filepath;
                         currentBitmap = bitmap;
+                        if (saveToDisk) {
+                            createWsqImage(pathName);
+                            File temp = new File(filepath);
+                            Toast.makeText(getContext(), "Length: " + temp.length(), Toast.LENGTH_SHORT);
+                        }
                         /* If device supports creation of FMD templates then create first FMD
                          * template from Bitmap.
                          */
@@ -775,7 +782,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
         } else if (grabFingerprintAsyncRaw) {
             this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new Biometrics.OnFingerprintGrabbedRAWListener() {
                 @Override
-                public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes, String hint) {
+                public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes,
+                                                 String filepath, String hint) {
                     /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
                     if (bitmap != null) imageViewCapturedImage.setImageBitmap(bitmap);
                     /* If we got back a valid hint then set it to our status for user to see. */
@@ -790,6 +798,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     } else if (resultCode == OK && bitmap != null) {
                         Beeper.getInstance().click();
                         //save to the global variable currentBitmap
+                        pathName = filepath;
                         currentBitmap = bitmap;
                         imageViewCapturedImage.setImageBitmap(bitmap);
                         imageViewCapturedImage.setVisibility(VISIBLE);
