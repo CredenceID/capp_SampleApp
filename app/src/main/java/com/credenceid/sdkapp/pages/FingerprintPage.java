@@ -409,7 +409,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             Runnable mRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    currentBitmap = biometrics.grabFingerprintSync(10000);
+                    currentBitmap = biometrics.grabFingerprintSync(5000);
                     //Beeper.getInstance().click();
                     syncHandler.post(new Runnable() {
                         @Override
@@ -418,14 +418,13 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 Beeper.getInstance().click();
                                 imageViewCapturedImage.setImageBitmap(currentBitmap);
                                 setStatusText("Capture Complete");
+                                resetToOneFingerCaptureState();
                                 if (hasFmdMatcher) {
                                     convertToFmd(currentBitmap);
                                 }
                             } else {
                                 Log.v(TAG, "currentBitmap is null");
-                                setStatusText("Capture Complete. Bitmap is NULL");
                             }
-                            resetToOneFingerCaptureState();
                         }
                     });
                 }
@@ -772,12 +771,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             if (currentBitmap != null) {
                                 Beeper.getInstance().click();
                                 imageViewCapturedImage.setImageBitmap(currentBitmap);
+                                resetToOneFingerCaptureState();
                                 setStatusText("Capture Complete");
                                 if (hasFmdMatcher) {
                                     convertToFmdAndMatch(currentBitmap);
                                 }
                             } else {
-                                resetToOneFingerCaptureState();
                                 Log.v(TAG, "currentBitmap is null");
                             }
                         }
