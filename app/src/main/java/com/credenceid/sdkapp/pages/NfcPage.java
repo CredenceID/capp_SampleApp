@@ -36,6 +36,7 @@ public class NfcPage extends LinearLayout implements PageView {
     private TextView mCardDetailsTextView;
     private Button mOpenBtn;
     private Button mCloseBtn;
+    private Button buttonConnectDisconnect;
     private ImageView mPhotoView;
     private Bitmap bm = null;
     private TextView mFingerprintStatusTextView;
@@ -74,6 +75,19 @@ public class NfcPage extends LinearLayout implements PageView {
             public void onClick(View v) {
                 Log.d("Close Button Listener", "Close");
                 mBiometrics.cardCloseCommand();
+            }
+        });
+        buttonConnectDisconnect = (Button) findViewById(R.id.connect_disconnect_card_btn);
+        buttonConnectDisconnect.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String buttonText = buttonConnectDisconnect.getText().toString();
+                if(buttonText.equalsIgnoreCase(getContext()
+                        .getResources().getString(R.string.connect))) {
+                    connectCardReader();
+                } else {
+                    disConnectCardReader();
+                }
             }
         });
 
@@ -152,6 +166,32 @@ public class NfcPage extends LinearLayout implements PageView {
 
     }
 
+    /* Connect to card. Assume card reader is already open. */
+    public void connectCardReader() {
+        mCardDetailsTextView.setText(R.string.connecting);
+        boolean cardConnected = mBiometrics.cardConnectSync(5000);
+        if (cardConnected) {
+            mCardDetailsTextView.setText(R.string.connected);
+            buttonConnectDisconnect.setText(R.string.disconnect);
+        } else {
+            mCardDetailsTextView.setText(R.string.connected_fail);
+            buttonConnectDisconnect.setText(R.string.connect);
+        }
+    }
+
+    /* Disonnect to card. Assume card reader is already open. */
+    public void disConnectCardReader() {
+        mCardDetailsTextView.setText(R.string.disconnecting);
+        boolean cardDisconnected = mBiometrics.cardDisconnectSync(5000);
+        if (cardDisconnected) {
+            mCardDetailsTextView.setText(R.string.disconnected);
+            buttonConnectDisconnect.setText(R.string.connect);
+        } else {
+            mCardDetailsTextView.setText(R.string.disconnected_fail);
+            buttonConnectDisconnect.setText(R.string.disconnect);
+        }
+    }
+
     // Calls the cardOpenCommand API call
     private void onCapture(View v) {
         Log.d(TAG, "OnCapture in NfcPage");
@@ -186,6 +226,7 @@ public class NfcPage extends LinearLayout implements PageView {
                     enableOpenButton();
                     disableCloseButton();
                 }
+                buttonConnectDisconnect.setText(R.string.disconnect);
             }
 
             @Override
@@ -198,6 +239,7 @@ public class NfcPage extends LinearLayout implements PageView {
                     Log.d(TAG, "onCardReaderClosed: FAILED");
                     mCardDetailsTextView.setText("Card Closed: FAILED");
                 }
+                buttonConnectDisconnect.setText(R.string.disconnect);
             }
         });
 

@@ -110,6 +110,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
     };
 
     private Button buttonSyncAsync;
+    private Button buttonConnectDisconnect;
     private boolean isSyncMode = false;
     /* Biometrics object for making Credence API calls. */
     private Biometrics biometrics;
@@ -202,12 +203,25 @@ public class CardReaderPage extends LinearLayout implements PageView {
         });
         buttonView.setEnabled(false);
 
-        buttonSyncAsync = (Button) findViewById(R.id.sync_button);
+        buttonSyncAsync = (Button) findViewById(R.id.sync_async_button);
         buttonSyncAsync.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 isSyncMode = !isSyncMode;
                 buttonSyncAsync.setText(isSyncMode ? "Sync" : "Async");
+            }
+        });
+        buttonConnectDisconnect = (Button) findViewById(R.id.connect_disconnect_button);
+        buttonConnectDisconnect.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String buttonText = buttonConnectDisconnect.getText().toString();
+                if(buttonText.equalsIgnoreCase(getContext()
+                        .getResources().getString(R.string.connect))) {
+                    connectCardReader();
+                } else {
+                    disConnectCardReader();
+                }
             }
         });
     }
@@ -279,6 +293,32 @@ public class CardReaderPage extends LinearLayout implements PageView {
         Log.d(TAG, "deactivate ");
     }
 
+    /* Connect to card. Assume card reader is already open. */
+    public void connectCardReader() {
+        textViewStatus.setText(R.string.connecting);
+        boolean cardConnected = this.biometrics.cardConnectSync(5000);
+        if (cardConnected) {
+            textViewStatus.setText(R.string.connected);
+            buttonConnectDisconnect.setText(R.string.disconnect);
+        } else {
+            textViewStatus.setText(R.string.connected_fail);
+            buttonConnectDisconnect.setText(R.string.connect);
+        }
+    }
+
+    /* Disonnect to card. Assume card reader is already open. */
+    public void disConnectCardReader() {
+        textViewStatus.setText(R.string.disconnecting);
+        boolean cardDisconnected = this.biometrics.cardDisconnectSync(5000);
+        if (cardDisconnected) {
+            textViewStatus.setText(R.string.disconnected);
+            buttonConnectDisconnect.setText(R.string.connect);
+        } else {
+            textViewStatus.setText(R.string.disconnected_fail);
+            buttonConnectDisconnect.setText(R.string.disconnect);
+        }
+    }
+
     /* Based on parameter will either call Open Card reader API or close API. */
     protected void openCardReader() {
         // Set text view letting user know we are opening the card view
@@ -327,6 +367,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
     private void cardOpened(boolean readCard) {
         buttonOpenClose.setEnabled(true);
         buttonOpenClose.setText(readCard ? R.string.close : R.string.open);
+        buttonConnectDisconnect.setText(R.string.disconnect);
         buttonView.setEnabled(readCard);
     }
 
@@ -334,6 +375,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
     private void cardClosed() {
         buttonOpenClose.setEnabled(true);
         buttonOpenClose.setText(R.string.open);
+        buttonConnectDisconnect.setText(R.string.disconnect);
         buttonView.setEnabled(false);
     }
 

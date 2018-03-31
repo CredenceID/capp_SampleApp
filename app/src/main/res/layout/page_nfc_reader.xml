@@ -51,40 +51,57 @@
 
     </ScrollView>
 
-    <RelativeLayout
-
-        android:id="@+id/rl_button_row"
+    <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/open_id_btn"
-            style="@style/SmallPageButton"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_toStartOf="@+id/close_id_btn"
-            android:layout_toLeftOf="@+id/close_id_btn"
-            android:layout_centerVertical="true"
-            android:text="@string/open_card" />
-        <Button
-            android:id="@+id/close_id_btn"
-            style="@style/SmallPageButton"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:text="@string/close_card" />
-        <Button
-            android:id="@+id/btn_grab_fingerprint"
-            style="@style/SmallPageButton"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/close_id_btn"
-            android:text="@string/grab_fingerprint"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/close_id_btn" />
+        <RelativeLayout
+            android:id="@+id/rl_button_row"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
 
-    </RelativeLayout>
+            <Button
+                android:id="@+id/open_id_btn"
+                style="@style/SmallPageButton"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_toStartOf="@+id/close_id_btn"
+                android:layout_toLeftOf="@+id/close_id_btn"
+                android:layout_centerVertical="true"
+                android:text="@string/open_card" />
+            <Button
+                android:id="@+id/close_id_btn"
+                style="@style/SmallPageButton"
+                android:layout_marginStart="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:text="@string/close_card" />
+            <Button
+                android:id="@+id/connect_disconnect_card_btn"
+                style="@style/SmallPageButton"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/close_id_btn"
+                android:text="@string/connect"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/close_id_btn" />
+        </RelativeLayout>
 
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/activity_vertical_margin">
+
+            <Button
+                android:id="@+id/btn_grab_fingerprint"
+                style="@style/SmallPageButton"
+                android:layout_height="wrap_content"
+                android:text="@string/grab_fingerprint"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

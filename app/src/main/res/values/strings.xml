@@ -53,6 +53,15 @@
         <item>bitrate 0.10</item>
         <item>bitrate 0.0</item>
     </string-array>
+    <string-array name="save_to_disk_array">
+        <item>No PNG</item>
+        <item>Save as PNG</item>
+    </string-array>
+    <string-array name="sync_disk_array">
+        <item>Async</item>
+        <item>Async w/ Raw Byte Array</item>
+        <item>Sync</item>
+    </string-array>
 
     <!-- Iris -->
     <string name="title_iris">Iris</string>
@@ -133,12 +142,21 @@
     <string name="close">Close</string>
     <string name="close_id">Close</string>
 
+    <string name="connect">Connect card</string>
+    <string name="disconnect">Disconnect card</string>
+
+    <string name="connecting">Connecting card</string>
+    <string name="connected">Card is connected</string>
+    <string name="connected_fail">Connect fail</string>
+    <string name="disconnecting">Disconnecting card</string>
+    <string name="disconnected">Card is disconnected</string>
+    <string name="disconnected_fail">Disconnect fail</string>
 
     <string name="open_card">Open Card</string>
     <string name="close_card">Close Card</string>
 
     <string name="sync">Sync</string>
-    <string name="assync">Assync</string>
+    <string name="async">Async</string>
 
     <string name="insert_card">Insert Card To Continue</string>
     <string name="card_reader_disconnected">SmartCard reader disconnected</string>
