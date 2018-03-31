@@ -471,9 +471,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
                     if (resultCode == OK) {
                         setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
-                        resetToClosedState();
-                    } else if (resultCode == ResultCode.FAIL)
+                        resetCapture();
+                    } else if (resultCode == ResultCode.FAIL) {
+                        /* If sensor failed to close, then close button should still be clickable
+                         * since it did not actually close.
+                         */
+                        updateToCloseButton();
                         setStatusText("FingerPrint reader closed: FAILED");
+                    }
                 }
             });
         } else {
@@ -667,7 +672,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode reasonCode) {
                         if (resultCode == OK) {
                             setStatusText("FingerPrint reader closed:" + reasonCode.toString());
-                            resetToClosedState();
+                            resetCapture();
                         } else if (resultCode == ResultCode.FAIL) {
                             updateToCloseButton();
                             setStatusText("FingerPrint reader closed: FAILED");
@@ -703,15 +708,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
             @Override
             public void onFingerprintClosed(ResultCode resultCode, CloseReasonCode closeReasonCode) {
-                if (resultCode == ResultCode.OK) {
-                    Log.d(TAG, "Fingerprint reader closed- " + resultCode.name());
-                    setStatusText("Fingerprint reader closed:" + closeReasonCode.toString());
-                    /* Turn on/off certain widgets.*/
-                    resetToClosedState();
+                if (resultCode == OK) {
+                    setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
+                    resetCapture();
                 } else if (resultCode == ResultCode.FAIL) {
-                    Log.d(TAG, "Fingerprint reader closed: FAILED");
+                        /* If sensor failed to close, then close button should still be clickable
+                         * since it did not actually close.
+                         */
                     updateToCloseButton();
-                    setStatusText("Fingerprint reader closed: FAILED");
+                    setStatusText("FingerPrint reader closed: FAILED");
                 }
             }
         });
