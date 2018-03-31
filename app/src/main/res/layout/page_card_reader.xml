@@ -48,7 +48,7 @@
             android:layout_margin="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/assync"/>
+            android:text="@string/async"/>
 
         <Button
             android:id="@+id/connect_disconnect_button"

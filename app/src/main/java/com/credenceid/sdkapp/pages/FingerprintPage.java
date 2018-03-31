@@ -416,7 +416,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         public void run () {
                             if (currentBitmap != null) {
                                 Beeper.getInstance().click();
-                                resetToOneFingerCaptureState();
                                 imageViewCapturedImage.setImageBitmap(currentBitmap);
                                 setStatusText("Capture Complete");
                                 if (hasFmdMatcher) {
@@ -424,7 +423,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 }
                             } else {
                                 Log.v(TAG, "currentBitmap is null");
+                                setStatusText("Capture Complete. Bitmap is NULL");
                             }
+                            resetToOneFingerCaptureState();
                         }
                     });
                 }
@@ -758,7 +759,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             Runnable mRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    currentBitmap = biometrics.grabFingerprintSync(10000);
+                    currentBitmap = biometrics.grabFingerprintSync(5000);
                     //Beeper.getInstance().click();
                     syncHandler.post(new Runnable() {
                         @Override
