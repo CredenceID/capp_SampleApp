@@ -418,7 +418,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             if (currentBitmap != null) {
                                 Beeper.getInstance().click();
                                 imageViewCapturedImage.setImageBitmap(currentBitmap);
-                                setStatusText("Capture Complete");
+                                /* Calculate total time taken for image to return back as good. */
+                                long duration = SystemClock.elapsedRealtime() - startCaptureTime;
+                                setStatusText("Capture Complete in " + duration + " msec");
                                 resetToOneFingerCaptureState();
                                 if (hasFmdMatcher) {
                                     convertToFmd(currentBitmap);
@@ -455,8 +457,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         /* Set global variables for Bitmap image. */
                         pathName = filepath;
                         currentBitmap = bitmap;
-                        if (saveToDisk) {
-                            createWsqImage(pathName);
+                        //if have filepath, then convert to wsq
+                        if (filepath != null) {
+                            createWsqImage(filepath);
                             File temp = new File(filepath);
                             Toast.makeText(getContext(), "Length: " + temp.length(), Toast.LENGTH_SHORT);
                         }
@@ -510,8 +513,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             pathName = filepath;
                             currentBitmap = bm;
 
-                            //if saveToDisk is true, don't convert to wsq
-                            if (saveToDisk) {
+                            //if have filepath, then convert to wsq
+                            if (filepath != null) {
                                 convertToFmd(wsq);
                                 showImageSize(filepath, wsq, duration);
                             }
@@ -569,9 +572,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                          * compress image down to a WSQ format, or do both.
                          */
                             getFingerQuality(currentBitmap);
-                            //if saveToDisk is true, don't convert to wsq
-                            if (saveToDisk) {
-                                createWsqImage(pathName);
+                            //if have filepath, then convert to wsq
+                            if (filepath != null) {
+                                createWsqImage(filepath);
                                 File temp = new File(filepath);
                                 Toast.makeText(getContext(), "Length: " + temp.length(), Toast.LENGTH_SHORT);
                             }
@@ -641,16 +644,16 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     //save to the global variable currentFingerprint2Bitmap
                                     currentFingerprint2Bitmap = bitmap_finger2;
                                 }
-                                //if saveToDisk is true, don't convert to wsq
-                                if (saveToDisk) {
+                                //if have filepath, then convert to wsq
+                                if (filepath_finger1 != null) {
                                     createWsqImage(filepath_finger1);
                                 }
                                 getNfiqScore(bitmap_finger1);
                             } else {
                                 imageViewCapturedImage.setImageBitmap(bm);
                                 imageViewCapturedImage.setVisibility(VISIBLE);
-                                //if saveToDisk is true, don't convert to wsq
-                                if (saveToDisk) {
+                                //if have filepath, then convert to wsq
+                                if (filepath != null) {
                                     createWsqImage(filepath);
                                 }
                                 getNfiqScore(bm);
