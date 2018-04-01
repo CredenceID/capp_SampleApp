@@ -187,6 +187,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
         viewMatchButtonSpacer = findViewById(R.id.match_spacer);
         textViewStatus = (TextView) findViewById(status);
+        textViewStatus.setSingleLine(false);
         textViewInfo = (TextView) findViewById(R.id.info);
     }
 
@@ -449,8 +450,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         resetToOneFingerCaptureState();
                         /* Calculate total time taken for image to return back as good. */
                         long duration = SystemClock.elapsedRealtime() - startCaptureTime;
-                        setStatusText("Capture Complete in " + duration + " msec");
-                        setInfoText("Raw byte array length is " + bytes.length);
+                        setStatusText("Capture Complete in " + duration + " msec"
+                                + "\nRaw byte array length is " + bytes.length);
                         /* Set global variables for Bitmap image. */
                         pathName = filepath;
                         currentBitmap = bitmap;
@@ -557,7 +558,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         } else if (result == OK) {
                             Beeper.getInstance().click();
                             resetToOneFingerCaptureState();
-
+                            /* Calculate total time taken for image to return back as good. */
+                            long duration = SystemClock.elapsedRealtime() - startCaptureTime;
+                            setStatusText("Capture Complete in " + duration + " msec");
                         /* Set global image variables. */
                             pathName = filepath;
                             currentBitmap = bm;
@@ -614,6 +617,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             resetToOneFingerCaptureState();
                         } else if (result == OK) {
                             Beeper.getInstance().click();
+                            /* Calculate total time taken for image to return back as good. */
+                            long duration = SystemClock.elapsedRealtime() - startCaptureTime;
+                            setStatusText("Capture Complete in " + duration + " msec");
 
                         /* If scan type initiated was TWO_FINGERS_SPLIT then we need to display
                          * each of the two split fingerprints in their own ImageViews.
