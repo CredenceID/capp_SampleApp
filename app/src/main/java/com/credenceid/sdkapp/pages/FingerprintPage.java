@@ -413,7 +413,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             Runnable mRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    currentBitmap = biometrics.grabFingerprintSync(5000);
+                    currentBitmap = biometrics.grabFingerprintSync(8000);
                     //Beeper.getInstance().click();
                     syncHandler.post(new Runnable() {
                         @Override
@@ -778,7 +778,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             Runnable mRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    currentBitmap = biometrics.grabFingerprintSync(5000);
+                    currentBitmap = biometrics.grabFingerprintSync(8000);
                     //Beeper.getInstance().click();
                     syncHandler.post(new Runnable() {
                         @Override
@@ -1236,6 +1236,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
         /* alllow capture option selection */
         this.spinnerSaveToDisk.setEnabled(true);
         this.spinnerSynch.setEnabled(true);
+        if(this.spinnerSynch.getSelectedItemPosition() == 2) {
+            this.spinnerSaveToDisk.setSelection(0);
+            this.spinnerSaveToDisk.setEnabled(false);
+        }
     }
 
     private void resetToClosedState() {
@@ -1243,8 +1247,13 @@ public class FingerprintPage extends LinearLayout implements PageView {
         updateToOpenButton();
         this.buttonMatch.setEnabled(false);
         this.spinnerScanType.setEnabled(true);
+        /* alllow capture option selection */
         this.spinnerSynch.setEnabled(true);
         this.spinnerSaveToDisk.setEnabled(true);
+        if(this.spinnerSynch.getSelectedItemPosition() == 2) {
+            this.spinnerSaveToDisk.setSelection(0);
+            this.spinnerSaveToDisk.setEnabled(false);
+        }
     }
 
     /* Update buttons to close. */
