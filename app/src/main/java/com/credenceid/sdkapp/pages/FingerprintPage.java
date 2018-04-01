@@ -402,6 +402,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
         setStatusText("initializing...");
         this.isCapturing = true;
         this.syncHandler = new Handler();
+        /* Turn off scanner to allow capture option selection. */
+        this.spinnerSynch.setEnabled(false);
+        this.spinnerSaveToDisk.setEnabled(false);
 
         final long startCaptureTime = SystemClock.elapsedRealtime();
 
@@ -766,6 +769,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.setStatusText("");
         this.setInfoText("");
         this.syncHandler = new Handler();
+        /* Turn off scanner to allow capture option selection. */
+        this.spinnerSynch.setEnabled(false);
+        this.spinnerSaveToDisk.setEnabled(false);
 
         if (grabFingerprintSync) {
             setStatusText("Place finger on sensor");
@@ -1227,6 +1233,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
         updateToCloseButton();
         /* set this to false to prevent onResume() method bing called. */
         this.isCapturing = false;
+        /* alllow capture option selection */
+        this.spinnerSaveToDisk.setEnabled(true);
+        this.spinnerSynch.setEnabled(true);
     }
 
     private void resetToClosedState() {
@@ -1234,6 +1243,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
         updateToOpenButton();
         this.buttonMatch.setEnabled(false);
         this.spinnerScanType.setEnabled(true);
+        this.spinnerSynch.setEnabled(true);
+        this.spinnerSaveToDisk.setEnabled(true);
     }
 
     /* Update buttons to close. */
