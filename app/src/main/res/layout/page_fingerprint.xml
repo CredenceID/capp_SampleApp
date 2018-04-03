@@ -114,28 +114,6 @@
         android:layout_height="0dp"
         android:layout_weight="2" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Spinner
-            android:id="@+id/scan_type_spinner"
-            style="@style/Spinner" />
-
-        <View
-            android:id="@+id/spinner_spacer"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-    </LinearLayout>
-
     <View
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -151,14 +129,13 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-
         <Spinner
             android:id="@+id/bitrate_spinner"
             android:spinnerMode="dialog"
             style="@style/Spinner" />
 
         <View
-            android:id="@+id/bitrate_spacer"
+            android:id="@+id/bitrate_spinner_spacer"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
@@ -169,7 +146,7 @@
             style="@style/Spinner" />
 
         <View
-            android:id="@+id/save_to_disk_spacer"
+            android:id="@+id/save_to_disk_spinner_spacer"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
@@ -188,10 +165,31 @@
         android:orientation="horizontal"
         android:layout_gravity="center_horizontal">
 
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Spinner
+            android:id="@+id/scan_type_spinner"
+            style="@style/Spinner" />
+
+        <View
+            android:id="@+id/spinner_spacer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
         <Spinner
             android:id="@+id/sync_spinner"
             android:spinnerMode="dialog"
             style="@style/Spinner" />
+
+        <View
+            android:id="@+id/sync_spinner_spacer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
     </LinearLayout>
 
     <View
@@ -201,10 +199,6 @@
 
     <TextView
         android:id="@+id/info"
-        style="@style/StatusInfo" />
-
-    <TextView
-        android:id="@+id/rawImage"
         style="@style/StatusInfo" />
 
     <TextView

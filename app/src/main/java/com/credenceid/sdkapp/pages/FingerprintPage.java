@@ -68,7 +68,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private ImageView imageViewCapturedImageFinger2;
     private TextView textViewStatus;
     private TextView textViewInfo;
-    private TextView textViewRawImage;
     private ScanType scanType = ScanType.SINGLE_FINGER;
     private String pathName;
     private String pathNameFingerprint1;
@@ -190,7 +189,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
         textViewStatus = (TextView) findViewById(status);
         textViewStatus.setSingleLine(false);
         textViewInfo = (TextView) findViewById(R.id.info);
-        textViewRawImage = (TextView) findViewById(R.id.rawImage);
     }
 
     private void initializeLayoutButtons() {
@@ -300,11 +298,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
             });
         }
 
+        initializeSyncSpinners();
+    }
+
+    private void initializeSyncSpinners() {
         spinnerSynch = (Spinner) findViewById(R.id.sync_spinner);
         if (spinnerSynch != null) {
             ArrayAdapter<CharSequence> sync_adapter =
                     ArrayAdapter.createFromResource(getContext(),
-                            R.array.sync_disk_array,
+                            R.array.sync_async_array,
                             android.R.layout.simple_spinner_item);
             sync_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -313,12 +315,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
             spinnerSynch.setOnItemSelectedListener(new OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if(position == 0) {
+                    if (position == 0) {
                         grabFingerprintAsync = true;
                         grabFingerprintAsyncRaw = false;
                         grabFingerprintSync = false;
                         spinnerSaveToDisk.setEnabled(true);
-                    } else if(position == 1){
+                    } else if (position == 1) {
                         grabFingerprintAsync = false;
                         grabFingerprintAsyncRaw = true;
                         grabFingerprintSync = false;
@@ -329,6 +331,45 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         grabFingerprintSync = true;
                         spinnerSaveToDisk.setSelection(0);
                         spinnerSaveToDisk.setEnabled(false);
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+        }
+    }
+
+    private void initializeTridentSyncSpinners() {
+        spinnerSynch = (Spinner) findViewById(R.id.sync_spinner);
+        if (spinnerSynch != null) {
+            ArrayAdapter<CharSequence> sync_adapter =
+                    ArrayAdapter.createFromResource(getContext(),
+                            R.array.trident_sync_async_array,
+                            android.R.layout.simple_spinner_item);
+            sync_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+            spinnerSynch.setAdapter(sync_adapter);
+            spinnerSynch.setSelection(0);
+            spinnerSynch.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (position == 0) {
+                        grabFingerprintAsync = true;
+                        grabFingerprintAsyncRaw = false;
+                        grabFingerprintSync = false;
+                        spinnerSaveToDisk.setEnabled(true);
+                        spinnerScanType.setEnabled(true);
+                    } else {
+                        grabFingerprintAsync = false;
+                        grabFingerprintAsyncRaw = false;
+                        grabFingerprintSync = true;
+                        spinnerSaveToDisk.setSelection(0);
+                        spinnerSaveToDisk.setEnabled(false);
+                        spinnerScanType.setSelection(0);
+                        spinnerScanType.setEnabled(false);
                     }
                 }
 
@@ -376,6 +417,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
          */
         String name = this.biometrics.getProductName();
         useFingerprintWsqListener = name.contains("TAB");
+        /*
+        * On Tridents, a full listener is used. It doesn't return the raw image.
+        */
+        if(name.contains(getContext().getResources().getString(R.string.trident_product_name))) {
+            initializeTridentSyncSpinners();
+        }
         /* Always reset our captures when we activate this page. */
         this.doResume();
     }
@@ -466,7 +513,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             long duration = SystemClock.elapsedRealtime() - startCaptureTime;
                             setStatusText("Capture Complete in " + duration + " msec");
                             if(rawImage != null) {
-                               setRawImageText("Raw byte array length is " + rawImage.length);
+                               setStatusText("Raw byte array length is " + rawImage.length);
                             }
                         /* Set global path variables for Bitmap image. */
                             pathName = filepath;
@@ -478,7 +525,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 showImageSize(filepath, wsq, duration);
                             }
                         /* Display captured finger quality. */
-                            setStatusText("Fingerprint Quality: " + nfiqScore);
+                            if(rawImage != null) {
+                                setStatusText("Raw byte array length is " + rawImage.length
+                                + ". Fingerprint Quality: " + nfiqScore);
+                            } else {
+                                setStatusText("Fingerprint Quality: " + nfiqScore);
+                            }
                             Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
                         /* If device supports creation of FMD templates then create first FMD
                          * template from Bitmap.
@@ -512,7 +564,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             long duration = SystemClock.elapsedRealtime() - startCaptureTime;
                             setStatusText("Capture Complete in " + duration + " msec");
                             if(rawImage != null) {
-                                setRawImageText("Raw byte array length is " + rawImage.length);
+                                setStatusText("Raw byte array length is " + rawImage.length);
                             }
                         /* Set global image variables. */
                             pathName = filepath;
@@ -694,7 +746,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.resetCaptureImages();
         this.setStatusText("");
         this.setInfoText("");
-        this.setRawImageText("");
         this.syncHandler = new Handler();
         /* Turn off scanner to allow capture option selection. */
         this.spinnerSynch.setEnabled(false);
@@ -1072,7 +1123,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.fmdFingerTemplate1 = null;
         this.isCapturing = false;
         this.setInfoText("");
-        this.setRawImageText("");
         this.resetToClosedState();
     }
 
@@ -1105,9 +1155,16 @@ public class FingerprintPage extends LinearLayout implements PageView {
         /* alllow capture option selection */
         this.spinnerSaveToDisk.setEnabled(true);
         this.spinnerSynch.setEnabled(true);
-        if(this.spinnerSynch.getSelectedItemPosition() == 2) {
+        if(this.spinnerScanType != null) {
+            this.spinnerScanType.setEnabled(true);
+        }
+        if(this.spinnerSynch.getSelectedItem().toString().equalsIgnoreCase("Sync")) {
             this.spinnerSaveToDisk.setSelection(0);
             this.spinnerSaveToDisk.setEnabled(false);
+            if(this.spinnerScanType != null) {
+                this.spinnerScanType.setSelection(0);
+                this.spinnerScanType.setEnabled(false);
+            }
         }
     }
 
@@ -1119,9 +1176,16 @@ public class FingerprintPage extends LinearLayout implements PageView {
         /* alllow capture option selection */
         this.spinnerSynch.setEnabled(true);
         this.spinnerSaveToDisk.setEnabled(true);
-        if(this.spinnerSynch.getSelectedItemPosition() == 2) {
+        if(this.spinnerScanType != null) {
+            this.spinnerScanType.setEnabled(true);
+        }
+        if(this.spinnerSynch.getSelectedItem().toString().equalsIgnoreCase("Sync")) {
             this.spinnerSaveToDisk.setSelection(0);
             this.spinnerSaveToDisk.setEnabled(false);
+            if(this.spinnerScanType != null) {
+                this.spinnerScanType.setSelection(0);
+                this.spinnerScanType.setEnabled(false);
+            }
         }
     }
 
@@ -1151,10 +1215,5 @@ public class FingerprintPage extends LinearLayout implements PageView {
         if (this.textViewInfo != null)
             this.textViewInfo.setText(text);
         else if (!text.isEmpty()) this.setStatusText(text);
-    }
-
-    private void setRawImageText(String text) {
-        if (!text.isEmpty()) Log.d(TAG, "setRawImageText: " + text);
-        this.textViewRawImage.setText(text);
     }
 }

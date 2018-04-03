@@ -178,10 +178,6 @@
         style="@style/StatusInfo" />
 
     <TextView
-        android:id="@+id/rawImage"
-        style="@style/StatusInfo" />
-
-    <TextView
         android:id="@+id/status"
         style="@style/StatusInfo" />
 

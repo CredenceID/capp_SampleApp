@@ -57,11 +57,16 @@
         <item>No PNG</item>
         <item>Save as PNG</item>
     </string-array>
-    <string-array name="sync_disk_array">
+    <string-array name="sync_async_array">
         <item>Async</item>
         <item>Async w/ Raw Byte Array</item>
         <item>Sync</item>
     </string-array>
+    <string-array name="trident_sync_async_array">
+        <item>Async</item>
+        <item>Sync</item>
+    </string-array>
+    <string name="trident_product_name">Trident</string>
 
     <!-- Iris -->
     <string name="title_iris">Iris</string>
