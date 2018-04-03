@@ -108,20 +108,13 @@ public class NfcPage extends LinearLayout implements PageView {
             public void onClick(View v) {
 
                 mFingerprintStatusTextView.setText(R.string.fingerprint_uninitialized);
-                mBiometrics.grabFingerprint(Biometrics.ScanType.SINGLE_FINGER, new Biometrics.OnFingerprintGrabbedListener() {
+                mBiometrics.grabFingerprint(Biometrics.ScanType.SINGLE_FINGER, false, false, new Biometrics.OnFingerprintGrabbedListener() {
                     @Override
-                    public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes, String s, String s1) {
-
-                        mFingerprintStatusTextView.setText("Fingerprint status :"+s1 +"\n"+
-                                "Result :"+resultCode.toString()+"\n"+
-                                "Bitmap size :"+ (bitmap==null? "0": bitmap.getByteCount())+" bytes");
-                    }
-
-                    @Override
-                    public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
-                        mFingerprintStatusTextView.setText("Fingerprint reader closed :"+resultCode.toString()+"\n"+
-                                "Fingerprint reader closure reason :"+closeReasonCode.toString());
-
+                    public void onFingerprintGrabbed(ResultCode result, Bitmap bitmap, byte[] iso, String filepath,
+                                                     byte[] rawImage, String status) {
+                        mFingerprintStatusTextView.setText("Fingerprint status :" + status + "\n"+
+                                "Result :" + result.toString() + "\n" +
+                                "Bitmap size :"+ (bitmap==null? "0": bitmap.getByteCount()) + " bytes");
                     }
                 });
             }
