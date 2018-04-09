@@ -14,7 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,9 +25,9 @@ import com.credenceid.biometrics.Biometrics.OnCompareFmdListener;
 import com.credenceid.biometrics.Biometrics.OnConvertToFmdListener;
 import com.credenceid.biometrics.Biometrics.OnConvertToWsqListener;
 import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedFullListener;
-import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.biometrics.Biometrics.ScanType;
+import com.credenceid.biometrics.FingerprintSyncResponse;
 import com.credenceid.sdkapp.R;
 import com.credenceid.sdkapp.SampleActivity;
 import com.credenceid.sdkapp.TheApp;
@@ -45,7 +44,7 @@ import static com.credenceid.sdkapp.R.id.status;
 
 public class FingerprintPage extends LinearLayout implements PageView {
     private static final String TAG = FingerprintPage.class.getName();
-    private final Biometrics.ScanType scan_types[] = {
+    private final Biometrics.ScanType scanTypes[] = {
             ScanType.SINGLE_FINGER,
             ScanType.TWO_FINGERS, ScanType.ROLL_SINGLE_FINGER,
             ScanType.TWO_FINGERS_SPLIT
@@ -91,8 +90,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private boolean saveToDisk = false;
     // If true, grab fingerprint synchronously
     private boolean grabFingerprintSync = false;
-    // If true, grab fingerprint synchronously
-    private boolean grabFingerprintAsync = false;
     // If true, return the raw byte array of fingerprint which grabbed asynchronously
     private boolean grabFingerprintAsyncRaw = false;
     // Handler for display bitmap which grabbed synchronously
@@ -147,7 +144,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             public void onClick(View v) {
                 // if saveToDisk is true, show the full screen image with the PNG format;
                 // if saveToDisk is false, show the full screen image with the Bitmap format
-                if(saveToDisk) {
+                if (saveToDisk) {
                     sampleActivity.showFullScreenScannedImage(pathName);
                 } else {
                     sampleActivity.showFullScreenScannedImage(currentBitmap);
@@ -162,7 +159,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             public void onClick(View v) {
                 // if saveToDisk is true, show the full screen image with the PNG format;
                 // if saveToDisk is false, show the full screen image with the Bitmap format
-                if(saveToDisk) {
+                if (saveToDisk) {
                     sampleActivity.showFullScreenScannedImage(pathNameFingerprint1);
                 } else {
                     sampleActivity.showFullScreenScannedImage(currentFingerprint1Bitmap);
@@ -177,7 +174,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             public void onClick(View v) {
                 // if saveToDisk is true, show the full screen image with the PNG format;
                 // if saveToDisk is false, show the full screen image with the Bitmap format
-                if(saveToDisk) {
+                if (saveToDisk) {
                     sampleActivity.showFullScreenScannedImage(pathNameFingerprint2);
                 } else {
                     sampleActivity.showFullScreenScannedImage(currentFingerprint2Bitmap);
@@ -235,7 +232,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             spinnerScanType.setOnItemSelectedListener(new OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    scanType = scan_types[position];
+                    scanType = scanTypes[position];
                 }
 
                 @Override
@@ -284,7 +281,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             spinnerSaveToDisk.setOnItemSelectedListener(new OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if(position == 0) {
+                    if (position == 0) {
                         saveToDisk = false;
                     } else {
                         saveToDisk = true;
@@ -316,17 +313,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     if (position == 0) {
-                        grabFingerprintAsync = true;
                         grabFingerprintAsyncRaw = false;
                         grabFingerprintSync = false;
                         spinnerSaveToDisk.setEnabled(true);
                     } else if (position == 1) {
-                        grabFingerprintAsync = false;
                         grabFingerprintAsyncRaw = true;
                         grabFingerprintSync = false;
                         spinnerSaveToDisk.setEnabled(true);
                     } else {
-                        grabFingerprintAsync = false;
                         grabFingerprintAsyncRaw = false;
                         grabFingerprintSync = true;
                         spinnerSaveToDisk.setSelection(0);
@@ -357,13 +351,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     if (position == 0) {
-                        grabFingerprintAsync = true;
                         grabFingerprintAsyncRaw = false;
                         grabFingerprintSync = false;
                         spinnerSaveToDisk.setEnabled(true);
                         spinnerScanType.setEnabled(true);
                     } else {
-                        grabFingerprintAsync = false;
                         grabFingerprintAsyncRaw = false;
                         grabFingerprintSync = true;
                         spinnerSaveToDisk.setSelection(0);
@@ -420,7 +412,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         /*
         * On Tridents, a full listener is used. It doesn't return the raw image.
         */
-        if(name.contains(getContext().getResources().getString(R.string.trident_product_name))) {
+        if (name.contains(getContext().getResources().getString(R.string.trident_product_name))) {
             initializeTridentSyncSpinners();
         }
         /* Always reset our captures when we activate this page. */
@@ -462,23 +454,27 @@ public class FingerprintPage extends LinearLayout implements PageView {
             Runnable mRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    currentBitmap = biometrics.grabFingerprintSync(8000);
+                    final FingerprintSyncResponse fingerprintSyncResponse = biometrics.grabFingerprintSync(8000);
+                    final Bitmap bitmap = fingerprintSyncResponse.bitmap;
                     //Beeper.getInstance().click();
                     syncHandler.post(new Runnable() {
                         @Override
-                        public void run () {
-                            if (currentBitmap != null) {
+                        public void run() {
+                            if (fingerprintSyncResponse.resultCode == ResultCode.OK) {
                                 Beeper.getInstance().click();
-                                imageViewCapturedImage.setImageBitmap(currentBitmap);
+                                imageViewCapturedImage.setImageBitmap(bitmap);
                                 /* Calculate total time taken for image to return back as good. */
                                 long duration = SystemClock.elapsedRealtime() - startCaptureTime;
                                 setStatusText("Capture Complete in " + duration + " msec");
+                                Log.v(TAG, "Capture succeed: status: " + fingerprintSyncResponse.resultCode
+                                        + "," + fingerprintSyncResponse.status);
                                 resetToOneFingerCaptureState();
                                 if (hasFmdMatcher) {
-                                    convertToFmd(currentBitmap);
+                                    convertToFmd(bitmap);
                                 }
                             } else {
-                                Log.v(TAG, "currentBitmap is null");
+                                Log.v(TAG, "Capture fails: " + fingerprintSyncResponse.resultCode
+                                        + "," + fingerprintSyncResponse.status);
                             }
                         }
                     });
@@ -488,7 +484,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         } else {
             if (this.useFingerprintWsqListener)
                 this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, this.grabFingerprintAsyncRaw,
-                        new Biometrics.OnFingerprintGrabbedWSQListener() {
+                        new Biometrics.OnFingerprintGrabbedWSQRawListener() {
                     @Override
                     public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                      Bitmap bm, byte[] iso,
@@ -512,8 +508,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         /* Calculate total time taken for image to return back as good. */
                             long duration = SystemClock.elapsedRealtime() - startCaptureTime;
                             setStatusText("Capture Complete in " + duration + " msec");
-                            if(rawImage != null) {
-                               setStatusText("Raw byte array length is " + rawImage.length);
+                            if (rawImage != null) {
+                                setStatusText("Raw byte array length is " + rawImage.length);
                             }
                         /* Set global path variables for Bitmap image. */
                             pathName = filepath;
@@ -525,9 +521,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 showImageSize(filepath, wsq, duration);
                             }
                         /* Display captured finger quality. */
-                            if(rawImage != null) {
+                            if (rawImage != null) {
                                 setStatusText("Raw byte array length is " + rawImage.length
-                                + ". Fingerprint Quality: " + nfiqScore);
+                                        + ". Fingerprint Quality: " + nfiqScore);
                             } else {
                                 setStatusText("Fingerprint Quality: " + nfiqScore);
                             }
@@ -538,10 +534,24 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             if (hasFmdMatcher) convertToFmd(currentBitmap);
                         }
                     }
+
+                    @Override
+                    public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+                        if (resultCode == OK) {
+                            setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
+                            resetCapture();
+                        } else if (resultCode == ResultCode.FAIL) {
+                        /* If sensor failed to close, then close button should still be clickable
+                         * since it did not actually close.
+                         */
+                            updateToCloseButton();
+                            setStatusText("FingerPrint reader closed: FAILED");
+                        }
+                    }
                 });
             else if (!useFingerprintFullListener)
                 this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, this.grabFingerprintAsyncRaw,
-                        new OnFingerprintGrabbedListener() {
+                        new Biometrics.OnFingerprintGrabbedRawListener() {
                     @Override
                     public void onFingerprintGrabbed(ResultCode result,
                                                      Bitmap bm,
@@ -563,7 +573,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             /* Calculate total time taken for image to return back as good. */
                             long duration = SystemClock.elapsedRealtime() - startCaptureTime;
                             setStatusText("Capture Complete in " + duration + " msec");
-                            if(rawImage != null) {
+                            if (rawImage != null) {
                                 setStatusText("Raw byte array length is " + rawImage.length);
                             }
                         /* Set global image variables. */
@@ -584,6 +594,20 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             if (hasFmdMatcher) convertToFmd(currentBitmap);
                             else if (pathName == null)
                                 Log.w(TAG, "onFingerprintGrabbed - OK but filepath null");
+                        }
+                    }
+
+                    @Override
+                    public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+                        if (resultCode == OK) {
+                            setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
+                            resetCapture();
+                        } else if (resultCode == ResultCode.FAIL) {
+                        /* If sensor failed to close, then close button should still be clickable
+                         * since it did not actually close.
+                         */
+                            updateToCloseButton();
+                            setStatusText("FingerPrint reader closed: FAILED");
                         }
                     }
                 });
@@ -666,6 +690,22 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             } else if (pathName == null)
                                 Log.w(TAG, "onFingerprintGrabbed - OK but filepath null");
                         }
+
+
+                    }
+
+                    @Override
+                    public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+                        if (resultCode == OK) {
+                            setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
+                            resetCapture();
+                        } else if (resultCode == ResultCode.FAIL) {
+                        /* If sensor failed to close, then close button should still be clickable
+                         * since it did not actually close.
+                         */
+                            updateToCloseButton();
+                            setStatusText("FingerPrint reader closed: FAILED");
+                        }
                     }
                 });
         }
@@ -677,26 +717,26 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
         // Set text view letting user know we are opening the fingerprint reader
         setStatusText("Openning scanner");
-        this.biometrics.openFingerprintReader(new Biometrics.FingerprintStatusListener() {
+        this.biometrics.openFingerprintReader(new Biometrics.FingerprintReaderStatusListener() {
             @Override
-            public void onFingerprintOpen(ResultCode resultCode, String hint) {
+            public void onFingerprintReaderOpen(ResultCode resultCode, String hint) {
                 Log.d(TAG, "Fingerprint reader opened- " + resultCode.name());
                 if (hint != null && !hint.isEmpty()) {
                     setStatusText(hint);
                 }
                 /* Set certain widgets on/off based on if result was good. */
-                if(resultCode == ResultCode.OK) {
+                if (resultCode == ResultCode.OK) {
                     setStatusText("Fingerprint reader opened: " + resultCode.toString());
                     updateToCloseButton();
                     resetToOneFingerCaptureState();
-                } else if (resultCode == ResultCode.FAIL){
+                } else if (resultCode == ResultCode.FAIL) {
                     updateToOpenButton();
                     setStatusText("Fingerprint reader opened: FAILED");
                 }
             }
 
             @Override
-            public void onFingerprintClosed(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+            public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
                 if (resultCode == OK) {
                     setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
                     resetCapture();
@@ -756,12 +796,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
             Runnable mRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    currentBitmap = biometrics.grabFingerprintSync(8000);
+                    FingerprintSyncResponse fingerprintSyncResponse = biometrics.grabFingerprintSync(8000);
+                    final Bitmap bitmap = fingerprintSyncResponse.bitmap;
                     //Beeper.getInstance().click();
                     syncHandler.post(new Runnable() {
                         @Override
-                        public void run () {
-                            if (currentBitmap != null) {
+                        public void run() {
+                            if (bitmap != null) {
+                                currentBitmap = bitmap;
                                 Beeper.getInstance().click();
                                 imageViewCapturedImage.setImageBitmap(currentBitmap);
                                 resetToOneFingerCaptureState();
@@ -848,10 +890,24 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 Log.w(TAG, "Fmd matcher is not present");
                         }
                     }
+
+                    @Override
+                    public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+                        if (resultCode == OK) {
+                            setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
+                            resetCapture();
+                        } else if (resultCode == ResultCode.FAIL) {
+                        /* If sensor failed to close, then close button should still be clickable
+                         * since it did not actually close.
+                         */
+                            updateToCloseButton();
+                            setStatusText("FingerPrint reader closed: FAILED");
+                        }
+                    }
                 });
             else
                 this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, this.grabFingerprintAsyncRaw,
-                        new OnFingerprintGrabbedListener() {
+                        new Biometrics.OnFingerprintGrabbedRawListener() {
                     @Override
                     public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                      Bitmap bm,
@@ -881,6 +937,20 @@ public class FingerprintPage extends LinearLayout implements PageView {
                          * compare it against the first captured one.
                          */
                             convertToFmdAndMatch(currentBitmap);
+                        }
+                    }
+
+                    @Override
+                    public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+                        if (resultCode == OK) {
+                            setStatusText("FingerPrint reader closed:" + closeReasonCode.toString());
+                            resetCapture();
+                        } else if (resultCode == ResultCode.FAIL) {
+                        /* If sensor failed to close, then close button should still be clickable
+                         * since it did not actually close.
+                         */
+                            updateToCloseButton();
+                            setStatusText("FingerPrint reader closed: FAILED");
                         }
                     }
                 });
@@ -1155,13 +1225,13 @@ public class FingerprintPage extends LinearLayout implements PageView {
         /* alllow capture option selection */
         this.spinnerSaveToDisk.setEnabled(true);
         this.spinnerSynch.setEnabled(true);
-        if(this.spinnerScanType != null) {
+        if (this.spinnerScanType != null) {
             this.spinnerScanType.setEnabled(true);
         }
-        if(this.spinnerSynch.getSelectedItem().toString().equalsIgnoreCase("Sync")) {
+        if (this.spinnerSynch.getSelectedItem().toString().equalsIgnoreCase("Sync")) {
             this.spinnerSaveToDisk.setSelection(0);
             this.spinnerSaveToDisk.setEnabled(false);
-            if(this.spinnerScanType != null) {
+            if (this.spinnerScanType != null) {
                 this.spinnerScanType.setSelection(0);
                 this.spinnerScanType.setEnabled(false);
             }
@@ -1176,13 +1246,13 @@ public class FingerprintPage extends LinearLayout implements PageView {
         /* alllow capture option selection */
         this.spinnerSynch.setEnabled(true);
         this.spinnerSaveToDisk.setEnabled(true);
-        if(this.spinnerScanType != null) {
+        if (this.spinnerScanType != null) {
             this.spinnerScanType.setEnabled(true);
         }
-        if(this.spinnerSynch.getSelectedItem().toString().equalsIgnoreCase("Sync")) {
+        if (this.spinnerSynch.getSelectedItem().toString().equalsIgnoreCase("Sync")) {
             this.spinnerSaveToDisk.setSelection(0);
             this.spinnerSaveToDisk.setEnabled(false);
-            if(this.spinnerScanType != null) {
+            if (this.spinnerScanType != null) {
                 this.spinnerScanType.setSelection(0);
                 this.spinnerScanType.setEnabled(false);
             }

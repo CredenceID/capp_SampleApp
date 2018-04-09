@@ -19,7 +19,6 @@ import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.sdkapp.R;
 import com.credenceid.sdkapp.models.PageView;
-import com.credenceid.sdkapp.utils.Beeper;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,9 +36,9 @@ public class NfcPage extends LinearLayout implements PageView {
     private TextView mCardDetailsTextView;
     private Button mOpenBtn;
     private Button mCloseBtn;
-    private Button buttonConnectDisconnect;
+    private Button mButtonConnectDisconnect;
     private ImageView mPhotoView;
-    private Bitmap bm = null;
+    private Bitmap mBitmap = null;
     private TextView mFingerprintStatusTextView;
     private Button mGrabFingerprintButton;
 
@@ -78,11 +77,11 @@ public class NfcPage extends LinearLayout implements PageView {
                 mBiometrics.cardCloseCommand();
             }
         });
-        buttonConnectDisconnect = (Button) findViewById(R.id.connect_disconnect_card_btn);
-        buttonConnectDisconnect.setOnClickListener(new OnClickListener() {
+        mButtonConnectDisconnect = (Button) findViewById(R.id.connect_disconnect_card_btn);
+        mButtonConnectDisconnect.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                String buttonText = buttonConnectDisconnect.getText().toString();
+                String buttonText = mButtonConnectDisconnect.getText().toString();
                 if(buttonText.equalsIgnoreCase(getContext()
                         .getResources().getString(R.string.connect))) {
                     connectCardReader();
@@ -108,9 +107,9 @@ public class NfcPage extends LinearLayout implements PageView {
             @Override
             public void onClick(View v) {
                 mFingerprintStatusTextView.setText(R.string.fingerprint_uninitialized);
-                mBiometrics.openFingerprintReader(new Biometrics.FingerprintStatusListener() {
+                mBiometrics.openFingerprintReader(new Biometrics.FingerprintReaderStatusListener() {
                     @Override
-                    public void onFingerprintOpen(ResultCode resultCode, String s) {
+                    public void onFingerprintReaderOpen(ResultCode resultCode, String s) {
                         mFingerprintStatusTextView.setText("open: " + resultCode.toString());
                         if(resultCode == ResultCode.OK) {
                             new Thread(captureFingerprintRunnable).start();
@@ -120,7 +119,7 @@ public class NfcPage extends LinearLayout implements PageView {
                     }
 
                     @Override
-                    public void onFingerprintClosed(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+                    public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
                         if (resultCode == ResultCode.OK) {
                             mFingerprintStatusTextView.setText("FingerPrint reader closed:" + closeReasonCode.toString());
                         } else if (resultCode == ResultCode.FAIL) {
@@ -136,7 +135,7 @@ public class NfcPage extends LinearLayout implements PageView {
     Runnable captureFingerprintRunnable = new Runnable() {
         @Override
         public void run() {
-            mBiometrics.grabFingerprint(Biometrics.ScanType.SINGLE_FINGER, false, false, new Biometrics.OnFingerprintGrabbedListener() {
+            mBiometrics.grabFingerprint(Biometrics.ScanType.SINGLE_FINGER, false, false, new Biometrics.OnFingerprintGrabbedRawListener() {
                 @Override
                 public void onFingerprintGrabbed(ResultCode result, Bitmap bitmap, byte[] iso, String filepath,
                                                  byte[] rawImage, String hint) {
@@ -148,6 +147,15 @@ public class NfcPage extends LinearLayout implements PageView {
                         mFingerprintStatusTextView.setText("Fingerprint status :" + hint + "\n" +
                                 "Result :" + result.toString() + "\n" +
                                 "Bitmap size :" + (bitmap == null ? "0" : bitmap.getByteCount()) + " bytes");
+                    }
+                }
+
+                @Override
+                public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+                    if (resultCode == ResultCode.OK) {
+                        mFingerprintStatusTextView.setText("FingerPrint reader closed:" + closeReasonCode.toString());
+                    } else if (resultCode == ResultCode.FAIL) {
+                        mFingerprintStatusTextView.setText("FingerPrint reader close: FAILED");
                     }
                 }
             });
@@ -198,10 +206,10 @@ public class NfcPage extends LinearLayout implements PageView {
         boolean cardConnected = mBiometrics.cardConnectSync(5000);
         if (cardConnected) {
             mCardDetailsTextView.setText(R.string.connected);
-            buttonConnectDisconnect.setText(R.string.disconnect);
+            mButtonConnectDisconnect.setText(R.string.disconnect);
         } else {
             mCardDetailsTextView.setText(R.string.connected_fail);
-            buttonConnectDisconnect.setText(R.string.connect);
+            mButtonConnectDisconnect.setText(R.string.connect);
         }
     }
 
@@ -211,10 +219,10 @@ public class NfcPage extends LinearLayout implements PageView {
         boolean cardDisconnected = mBiometrics.cardDisconnectSync(5000);
         if (cardDisconnected) {
             mCardDetailsTextView.setText(R.string.disconnected);
-            buttonConnectDisconnect.setText(R.string.connect);
+            mButtonConnectDisconnect.setText(R.string.connect);
         } else {
             mCardDetailsTextView.setText(R.string.disconnected_fail);
-            buttonConnectDisconnect.setText(R.string.disconnect);
+            mButtonConnectDisconnect.setText(R.string.disconnect);
         }
     }
 
@@ -223,13 +231,13 @@ public class NfcPage extends LinearLayout implements PageView {
         Log.d(TAG, "OnCapture in NfcPage");
 
         mCardDetailsTextView.setText("");
-        if (bm != null) {
+        if (mBitmap != null) {
             Log.d(TAG, "Bitmap is non null recycle it");
-            bm.recycle(); // This should release bitmap.
+            mBitmap.recycle(); // This should release bitmap.
         } else {
             Log.d(TAG, "Bitmap is null no need to recycle");
         }
-        bm = null;
+        mBitmap = null;
 
         disableOpenButton();
         mPhotoView.setImageResource(android.R.color.transparent);
@@ -252,7 +260,7 @@ public class NfcPage extends LinearLayout implements PageView {
                     enableOpenButton();
                     disableCloseButton();
                 }
-                buttonConnectDisconnect.setText(R.string.disconnect);
+                mButtonConnectDisconnect.setText(R.string.disconnect);
             }
 
             @Override
@@ -265,7 +273,7 @@ public class NfcPage extends LinearLayout implements PageView {
                     Log.d(TAG, "onCardReaderClosed: FAILED");
                     mCardDetailsTextView.setText("Card Closed: FAILED");
                 }
-                buttonConnectDisconnect.setText(R.string.disconnect);
+                mButtonConnectDisconnect.setText(R.string.disconnect);
             }
         });
 
@@ -373,8 +381,8 @@ public class NfcPage extends LinearLayout implements PageView {
         if (mPhotoView != null) {
             mPhotoView.clearAnimation();
             mPhotoView.invalidate();
-            if (bm != null)
-                mPhotoView.setImageBitmap(bm);
+            if (mBitmap != null)
+                mPhotoView.setImageBitmap(mBitmap);
             else
                 mPhotoView.setImageResource(R.drawable.ic_photoid);
         } else
