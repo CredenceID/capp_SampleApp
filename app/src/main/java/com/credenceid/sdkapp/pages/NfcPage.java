@@ -107,60 +107,26 @@ public class NfcPage extends LinearLayout implements PageView {
             @Override
             public void onClick(View v) {
                 mFingerprintStatusTextView.setText(R.string.fingerprint_uninitialized);
-                mBiometrics.openFingerprintReader(new Biometrics.FingerprintReaderStatusListener() {
+                mBiometrics.grabFingerprint(Biometrics.ScanType.SINGLE_FINGER, new Biometrics.OnFingerprintGrabbedListener() {
                     @Override
-                    public void onFingerprintReaderOpen(ResultCode resultCode, String s) {
-                        mFingerprintStatusTextView.setText("open: " + resultCode.toString());
-                        if(resultCode == ResultCode.OK) {
-                            new Thread(captureFingerprintRunnable).start();
-                        } else if (resultCode == ResultCode.FAIL) {
-                            mFingerprintStatusTextView.setText("FingerPrint reader open: FAILED");
-                        }
+                    public void onFingerprintGrabbed(ResultCode resultCode, Bitmap bitmap, byte[] bytes, String s, String s1) {
+
+                        mFingerprintStatusTextView.setText("Fingerprint status :"+s1 +"\n"+
+                                "Result :"+resultCode.toString()+"\n"+
+                                "Bitmap size :"+ (bitmap==null? "0": bitmap.getByteCount())+" bytes");
                     }
 
                     @Override
                     public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
-                        if (resultCode == ResultCode.OK) {
-                            mFingerprintStatusTextView.setText("FingerPrint reader closed:" + closeReasonCode.toString());
-                        } else if (resultCode == ResultCode.FAIL) {
-                            mFingerprintStatusTextView.setText("FingerPrint reader close: FAILED");
-                        }
+                        mFingerprintStatusTextView.setText("Fingerprint reader closed :"+resultCode.toString()+"\n"+
+                                "Fingerprint reader closure reason :"+closeReasonCode.toString());
+
                     }
                 });
 
             }
         });
     }
-
-    Runnable captureFingerprintRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mBiometrics.grabFingerprint(Biometrics.ScanType.SINGLE_FINGER, false, false, new Biometrics.OnFingerprintGrabbedRawListener() {
-                @Override
-                public void onFingerprintGrabbed(ResultCode result, Bitmap bitmap, byte[] iso, String filepath,
-                                                 byte[] rawImage, String hint) {
-                    /* If we got back a valid hint then set it to our status for user to see. */
-                    if (hint != null && !hint.isEmpty()) {
-                        mFingerprintStatusTextView.setText(hint);
-                    }
-                    if(result == ResultCode.OK) {
-                        mFingerprintStatusTextView.setText("Fingerprint status :" + hint + "\n" +
-                                "Result :" + result.toString() + "\n" +
-                                "Bitmap size :" + (bitmap == null ? "0" : bitmap.getByteCount()) + " bytes");
-                    }
-                }
-
-                @Override
-                public void onCloseFingerprintReader(ResultCode resultCode, CloseReasonCode closeReasonCode) {
-                    if (resultCode == ResultCode.OK) {
-                        mFingerprintStatusTextView.setText("FingerPrint reader closed:" + closeReasonCode.toString());
-                    } else if (resultCode == ResultCode.FAIL) {
-                        mFingerprintStatusTextView.setText("FingerPrint reader close: FAILED");
-                    }
-                }
-            });
-        }
-    };
 
     @Override
     public String getTitle() {
