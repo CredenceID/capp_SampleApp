@@ -59,7 +59,7 @@
     </string-array>
     <string-array name="sync_async_array">
         <item>Async</item>
-        <item>Async w/ Raw Byte Array</item>
+        <item>Async w/ Raw Image</item>
         <item>Sync</item>
     </string-array>
     <string-array name="trident_sync_async_array">

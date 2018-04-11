@@ -469,8 +469,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 Log.v(TAG, "Capture succeed: status: " + fingerprintSyncResponse.resultCode
                                         + "," + fingerprintSyncResponse.status);
                                 if (fingerprintSyncResponse.rawImage != null) {
-                                    setStatusText("Raw byte array length is "
-                                            + fingerprintSyncResponse.rawImage.length);
+                                    setInfoText("Raw image length is " + fingerprintSyncResponse.rawImage.length);
                                     Log.v(TAG, "Capture succeed: rawImage length is: "
                                             + fingerprintSyncResponse.rawImage.length);
                                 }
@@ -512,7 +511,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 long duration = SystemClock.elapsedRealtime() - startCaptureTime;
                                 setStatusText("Capture Complete in " + duration + " msec");
                                 if (rawImage != null) {
-                                    setStatusText("Raw byte array length is " + rawImage.length);
+                                    setInfoText("Raw image length is " + rawImage.length);
                                 }
                                 /* Set global image variables. */
                                 pathName = filepath;
@@ -585,7 +584,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 showImageSize(filepath, wsq, duration);
                             }
                             /* Display captured finger quality. */
-                            setStatusText("Fingerprint Quality: " + nfiqScore);
+                            setInfoText("Fingerprint Quality: " + nfiqScore);
                             Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
                         /* If device supports creation of FMD templates then create first FMD
                          * template from Bitmap.
