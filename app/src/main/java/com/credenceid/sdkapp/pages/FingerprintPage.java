@@ -469,6 +469,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 Log.v(TAG, "Capture succeed: status: " + fingerprintSyncResponse.resultCode
                                         + "," + fingerprintSyncResponse.status);
                                 if (fingerprintSyncResponse.rawImage != null) {
+                                    setStatusText("Raw byte array length is "
+                                            + fingerprintSyncResponse.rawImage.length);
                                     Log.v(TAG, "Capture succeed: rawImage length is: "
                                             + fingerprintSyncResponse.rawImage.length);
                                 }
