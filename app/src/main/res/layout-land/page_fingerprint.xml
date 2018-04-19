@@ -174,10 +174,6 @@
         android:layout_weight="1" />
 
     <TextView
-        android:id="@+id/extraInfo"
-        style="@style/StatusInfo"/>
-
-    <TextView
         android:id="@+id/info"
         style="@style/StatusInfo" />
 

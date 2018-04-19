@@ -67,7 +67,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private ImageView imageViewCapturedImageFinger2;
     private TextView textViewStatus;
     private TextView textViewInfo;
-    private TextView textViewExtraInfo;
     private ScanType scanType = ScanType.SINGLE_FINGER;
     private String pathName;
     private String pathNameFingerprint1;
@@ -187,7 +186,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
         textViewStatus = (TextView) findViewById(status);
         textViewStatus.setSingleLine(false);
         textViewInfo = (TextView) findViewById(R.id.info);
-        textViewExtraInfo = (TextView) findViewById(R.id.extraInfo);
     }
 
     private void initializeLayoutButtons() {
@@ -475,7 +473,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     Log.v(TAG, "Capture succeed: rawImage length is: "
                                             + fingerprintSyncResponse.rawImage.length);
                                 }
-                                getFingerQuality(bitmap);
                                 resetToOneFingerCaptureState();
                                 if (hasFmdMatcher) {
                                     convertToFmd(bitmap);
@@ -773,7 +770,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.resetCapture();
 
         // Set text view letting user know we are opening the fingerprint reader
-        setStatusText("Opening scanner");
+        setStatusText("Openning scanner");
         this.biometrics.openFingerprintReader(new Biometrics.FingerprintReaderStatusListener() {
             @Override
             public void onOpenFingerprintReader(ResultCode resultCode, String hint) {
@@ -843,7 +840,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.resetCaptureImages();
         this.setStatusText("");
         this.setInfoText("");
-        this.setExtraInfoText("");
         this.syncHandler = new Handler();
         /* Turn off scanner to allow capture option selection. */
         this.spinnerSynch.setEnabled(false);
@@ -1279,7 +1275,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 TheApp.abbreviateNumber(this.originalImageSize),
                 TheApp.abbreviateNumber(this.compressedImageSize),
                 duration);
-        this.setExtraInfoText(str);
+        this.setInfoText(str);
     }
 
     // get fingerprint quality
@@ -1305,7 +1301,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.fmdFingerTemplate1 = null;
         this.isCapturing = false;
         this.setInfoText("");
-        this.setExtraInfoText("");
         this.resetToClosedState();
     }
 
@@ -1398,13 +1393,5 @@ public class FingerprintPage extends LinearLayout implements PageView {
         if (this.textViewInfo != null)
             this.textViewInfo.setText(text);
         else if (!text.isEmpty()) this.setStatusText(text);
-    }
-
-    private void setExtraInfoText(String text) {
-        if (!text.isEmpty()) Log.d(TAG, "setExtraInfoText: " + text);
-        if (this.textViewExtraInfo != null) {
-            this.textViewExtraInfo.setText(text);
-        } else if (!text.isEmpty())
-            this.setStatusText(text);
     }
 }
