@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -469,10 +470,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 Log.v(TAG, "Capture succeed: status: " + fingerprintSyncResponse.resultCode
                                         + "," + fingerprintSyncResponse.status);
                                 if (fingerprintSyncResponse.rawImage != null) {
-                                    setInfoText("Raw image length is " + fingerprintSyncResponse.rawImage.length);
+                                    Toast toast = Toast.makeText(getContext(), "Raw image length is " + fingerprintSyncResponse.rawImage.length,
+                                            Toast.LENGTH_LONG);
+                                    toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
+                                            getResources().getInteger(R.integer.toast_offset_y));
+                                    toast.show();
                                     Log.v(TAG, "Capture succeed: rawImage length is: "
                                             + fingerprintSyncResponse.rawImage.length);
                                 }
+                                getFingerQuality(bitmap);
                                 resetToOneFingerCaptureState();
                                 if (hasFmdMatcher) {
                                     convertToFmd(bitmap);
@@ -511,7 +517,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 long duration = SystemClock.elapsedRealtime() - startCaptureTime;
                                 setStatusText("Capture Complete in " + duration + " msec");
                                 if (rawImage != null) {
-                                    setInfoText("Raw image length is " + rawImage.length);
+                                    Toast toast = Toast.makeText(getContext(), "Raw image length is " + rawImage.length,
+                                            Toast.LENGTH_LONG);
+                                    toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
+                                            getResources().getInteger(R.integer.toast_offset_y));
+                                    toast.show();
                                 }
                                 /* Set global image variables. */
                                 pathName = filepath;
@@ -524,8 +534,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 //if have filepath, then convert to wsq
                                 if (filepath != null) {
                                     createWsqImage(filepath);
-                                    File temp = new File(filepath);
-                                    Toast.makeText(getContext(), "Length: " + temp.length(), Toast.LENGTH_SHORT);
                                 }
 
                                 if (hasFmdMatcher) convertToFmd(currentBitmap);
@@ -641,8 +649,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             //if have filepath, then convert to wsq
                             if (filepath != null) {
                                 createWsqImage(filepath);
-                                File temp = new File(filepath);
-                                Toast.makeText(getContext(), "Length: " + temp.length(), Toast.LENGTH_SHORT);
                             }
 
                             if (hasFmdMatcher) convertToFmd(currentBitmap);
@@ -770,7 +776,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.resetCapture();
 
         // Set text view letting user know we are opening the fingerprint reader
-        setStatusText("Openning scanner");
+        setStatusText("Opening scanner");
         this.biometrics.openFingerprintReader(new Biometrics.FingerprintReaderStatusListener() {
             @Override
             public void onOpenFingerprintReader(ResultCode resultCode, String hint) {
@@ -1108,9 +1114,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
             @Override
             public void onConvertToFmd(ResultCode resultCode, byte[] bytes) {
                 Log.i(TAG, "onConvertToFmd(ResultCode, byte[]): CALLBACK INVOKED");
-                Toast.makeText(getContext(),
+                Toast toast = Toast.makeText(getContext(),
                         "convertToFmd(wsq): " + (resultCode == OK ? "OK" : "FAIL") + ", " + bytes,
-                        Toast.LENGTH_LONG).show();
+                        Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
+                        getResources().getInteger(R.integer.toast_offset_y));
+                toast.show();
             }
         });
     }
@@ -1231,7 +1240,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             TheApp.abbreviateNumber(originalImageSize),
                             TheApp.abbreviateNumber(compressedImageSize),
                             duration);
-                    setInfoText(str);
+                    Toast toast = Toast.makeText(getContext(), str, Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
+                            getResources().getInteger(R.integer.toast_offset_y));
+                    toast.show();
 
                     /* Now that we have compressed fingerprint image we will also decompress it in
                      * order to demonstrate another CredenceSDK API call.
@@ -1250,14 +1262,21 @@ public class FingerprintPage extends LinearLayout implements PageView {
             public void onDecompressWsq(ResultCode resultCode, byte[] bytes) {
                 String message = "De-CompressWsq was " + resultCode.toString();
 
-                if (bytes != null)
-                    Toast.makeText(getContext(),
+                if (bytes != null) {
+                    Toast toast = Toast.makeText(getContext(),
                             message + ", Length: " + bytes.length,
-                            Toast.LENGTH_LONG).show();
-                else
-                    Toast.makeText(getContext(),
+                            Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
+                            getResources().getInteger(R.integer.toast_offset_y));
+                    toast.show();
+                } else {
+                    Toast toast = Toast.makeText(getContext(),
                             message + ", Data was NULL.",
-                            Toast.LENGTH_LONG).show();
+                            Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
+                            getResources().getInteger(R.integer.toast_offset_y));
+                    toast.show();
+                }
             }
         });
     }
@@ -1275,7 +1294,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 TheApp.abbreviateNumber(this.originalImageSize),
                 TheApp.abbreviateNumber(this.compressedImageSize),
                 duration);
-        this.setInfoText(str);
+        Toast toast = Toast.makeText(getContext(), str, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
+                getResources().getInteger(R.integer.toast_offset_y));
+        toast.show();
     }
 
     // get fingerprint quality
