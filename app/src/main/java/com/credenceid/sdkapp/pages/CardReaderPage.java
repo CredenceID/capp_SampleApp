@@ -58,6 +58,8 @@ public class CardReaderPage extends LinearLayout implements PageView {
     Button buttonOpenClose;
     /* Keep track of how long API call takes. */
     long startTime = SystemClock.elapsedRealtime();
+    /* Connect/Disconnect card sync */
+    private Button buttonConnectDisconnect;
     /* Our custom listener to be invoked every time CardReader status changes. */
     OnCardStatusListener onCardStatusListener = new OnCardStatusListener() {
         @Override
@@ -75,6 +77,9 @@ public class CardReaderPage extends LinearLayout implements PageView {
             /* If there is no card present. */
             if (currentState == 1) {
                 textViewStatus.setText("Card Removed.\nPrevious State:" + prevState + "\nCurrent State:" + currentState);
+                /* Disable connect/disconnect button if no card present */
+                buttonConnectDisconnect.setEnabled(false);
+                buttonConnectDisconnect.setText(R.string.disconnect);
                 buttonView.setText(R.string.insert_card);
             } else if (currentState >= 2 && currentState <= 6) {
                 /* Get respective CardInformation by ATR. */
@@ -93,12 +98,18 @@ public class CardReaderPage extends LinearLayout implements PageView {
                         "\nATR:\n" + ATR);
 
                 buttonView.setText("APDU [" + APDU_table[apduTableIndex + 1] + "]");
+                /* Enable connect/disconnect button if card is present */
+                buttonConnectDisconnect.setEnabled(true);
+                buttonConnectDisconnect.setText(R.string.disconnect);
             } else if (prevState == 0 && currentState == 0 && ATR.equals("{ATR-null}")) {
                 /* This combination is an indicator that the reader has been disconnected due
                  * to inactivity.
                  */
                 textViewStatus.setText(R.string.card_reader_disconnected);
                 buttonView.setText(R.string.open_card_reader);
+                /* Disable connect/disconnect button if reader is disconnected */
+                buttonConnectDisconnect.setEnabled(false);
+                buttonConnectDisconnect.setText(R.string.disconnect);
             }
         }
     };
@@ -110,7 +121,6 @@ public class CardReaderPage extends LinearLayout implements PageView {
     };
 
     private Button buttonSyncAsync;
-    private Button buttonConnectDisconnect;
     private boolean isSyncMode = false;
     /* Biometrics object for making Credence API calls. */
     private Biometrics biometrics;
@@ -212,6 +222,8 @@ public class CardReaderPage extends LinearLayout implements PageView {
             }
         });
         buttonConnectDisconnect = (Button) findViewById(R.id.connect_disconnect_button);
+        buttonConnectDisconnect.setEnabled(false);
+        buttonConnectDisconnect.setText(R.string.disconnect);
         buttonConnectDisconnect.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -367,7 +379,6 @@ public class CardReaderPage extends LinearLayout implements PageView {
     private void cardOpened(boolean readCard) {
         buttonOpenClose.setEnabled(true);
         buttonOpenClose.setText(readCard ? R.string.close : R.string.open);
-        buttonConnectDisconnect.setText(R.string.disconnect);
         buttonView.setEnabled(readCard);
     }
 
@@ -375,8 +386,10 @@ public class CardReaderPage extends LinearLayout implements PageView {
     private void cardClosed() {
         buttonOpenClose.setEnabled(true);
         buttonOpenClose.setText(R.string.open);
-        buttonConnectDisconnect.setText(R.string.disconnect);
         buttonView.setEnabled(false);
+        /* Disable connect/disconnect button if card reader is closed */
+        buttonConnectDisconnect.setEnabled(false);
+        buttonConnectDisconnect.setText(R.string.disconnect);
     }
 
     /* This method calls Card Command API to see data on card based on states. */

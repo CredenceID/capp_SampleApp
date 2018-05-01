@@ -78,6 +78,8 @@ public class NfcPage extends LinearLayout implements PageView {
             }
         });
         mButtonConnectDisconnect = (Button) findViewById(R.id.connect_disconnect_card_btn);
+        mButtonConnectDisconnect.setEnabled(false);
+        mButtonConnectDisconnect.setText(R.string.disconnect);
         mButtonConnectDisconnect.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -152,10 +154,15 @@ public class NfcPage extends LinearLayout implements PageView {
                     mCardDetailsTextView.setText("Card Present");
                     cardReadDetailText = "";
                     doCardRead();
-
+                    /* Enable card connect/disconnect if card is present */
+                    mButtonConnectDisconnect.setEnabled(true);
+                    mButtonConnectDisconnect.setText(R.string.disconnect);
                 } else if (currentState == 0) {
                     mCardDetailsTextView.setText("");
                     mCardDetailsTextView.setText("Card Absent");
+                    /* Enable card connect/disconnect if card is absent */
+                    mButtonConnectDisconnect.setEnabled(false);
+                    mButtonConnectDisconnect.setText(R.string.disconnect);
                 }
             }
         });
@@ -226,7 +233,6 @@ public class NfcPage extends LinearLayout implements PageView {
                     enableOpenButton();
                     disableCloseButton();
                 }
-                mButtonConnectDisconnect.setText(R.string.disconnect);
             }
 
             @Override
@@ -235,11 +241,13 @@ public class NfcPage extends LinearLayout implements PageView {
                     mCardDetailsTextView.setText("Card Closed: " + arg0.toString());
                     disableCloseButton();
                     enableOpenButton();
+                    /* Disable connect/disconnect button if card reader is closed */
+                    mButtonConnectDisconnect.setEnabled(false);
+                    mButtonConnectDisconnect.setText(R.string.disconnect);
                 } else if (resultCode == ResultCode.FAIL) {
                     Log.d(TAG, "onCardReaderClosed: FAILED");
                     mCardDetailsTextView.setText("Card Closed: FAILED");
                 }
-                mButtonConnectDisconnect.setText(R.string.disconnect);
             }
         });
 
