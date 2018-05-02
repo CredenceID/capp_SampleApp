@@ -57,16 +57,16 @@
         <item>No PNG</item>
         <item>Save as PNG</item>
     </string-array>
-    <string-array name="sync_async_array">
-        <item>Async</item>
-        <item>Async w/ RawImage</item>
-        <item>Sync</item>
-    </string-array>
-    <string-array name="trident_sync_async_array">
-        <item>Async</item>
-        <item>Sync</item>
-    </string-array>
     <string name="trident_product_name">Trident</string>
+    <string name="sync">Sync</string>
+    <string name="async">Async</string>
+    <string name="async_raw">Async w/ RawImage</string>
+    <string name="no_png">NO PNG</string>
+    <string name="save_as_png">Save as PNG</string>
+    <string name="single_finger">Single finger</string>
+    <string name="two_fingers">Two fingers</string>
+    <string name="roll_finger">Roll finger</string>
+    <string name="two_finger_split">Two fingers split</string>
 
     <!-- Iris -->
     <string name="title_iris">Iris</string>
@@ -159,9 +159,6 @@
 
     <string name="open_card">Open Card</string>
     <string name="close_card">Close Card</string>
-
-    <string name="sync">Sync</string>
-    <string name="async">Async</string>
 
     <string name="insert_card">Insert Card To Continue</string>
     <string name="card_reader_disconnected">SmartCard reader disconnected</string>
