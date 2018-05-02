@@ -61,7 +61,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
     private View viewGenericSpinnerSpacer;
     private Spinner spinnerBitrate;
     private Spinner spinnerSaveToDisk;
-    private Spinner spinnerSynch;
+    private Spinner spinnerSync;
 
     private ImageView imageViewCapturedImage;
     private ImageView imageViewCapturedImageFinger1;
@@ -300,32 +300,42 @@ public class FingerprintPage extends LinearLayout implements PageView {
     }
 
     private void initializeSyncSpinners() {
-        spinnerSynch = (Spinner) findViewById(R.id.sync_spinner);
-        if (spinnerSynch != null) {
+        spinnerSync = (Spinner) findViewById(R.id.sync_spinner);
+        if (spinnerSync != null) {
             ArrayAdapter<CharSequence> sync_adapter =
                     ArrayAdapter.createFromResource(getContext(),
                             R.array.sync_async_array,
                             android.R.layout.simple_spinner_item);
             sync_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-            spinnerSynch.setAdapter(sync_adapter);
-            spinnerSynch.setSelection(0);
-            spinnerSynch.setOnItemSelectedListener(new OnItemSelectedListener() {
+            spinnerSync.setAdapter(sync_adapter);
+            spinnerSync.setSelection(0);
+            spinnerSync.setOnItemSelectedListener(new OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     if (position == 0) {
                         grabFingerprintAsyncRaw = false;
                         grabFingerprintSync = false;
                         spinnerSaveToDisk.setEnabled(true);
+                        if (spinnerScanType != null) {
+                            spinnerScanType.setEnabled(true);
+                        }
                     } else if (position == 1) {
                         grabFingerprintAsyncRaw = true;
                         grabFingerprintSync = false;
                         spinnerSaveToDisk.setEnabled(true);
+                        if (spinnerScanType != null) {
+                            spinnerScanType.setEnabled(true);
+                        }
                     } else {
                         grabFingerprintAsyncRaw = false;
                         grabFingerprintSync = true;
                         spinnerSaveToDisk.setSelection(0);
                         spinnerSaveToDisk.setEnabled(false);
+                        if (spinnerScanType != null) {
+                            spinnerSaveToDisk.setSelection(0);
+                            spinnerScanType.setEnabled(false);
+                        }
                     }
                 }
 
@@ -338,17 +348,17 @@ public class FingerprintPage extends LinearLayout implements PageView {
     }
 
     private void initializeTridentSyncSpinners() {
-        spinnerSynch = (Spinner) findViewById(R.id.sync_spinner);
-        if (spinnerSynch != null) {
+        spinnerSync = (Spinner) findViewById(R.id.sync_spinner);
+        if (spinnerSync != null) {
             ArrayAdapter<CharSequence> sync_adapter =
                     ArrayAdapter.createFromResource(getContext(),
                             R.array.trident_sync_async_array,
                             android.R.layout.simple_spinner_item);
             sync_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-            spinnerSynch.setAdapter(sync_adapter);
-            spinnerSynch.setSelection(0);
-            spinnerSynch.setOnItemSelectedListener(new OnItemSelectedListener() {
+            spinnerSync.setAdapter(sync_adapter);
+            spinnerSync.setSelection(0);
+            spinnerSync.setOnItemSelectedListener(new OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     if (position == 0) {
@@ -411,8 +421,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
         String name = this.biometrics.getProductName();
         useFingerprintWsqListener = name.contains("TAB");
         /*
-        * On Tridents, a full listener is used. It doesn't return the raw image.
-        */
+         * On Tridents, async call uses full listener.
+         */
         if (name.contains(getContext().getResources().getString(R.string.trident_product_name))) {
             initializeTridentSyncSpinners();
         }
@@ -445,7 +455,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.isCapturing = true;
         this.syncHandler = new Handler();
         /* Turn off scanner to allow capture option selection. */
-        this.spinnerSynch.setEnabled(false);
+        this.spinnerSync.setEnabled(false);
         this.spinnerSaveToDisk.setEnabled(false);
 
         final long startCaptureTime = SystemClock.elapsedRealtime();
@@ -464,6 +474,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             if (fingerprintSyncResponse.resultCode == ResultCode.OK) {
                                 Beeper.getInstance().click();
                                 imageViewCapturedImage.setImageBitmap(bitmap);
+                                currentBitmap = bitmap;
                                 /* Calculate total time taken for image to return back as good. */
                                 long duration = SystemClock.elapsedRealtime() - startCaptureTime;
                                 setStatusText("Capture Complete in " + duration + " msec");
@@ -848,7 +859,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.setInfoText("");
         this.syncHandler = new Handler();
         /* Turn off scanner to allow capture option selection. */
-        this.spinnerSynch.setEnabled(false);
+        this.spinnerSync.setEnabled(false);
         this.spinnerSaveToDisk.setEnabled(false);
 
         if (grabFingerprintSync) {
@@ -1354,11 +1365,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.isCapturing = false;
         /* alllow capture option selection */
         this.spinnerSaveToDisk.setEnabled(true);
-        this.spinnerSynch.setEnabled(true);
+        this.spinnerSync.setEnabled(true);
         if (this.spinnerScanType != null) {
             this.spinnerScanType.setEnabled(true);
         }
-        if (this.spinnerSynch.getSelectedItem().toString().equalsIgnoreCase("Sync")) {
+        if (this.spinnerSync.getSelectedItem().toString().equalsIgnoreCase("Sync")) {
             this.spinnerSaveToDisk.setSelection(0);
             this.spinnerSaveToDisk.setEnabled(false);
             if (this.spinnerScanType != null) {
@@ -1374,12 +1385,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.buttonMatch.setEnabled(false);
         this.spinnerScanType.setEnabled(true);
         /* alllow capture option selection */
-        this.spinnerSynch.setEnabled(true);
+        this.spinnerSync.setEnabled(true);
         this.spinnerSaveToDisk.setEnabled(true);
         if (this.spinnerScanType != null) {
             this.spinnerScanType.setEnabled(true);
         }
-        if (this.spinnerSynch.getSelectedItem().toString().equalsIgnoreCase("Sync")) {
+        if (this.spinnerSync.getSelectedItem().toString().equalsIgnoreCase("Sync")) {
             this.spinnerSaveToDisk.setSelection(0);
             this.spinnerSaveToDisk.setEnabled(false);
             if (this.spinnerScanType != null) {
