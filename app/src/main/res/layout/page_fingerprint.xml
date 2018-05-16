@@ -171,7 +171,8 @@
             android:layout_weight="1" />
 
         <Spinner
-            android:id="@+id/scan_type_spinner"
+            android:id="@+id/sync_spinner"
+            android:spinnerMode="dialog"
             style="@style/Spinner" />
 
         <View
@@ -181,8 +182,7 @@
             android:layout_weight="1" />
 
         <Spinner
-            android:id="@+id/sync_spinner"
-            android:spinnerMode="dialog"
+            android:id="@+id/scan_type_spinner"
             style="@style/Spinner" />
 
         <View

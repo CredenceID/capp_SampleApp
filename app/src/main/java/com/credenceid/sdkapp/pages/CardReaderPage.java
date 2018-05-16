@@ -344,7 +344,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
                 ++openCommandCount;
                 Log.d(TAG, "SmartCard reader opened-" + openCommandCount + ", " + resultCode.name());
 
-                textViewStatus.setText(R.string.reader_result + resultCode.toString());
+                textViewStatus.setText(getResources().getString(R.string.reader_result) + resultCode.toString());
                 /* Set certain widgets on/off based on if result was good. */
                 cardOpened(resultCode == ResultCode.OK);
             }

@@ -54,15 +54,17 @@
         <item>bitrate 0.0</item>
     </string-array>
     <string-array name="save_to_disk_array">
-        <item>No PNG</item>
+        <item>Default(Save as PNG)</item>
         <item>Save as PNG</item>
+        <item>No PNG</item>
     </string-array>
     <string name="trident_product_name">Trident</string>
     <string name="sync">Sync</string>
     <string name="async">Async</string>
     <string name="async_raw">Async w/ RawImage</string>
-    <string name="no_png">NO PNG</string>
+    <string name="no_png">No PNG</string>
     <string name="save_as_png">Save as PNG</string>
+    <string name="default_save_png">Default(Save as PNG)</string>
     <string name="single_finger">Single finger</string>
     <string name="two_fingers">Two fingers</string>
     <string name="roll_finger">Roll finger</string>
@@ -122,10 +124,6 @@
     <string-array name="preferences_key_list">
         <item>PREF_TIMEOUT</item>
         <item>PREF_SIMULTANEOUS_DEVICES</item>
-        <item>-----</item>
-        <item>Dummy</item>
-        <item>Null</item>
-        <item>123456</item>
     </string-array>
 
     <string-array name="preferences_value_list">
@@ -165,7 +163,7 @@
     <string name="open_card_reader">Open reader To Continue</string>
     <string name="closing_card_reader">Closing CardReade</string>
     <string name="opening_card_reader">Opening CardReader</string>
-    <string name="reader_result">"SmartCard reader RESULT: </string>
+    <string name="reader_result">SmartCard reader RESULT: </string>
     <string name="grab_fingerprint">Grab Fingerprint</string>
     <string name="fingerprint_uninitialized">Fingerprint reader not initialized</string>
     <string name="card_reader_uninitialized">Card reader not initialized</string>
