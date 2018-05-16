@@ -377,6 +377,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             spinnerScanTypeArrayList.add(getResources().getString(R.string.roll_finger));
                             spinnerScanTypeArrayList.add(getResources().getString(R.string.two_finger_split));
                         }
+                        spinnerSaveToDisk.setEnabled(true);
                     } else if (spinnerSyncItem.equalsIgnoreCase(getResources().getString(R.string.async_raw))) {
                         grabFingerprintAsyncRaw = true;
                         grabFingerprintSync = false;
@@ -387,6 +388,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             spinnerScanTypeArrayList.add(getResources().getString(R.string.two_fingers));
                             spinnerScanTypeArrayList.add(getResources().getString(R.string.roll_finger));
                         }
+                        spinnerSaveToDisk.setEnabled(true);
                     } else if (spinnerSyncItem.equalsIgnoreCase(getResources().getString(R.string.sync))){
                         grabFingerprintAsyncRaw = false;
                         grabFingerprintSync = true;
@@ -399,6 +401,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             );
                             spinnerScanType.setEnabled(false);
                         }
+                        spinnerSaveToDisk.setEnabled(false);
                     }
                     int spinnerScanTypeSelectedIndex = getSpinnerSelectedIndex(spinnerScanType,
                             spinnerScanTypeArrayList, spinnerScanTypeItem);
@@ -532,7 +535,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
         this.spinnerSync.setEnabled(false);
         this.spinnerSaveToDisk.setEnabled(false);
         /* Turn off scanner to allow scan type selection. */
-        this.spinnerScanType.setEnabled(false);
+        if (this.spinnerScanType != null) {
+            this.spinnerScanType.setEnabled(false);
+        }
 
         Log.v(TAG, "scantype: " + scanType);
 
@@ -1823,18 +1828,35 @@ public class FingerprintPage extends LinearLayout implements PageView {
         if (this.spinnerScanType != null) {
             this.spinnerScanType.setEnabled(true);
         }
+        if (spinnerSyncItem.equalsIgnoreCase(getResources().getString(R.string.sync))) {
+            spinnerSaveToDisk.setEnabled(false);
+            if (this.spinnerScanType != null) {
+                spinnerScanType.setEnabled(false);
+            }
+        }
+        if (spinnerSaveToDiskItem.equalsIgnoreCase(getResources().getString(R.string.default_save_png))){
+            spinnerSync.setEnabled(false);
+        }
     }
 
     private void resetToClosedState() {
         this.buttonCapture.setEnabled(false);
         updateToOpenButton();
         this.buttonMatch.setEnabled(false);
-        this.spinnerScanType.setEnabled(true);
         /* alllow capture option selection */
         this.spinnerSync.setEnabled(true);
         this.spinnerSaveToDisk.setEnabled(true);
         if (this.spinnerScanType != null) {
             this.spinnerScanType.setEnabled(true);
+        }
+        if (spinnerSyncItem.equalsIgnoreCase(getResources().getString(R.string.sync))) {
+            spinnerSaveToDisk.setEnabled(false);
+            if (this.spinnerScanType != null) {
+                spinnerScanType.setEnabled(false);
+            }
+        }
+        if (spinnerSaveToDiskItem.equalsIgnoreCase(getResources().getString(R.string.default_save_png))){
+            spinnerSync.setEnabled(false);
         }
     }
 
