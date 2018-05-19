@@ -28,6 +28,7 @@ import com.credenceid.biometrics.Biometrics.OnConvertToWsqListener;
 import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedFullListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.biometrics.Biometrics.ScanType;
+import com.credenceid.biometrics.FingerQuality;
 import com.credenceid.biometrics.FingerprintSyncResponse;
 import com.credenceid.sdkapp.R;
 import com.credenceid.sdkapp.SampleActivity;
@@ -623,13 +624,16 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 pathName = filepath;
                                 currentBitmap = bm;
 
+
                                 /* With the resulting Bitmap we may either calcualte its NFIQ score,
                                  * compress image down to a WSQ format, or do both.
                                  */
-                                getFingerQuality(currentBitmap);
-                                //if have filepath, then convert to wsq
                                 if (filepath != null) {
+                                    //if have filepath, then convert to wsq
                                     createWsqImage(filepath);
+                                    getFingerQuality(filepath);
+                                } else {
+                                    getFingerQuality(currentBitmap);
                                 }
 
                                 if (hasFmdMatcher) convertToFmd(currentBitmap);
@@ -808,10 +812,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                         /* With the resulting Bitmap we may either calcualte its NFIQ score,
                                          * compress image down to a WSQ format, or do both.
                                          */
-                                        getFingerQuality(currentBitmap);
                                         //if have filepath, then convert to wsq
                                         if (filepath != null) {
                                             createWsqImage(filepath);
+                                            getFingerQuality(filepath);
+                                        } else {
+                                            getFingerQuality(currentBitmap);
                                         }
 
                                         if (hasFmdMatcher) convertToFmd(currentBitmap);
@@ -865,10 +871,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                         /* With the resulting Bitmap we may either calcualte its NFIQ score,
                                          * compress image down to a WSQ format, or do both.
                                          */
-                                        getFingerQuality(currentBitmap);
                                         //if have filepath, then convert to wsq
                                         if (filepath != null) {
                                             createWsqImage(filepath);
+                                            getFingerQuality(filepath);
+                                        } else {
+                                            getFingerQuality(currentBitmap);
                                         }
 
                                         if (hasFmdMatcher) convertToFmd(currentBitmap);
@@ -901,11 +909,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         @Override
                         public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                          Bitmap bm,
-                                                         Bitmap bitmap_finger1, Bitmap bitmap_finger2,
+                                                         Bitmap bitmapFinger1, Bitmap bitmapFinger2,
                                                          byte[] iso,
-                                                         byte[] iso_finger1, byte[] iso_finger2,
+                                                         byte[] isoFinger1, byte[] isoFinger2,
                                                          String filepath,
-                                                         String filepath_finger1, String filepath_finger2,
+                                                         String filepathFinger1, String filepathFinger2,
                                                          String hint) {
                             /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
                             if (bm != null) imageViewCapturedImage.setImageBitmap(bm);
@@ -935,41 +943,45 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     imageViewCapturedImageFinger1.setVisibility(VISIBLE);
                                     imageViewCapturedImageFinger2.setVisibility(VISIBLE);
 
-                                    if (bitmap_finger1 != null) {
-                                        imageViewCapturedImageFinger1.setImageBitmap(bitmap_finger1);
+                                    if (bitmapFinger1 != null) {
+                                        imageViewCapturedImageFinger1.setImageBitmap(bitmapFinger1);
                                         //save to the global variable currentFingerprint1Bitmap
-                                        currentFingerprint1Bitmap = bitmap_finger1;
+                                        currentFingerprint1Bitmap = bitmapFinger1;
                                     }
-                                    if (bitmap_finger2 != null) {
-                                        imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
+                                    if (bitmapFinger2 != null) {
+                                        imageViewCapturedImageFinger2.setImageBitmap(bitmapFinger2);
                                         //save to the global variable currentFingerprint2Bitmap
-                                        currentFingerprint2Bitmap = bitmap_finger2;
+                                        currentFingerprint2Bitmap = bitmapFinger2;
                                     }
                                     //if have filepath, then convert to wsq
-                                    if (filepath_finger1 != null) {
-                                        createWsqImage(filepath_finger1);
+                                    if (filepathFinger1 != null) {
+                                        createWsqImage(filepathFinger1);
+                                        getFingerQuality(filepathFinger1);
+                                    } else {
+                                        getFingerQuality(bitmapFinger1);
                                     }
-                                    getNfiqScore(bitmap_finger1);
                                 } else {
                                     imageViewCapturedImage.setImageBitmap(bm);
                                     imageViewCapturedImage.setVisibility(VISIBLE);
                                     //if have filepath, then convert to wsq
                                     if (filepath != null) {
                                         createWsqImage(filepath);
+                                        getFingerQuality(filepath);
+                                    } else {
+                                        getFingerQuality(bm);
                                     }
-                                    getNfiqScore(bm);
                                 }
 
                                 /* set global path variables for image locations. There are used later on
                                  * for actions such as getFingerQuality() or convertToWsq().
                                  */
                                 pathName = filepath;
-                                pathNameFingerprint1 = filepath_finger1;
-                                pathNameFingerprint2 = filepath_finger2;
+                                pathNameFingerprint1 = filepathFinger1;
+                                pathNameFingerprint2 = filepathFinger2;
 
                                 if (hasFmdMatcher) {
                                     if (scanType.equals(ScanType.TWO_FINGERS_SPLIT))
-                                        currentBitmap = bitmap_finger1;
+                                        currentBitmap = bitmapFinger1;
                                     else currentBitmap = bm;
                                     convertToFmd(currentBitmap);
                                 } else if (pathName == null)
@@ -999,11 +1011,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         @Override
                         public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                          Bitmap bm,
-                                                         Bitmap bitmap_finger1, Bitmap bitmap_finger2,
+                                                         Bitmap bitmapFinger1, Bitmap bitmapFinger2,
                                                          byte[] iso,
-                                                         byte[] iso_finger1, byte[] iso_finger2,
+                                                         byte[] isoFinger1, byte[] isoFinger2,
                                                          String filepath,
-                                                         String filepath_finger1, String filepath_finger2,
+                                                         String filepathFinger1, String filepathFinger2,
                                                          String hint) {
                             /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
                             if (bm != null) imageViewCapturedImage.setImageBitmap(bm);
@@ -1033,41 +1045,45 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     imageViewCapturedImageFinger1.setVisibility(VISIBLE);
                                     imageViewCapturedImageFinger2.setVisibility(VISIBLE);
 
-                                    if (bitmap_finger1 != null) {
-                                        imageViewCapturedImageFinger1.setImageBitmap(bitmap_finger1);
+                                    if (bitmapFinger1 != null) {
+                                        imageViewCapturedImageFinger1.setImageBitmap(bitmapFinger1);
                                         //save to the global variable currentFingerprint1Bitmap
-                                        currentFingerprint1Bitmap = bitmap_finger1;
+                                        currentFingerprint1Bitmap = bitmapFinger1;
                                     }
-                                    if (bitmap_finger2 != null) {
-                                        imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
+                                    if (bitmapFinger2 != null) {
+                                        imageViewCapturedImageFinger2.setImageBitmap(bitmapFinger2);
                                         //save to the global variable currentFingerprint2Bitmap
-                                        currentFingerprint2Bitmap = bitmap_finger2;
+                                        currentFingerprint2Bitmap = bitmapFinger2;
                                     }
                                     //if have filepath, then convert to wsq
-                                    if (filepath_finger1 != null) {
-                                        createWsqImage(filepath_finger1);
+                                    if (filepathFinger1 != null) {
+                                        createWsqImage(filepathFinger1);
+                                        getFingerQuality(filepathFinger1);
+                                    } else {
+                                        getFingerQuality(bitmapFinger1);
                                     }
-                                    getNfiqScore(bitmap_finger1);
                                 } else {
                                     imageViewCapturedImage.setImageBitmap(bm);
                                     imageViewCapturedImage.setVisibility(VISIBLE);
                                     //if have filepath, then convert to wsq
                                     if (filepath != null) {
                                         createWsqImage(filepath);
+                                        getFingerQuality(filepath);
+                                    } else {
+                                        getFingerQuality(bm);
                                     }
-                                    getNfiqScore(bm);
                                 }
 
                                 /* set global path variables for image locations. There are used later on
                                  * for actions such as getFingerQuality() or convertToWsq().
                                  */
                                 pathName = filepath;
-                                pathNameFingerprint1 = filepath_finger1;
-                                pathNameFingerprint2 = filepath_finger2;
+                                pathNameFingerprint1 = filepathFinger1;
+                                pathNameFingerprint2 = filepathFinger2;
 
                                 if (hasFmdMatcher) {
                                     if (scanType.equals(ScanType.TWO_FINGERS_SPLIT))
-                                        currentBitmap = bitmap_finger1;
+                                        currentBitmap = bitmapFinger1;
                                     else currentBitmap = bm;
                                     convertToFmd(currentBitmap);
                                 } else if (pathName == null)
@@ -1660,12 +1676,26 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
     /* Make API call to get NIST NFIQ fingerprint score. */
     private void getFingerQuality(Bitmap bitmap) {
+        Log.v(TAG, "get finger quality with bitmap");
         this.biometrics.getFingerQuality(bitmap, new Biometrics.OnGetFingerQualityListener() {
             @Override
             public void onGetFingerQuality(ResultCode resultCode, int nfiqScore) {
                 if (resultCode == OK)
                     setStatusText("Fingerprint Quality: " + nfiqScore);
                 else setStatusText("Fingerprint Quality: " + nfiqScore);
+            }
+        });
+    }
+
+    /* Make API call to get NIST NFIQ fingerprint score. Pass absolute file path as the parameter. */
+    private void getFingerQuality(String filePath) {
+        Log.v(TAG, "get finger quality for: " + filePath);
+        this.biometrics.getFingerQuality(filePath, new Biometrics.OnFingerQualityListener() {
+            @Override
+            public void onGetFingerQuality(ResultCode resultCode, FingerQuality fingerQuality) {
+                if (resultCode == OK)
+                    setStatusText("Fingerprint Quality: " + fingerQuality.templateQuality);
+                else setStatusText("Fingerprint Quality: " + fingerQuality.templateQuality);
             }
         });
     }
@@ -1768,22 +1798,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
         toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
                 getResources().getInteger(R.integer.toast_offset_y));
         toast.show();
-    }
-
-    // get fingerprint quality
-    private void getNfiqScore(Bitmap bitmap) {
-        this.biometrics.getFingerQuality(bitmap, new Biometrics.OnGetFingerQualityListener() {
-            @Override
-            public void onGetFingerQuality(ResultCode resultCode, int nfiqScore) {
-                if (resultCode == OK) {
-                    Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
-                    setStatusText("Fingerprint Quality: " + nfiqScore);
-                } else {
-                    Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + resultCode + nfiqScore);
-                    setStatusText("Fingerprint Quality: " + nfiqScore);
-                }
-            }
-        });
     }
 
     /* Resets entire UI state. */
