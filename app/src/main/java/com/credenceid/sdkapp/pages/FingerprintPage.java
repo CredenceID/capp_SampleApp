@@ -689,18 +689,21 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                         pathName = filepath;
                                         currentBitmap = bm;
 
-                                        //if have filepath, then convert to wsq
-                                        if (filepath != null) {
-                                            convertToFmd(wsq);
-                                            showImageSize(filepath, wsq, duration);
-                                        }
                                         /* Display captured finger quality. */
                                         setInfoText("Fingerprint Quality: " + nfiqScore);
                                         Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
                                         /* If device supports creation of FMD templates then create first FMD
                                          * template from Bitmap.
                                          */
-                                        if (hasFmdMatcher) convertToFmd(currentBitmap);
+                                        if (hasFmdMatcher) {
+                                            //if have filepath, then convert to wsq
+                                            if (filepath != null) {
+                                                convertToFmd(wsq);
+                                                showImageSize(filepath, wsq, duration);
+                                            } else {
+                                                convertToFmd(currentBitmap);
+                                            }
+                                        }
                                     }
                                 }
 
@@ -748,18 +751,21 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                         pathName = filepath;
                                         currentBitmap = bm;
 
-                                        //if have filepath, then convert to wsq
-                                        if (filepath != null) {
-                                            convertToFmd(wsq);
-                                            showImageSize(filepath, wsq, duration);
-                                        }
                                         /* Display captured finger quality. */
                                         setInfoText("Fingerprint Quality: " + nfiqScore);
                                         Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
                                         /* If device supports creation of FMD templates then create first FMD
                                          * template from Bitmap.
                                          */
-                                        if (hasFmdMatcher) convertToFmd(currentBitmap);
+                                        if (hasFmdMatcher) {
+                                            //if have filepath, then convert to wsq
+                                            if (filepath != null) {
+                                                convertToFmd(wsq);
+                                                showImageSize(filepath, wsq, duration);
+                                            } else {
+                                                convertToFmd(currentBitmap);
+                                            }
+                                        }
                                     }
                                 }
 
@@ -1286,10 +1292,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         @Override
                         public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                          Bitmap bm,
-                                                         Bitmap bitmap_finger1, Bitmap bitmap_finger2, byte[] iso,
-                                                         byte[] iso_finger1, byte[] iso_finger2,
+                                                         Bitmap bitmapFinger1, Bitmap bitmapFinger2, byte[] iso,
+                                                         byte[] isoFinger1, byte[] isoFinger2,
                                                          String filepath,
-                                                         String filepath_finger1, String filepath_finger2,
+                                                         String filepathFinger1, String filepathFinger2,
                                                          String hint) {
                             /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
                             if (bm != null) imageViewCapturedImage.setImageBitmap(bm);
@@ -1316,15 +1322,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     imageViewCapturedImageFinger1.setVisibility(VISIBLE);
                                     imageViewCapturedImageFinger2.setVisibility(VISIBLE);
 
-                                    if (bitmap_finger1 != null) {
-                                        imageViewCapturedImageFinger1.setImageBitmap(bitmap_finger1);
+                                    if (bitmapFinger1 != null) {
+                                        imageViewCapturedImageFinger1.setImageBitmap(bitmapFinger1);
                                         //save to the global variable currentFingerprint1Bitmap
-                                        currentFingerprint1Bitmap = bitmap_finger1;
+                                        currentFingerprint1Bitmap = bitmapFinger1;
                                     }
-                                    if (bitmap_finger2 != null) {
-                                        imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
+                                    if (bitmapFinger2 != null) {
+                                        imageViewCapturedImageFinger2.setImageBitmap(bitmapFinger2);
                                         //save to the global variable currentFingerprint2Bitmap
-                                        currentFingerprint2Bitmap = bitmap_finger2;
+                                        currentFingerprint2Bitmap = bitmapFinger2;
                                     }
                                 } else {
                                     imageViewCapturedImage.setImageBitmap(bm);
@@ -1335,8 +1341,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                  * for actions such as getFingerQuality() or convertToWsq().
                                  */
                                 pathName = filepath;
-                                pathNameFingerprint1 = filepath_finger1;
-                                pathNameFingerprint2 = filepath_finger2;
+                                pathNameFingerprint1 = filepathFinger1;
+                                pathNameFingerprint2 = filepathFinger2;
 
                                 /* Call method to convert Bitmap to FMD template and match it against first
                                  * FMD template created.
@@ -1344,7 +1350,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 if (hasFmdMatcher) {
                                     //If the scan is for split fingers, then consider first fingerprint for matching
                                     if (scanType.equals(ScanType.TWO_FINGERS_SPLIT))
-                                        convertToFmdAndMatch(bitmap_finger1);
+                                        convertToFmdAndMatch(bitmapFinger1);
                                     else
                                         convertToFmdAndMatch(bm);
                                 } else
@@ -1372,10 +1378,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
                         @Override
                         public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                          Bitmap bm,
-                                                         Bitmap bitmap_finger1, Bitmap bitmap_finger2, byte[] iso,
-                                                         byte[] iso_finger1, byte[] iso_finger2,
+                                                         Bitmap bitmapFinger1, Bitmap bitmapFinger2, byte[] iso,
+                                                         byte[] isoFinger1, byte[] isoFinger2,
                                                          String filepath,
-                                                         String filepath_finger1, String filepath_finger2,
+                                                         String filepathFinger1, String filepathFinger2,
                                                          String hint) {
                             /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
                             if (bm != null) imageViewCapturedImage.setImageBitmap(bm);
@@ -1402,15 +1408,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     imageViewCapturedImageFinger1.setVisibility(VISIBLE);
                                     imageViewCapturedImageFinger2.setVisibility(VISIBLE);
 
-                                    if (bitmap_finger1 != null) {
-                                        imageViewCapturedImageFinger1.setImageBitmap(bitmap_finger1);
+                                    if (bitmapFinger1 != null) {
+                                        imageViewCapturedImageFinger1.setImageBitmap(bitmapFinger1);
                                         //save to the global variable currentFingerprint1Bitmap
-                                        currentFingerprint1Bitmap = bitmap_finger1;
+                                        currentFingerprint1Bitmap = bitmapFinger1;
                                     }
-                                    if (bitmap_finger2 != null) {
-                                        imageViewCapturedImageFinger2.setImageBitmap(bitmap_finger2);
+                                    if (bitmapFinger2 != null) {
+                                        imageViewCapturedImageFinger2.setImageBitmap(bitmapFinger2);
                                         //save to the global variable currentFingerprint2Bitmap
-                                        currentFingerprint2Bitmap = bitmap_finger2;
+                                        currentFingerprint2Bitmap = bitmapFinger2;
                                     }
                                 } else {
                                     imageViewCapturedImage.setImageBitmap(bm);
@@ -1421,8 +1427,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                  * for actions such as getFingerQuality() or convertToWsq().
                                  */
                                 pathName = filepath;
-                                pathNameFingerprint1 = filepath_finger1;
-                                pathNameFingerprint2 = filepath_finger2;
+                                pathNameFingerprint1 = filepathFinger1;
+                                pathNameFingerprint2 = filepathFinger2;
 
                                 /* Call method to convert Bitmap to FMD template and match it against first
                                  * FMD template created.
@@ -1430,7 +1436,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 if (hasFmdMatcher) {
                                     //If the scan is for split fingers, then consider first fingerprint for matching
                                     if (scanType.equals(ScanType.TWO_FINGERS_SPLIT))
-                                        convertToFmdAndMatch(bitmap_finger1);
+                                        convertToFmdAndMatch(bitmapFinger1);
                                     else
                                         convertToFmdAndMatch(bm);
                                 } else
@@ -1580,10 +1586,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
         });
     }
 
-    private void convertToFmd(String image_path) {
-        Log.i(TAG, "convertToFmd(String image_path[" + image_path + "])");
+    /* Extract Fingerprint Minutiae Data (FMD) from the supplied WSQ image. */
+    private void convertToFmd(String imagePath) {
+        Log.i(TAG, "convertToFmd(String image_path[" + imagePath + "])");
 
-        File file = new File(image_path);
+        /* Keep track of initial time to see how long conversion takes. */
+        final long startTime = SystemClock.elapsedRealtime();
+
+        File file = new File(imagePath);
         int size = (int) file.length();
         byte[] bytes = new byte[size];
         try {
@@ -1598,14 +1608,18 @@ public class FingerprintPage extends LinearLayout implements PageView {
         Log.i(TAG, "now going to make CredenceSDK API call");
         biometrics.convertToFmd(bytes, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
             @Override
-            public void onConvertToFmd(ResultCode resultCode, byte[] bytes) {
+            public void onConvertToFmd(ResultCode resultCode, byte[] fmd) {
                 Log.i(TAG, "onConvertToFmd(ResultCode, byte[]): CALLBACK INVOKED");
-                Toast toast = Toast.makeText(getContext(),
-                        "convertToFmd(wsq): " + (resultCode == OK ? "OK" : "FAIL") + ", " + bytes,
-                        Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
-                        getResources().getInteger(R.integer.toast_offset_y));
-                toast.show();
+                if (resultCode != OK || fmd == null) {
+                    Log.w(TAG, "convertToFmd failed so mFmd1 is null");
+                    setStatusText("convertToFmd failed so NO Fingerprint template");
+                } else {
+                    fmdFingerTemplate1 = fmd;
+                    buttonMatch.setEnabled(true);
+                }
+                // Calculate total time for callback & log output for debugging purposes
+                long duration = SystemClock.elapsedRealtime() - startTime;
+                Log.d(TAG, "convertToFmd " + String.valueOf(duration) + "ms");
             }
         });
     }
