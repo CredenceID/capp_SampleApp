@@ -205,7 +205,7 @@ public class FaceCameraPage extends LinearLayout implements PageView,
         isFrontCameraEnabled = false;
 
         resetInternal();
-        doPreview();
+    //    doPreview();
         updateFlashButtons();
         setStatusText("");
     }
@@ -258,9 +258,9 @@ public class FaceCameraPage extends LinearLayout implements PageView,
             camera.release();
             camera = null;
             inPreview = false;
-            Log.d(TAG, "OnStop: ->>>Camera - null + inPreview = false");
+            Log.d(TAG, "deactivate: ->>>Camera - null + inPreview = false");
         }
-        Log.d(TAG, "OnStop: ->>>Camera - Deactivate is Called");
+        Log.d(TAG, "deactivate: ->>>Camera - Deactivate is Called");
         resetMisc();
         surfaceHolder.removeCallback(this);
         surfaceDestroyed(surfaceHolder);
@@ -365,7 +365,8 @@ public class FaceCameraPage extends LinearLayout implements PageView,
                             previewFrameLayout.getLayoutParams().height = (int) (size.height * 2.3);
                         } else if (this.biometrics.getProductName().equals(getResources().getString(R.string.credence_one_v1_product_name))
                                 || this.biometrics.getProductName().equals(getResources().getString(R.string.credence_one_v2_product_name))
-                                || this.biometrics.getProductName().equals(getResources().getString(R.string.credence_one_v3_product_name)))
+                                || this.biometrics.getProductName().equals(getResources().getString(R.string.credence_one_v3_product_name))
+                                || this.biometrics.getProductName().equals(R.string.credence_one_ektp_product_name))
                             previewFrameLayout.setAspectRatio(size.width / (double) size.height);
 
                         double aspect = (size.width / (double) size.height);
@@ -634,7 +635,8 @@ public class FaceCameraPage extends LinearLayout implements PageView,
             parameters.setRotation(180);
         else if (this.biometrics.getProductName().equals(getResources().getString(R.string.credence_one_v1_product_name))
                 || this.biometrics.getProductName().equals(getResources().getString(R.string.credence_one_v2_product_name))
-                || this.biometrics.getProductName().equals(getResources().getString(R.string.credence_one_v3_product_name)))
+                || this.biometrics.getProductName().equals(getResources().getString(R.string.credence_one_v3_product_name))
+                || this.biometrics.getProductName().equals(R.string.credence_one_ektp_product_name))
             parameters.setRotation(0);
         else if (this.biometrics.getProductName().equals(getResources().getString(R.string.credencetab_v1_product_name))
                 || this.biometrics.getProductName().equals(getResources().getString(R.string.credencetab_v2_product_name))

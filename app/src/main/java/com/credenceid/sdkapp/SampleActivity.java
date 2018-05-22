@@ -190,6 +190,9 @@ public class SampleActivity extends BiometricsActivity {
         Log.d(TAG, "onPause");
         super.onPause();
         pauseTime = SystemClock.elapsedRealtime();
+        if (this.currentPageView == this.faceCameraPage ) {
+            this.currentPageView.deactivate();
+        }
         /*if (mCurrentPage != null) {
             mCurrentPage.deactivate();
 		}*/
