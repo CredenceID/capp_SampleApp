@@ -23,11 +23,11 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.credenceid.biometrics.BiometricsActivity;
-import com.credenceid.biometrics.BiometricsManager;
 import com.credenceid.sdkapp.models.PageView;
 import com.credenceid.sdkapp.pages.AboutPage;
 import com.credenceid.sdkapp.pages.CardReaderPage;
 import com.credenceid.sdkapp.pages.EncryptPage;
+import com.credenceid.sdkapp.pages.FaceCameraPage;
 import com.credenceid.sdkapp.pages.FingerprintPage;
 import com.credenceid.sdkapp.pages.IrisPage;
 import com.credenceid.sdkapp.pages.MrzReaderPage;
@@ -49,6 +49,7 @@ public class SampleActivity extends BiometricsActivity {
     private CardReaderPage cardReaderPage;
     private EncryptPage encryptPage;
     private FingerprintPage fingerprintPage;
+    private FaceCameraPage faceCameraPage;
     private IrisPage irisPage;
     private MrzReaderPage mrzReaderPage;
     private NfcPage nfcPage;
@@ -56,6 +57,7 @@ public class SampleActivity extends BiometricsActivity {
     /* All image buttons corresponding to each PageView. */
     private ImageButton imageButtonAboutPage;
     private ImageButton imageButtonFingerprintPage;
+    private ImageButton imageButtonFaceCameraPage;
     private ImageButton imageButtonIrisPage;
     private ImageButton imageButtonCardReaderPage;
     private ImageButton imageButtonEncryptPage;
@@ -109,6 +111,8 @@ public class SampleActivity extends BiometricsActivity {
         this.aboutPage = (AboutPage) findViewById(R.id.about_view);
         this.fingerprintPage = (FingerprintPage) findViewById(R.id.fingerprint_view);
         this.fingerprintPage.setActivity(this);
+        this.faceCameraPage = (FaceCameraPage) findViewById(R.id.face_camera_view);
+        this.faceCameraPage.setActivity(this);
         this.irisPage = (IrisPage) findViewById(R.id.iris_view);
         this.irisPage.setActivity(this);
         this.cardReaderPage = (CardReaderPage) findViewById(R.id.card_reader_view);
@@ -123,6 +127,7 @@ public class SampleActivity extends BiometricsActivity {
     private void initializeLayoutButtons() {
         this.imageButtonAboutPage = (ImageButton) findViewById(R.id.about_btn);
         this.imageButtonFingerprintPage = (ImageButton) findViewById(R.id.fingerprint_btn);
+        this.imageButtonFaceCameraPage = (ImageButton) findViewById(R.id.face_camera_btn);
         this.imageButtonIrisPage = (ImageButton) findViewById(R.id.iris_btn);
         this.imageButtonCardReaderPage = (ImageButton) findViewById(R.id.card_reader_btn);
         this.imageButtonEncryptPage = (ImageButton) findViewById(R.id.encryption_btn);
@@ -258,26 +263,29 @@ public class SampleActivity extends BiometricsActivity {
     private void showValidPages() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        boolean has_fingerprint_scanner = prefs.getBoolean("has_fingerprint_scanner", true);
-        imageButtonFingerprintPage.setVisibility(has_fingerprint_scanner ? View.VISIBLE : View.GONE);
+        boolean hasFingerprintScanner = prefs.getBoolean("has_fingerprint_scanner", true);
+        imageButtonFingerprintPage.setVisibility(hasFingerprintScanner ? View.VISIBLE : View.GONE);
 
-        boolean has_iris_scanner = prefs.getBoolean("has_iris_scanner", true);
-        imageButtonIrisPage.setVisibility(has_iris_scanner ? View.VISIBLE : View.GONE);
+        boolean hasFaceCameraScanner = prefs.getBoolean("has_face_camera", true);
+        imageButtonFaceCameraPage.setVisibility(hasFaceCameraScanner ? View.VISIBLE : View.GONE);
 
-        boolean has_card_reader = prefs.getBoolean("has_card_reader", true);
-        imageButtonCardReaderPage.setVisibility(has_card_reader ? View.VISIBLE : View.GONE);
+        boolean hasIrisScanner = prefs.getBoolean("has_iris_scanner", true);
+        imageButtonIrisPage.setVisibility(hasIrisScanner ? View.VISIBLE : View.GONE);
 
-        boolean has_encryption = prefs.getBoolean("has_encryption", true);
-        imageButtonEncryptPage.setVisibility(has_encryption ? View.VISIBLE : View.GONE);
+        boolean hasCardReader = prefs.getBoolean("has_card_reader", true);
+        imageButtonCardReaderPage.setVisibility(hasCardReader ? View.VISIBLE : View.GONE);
 
-        boolean has_usb_access = prefs.getBoolean("has_usb_access", true);
-        imageButtonUsbAccessPage.setVisibility(has_usb_access ? View.VISIBLE : View.GONE);
+        boolean hasEncryption = prefs.getBoolean("has_encryption", true);
+        imageButtonEncryptPage.setVisibility(hasEncryption ? View.VISIBLE : View.GONE);
 
-        boolean has_mrz_reader = prefs.getBoolean("has_mrz_reader", true);
-        imageButtonMrzPage.setVisibility(has_mrz_reader ? View.VISIBLE : View.GONE);
+        boolean hasUsbAccess = prefs.getBoolean("has_usb_access", true);
+        imageButtonUsbAccessPage.setVisibility(hasUsbAccess ? View.VISIBLE : View.GONE);
 
-        boolean has_nfc_card = prefs.getBoolean("has_nfc_card", true);
-        imageButtonNfcPage.setVisibility(has_nfc_card ? View.VISIBLE : View.GONE);
+        boolean hasMrzReader = prefs.getBoolean("has_mrz_reader", true);
+        imageButtonMrzPage.setVisibility(hasMrzReader ? View.VISIBLE : View.GONE);
+
+        boolean hasNfcCard = prefs.getBoolean("has_nfc_card", true);
+        imageButtonNfcPage.setVisibility(hasNfcCard ? View.VISIBLE : View.GONE);
     }
 
     /* Based on what device CredenceService was initialized on, this will save what peripherals
@@ -288,6 +296,7 @@ public class SampleActivity extends BiometricsActivity {
         SharedPreferences.Editor editor = prefs.edit();
 
         editor.putBoolean("has_fingerprint_scanner", hasFingerprintScanner());
+        editor.putBoolean("has_face_camera", getProductName().contains("TAB"));
         editor.putBoolean("has_iris_scanner", hasIrisScanner());
         editor.putBoolean("has_card_reader", hasCardReader());
         editor.putBoolean("has_encryption", true);
@@ -405,6 +414,11 @@ public class SampleActivity extends BiometricsActivity {
         imageButtonAboutPage.setImageResource(R.drawable.ic_aboutoff);
     }
 
+    public void onFaceCamera(View v) {
+        setCurrentPage(v, faceCameraPage);
+        imageButtonAboutPage.setImageResource(R.drawable.ic_aboutoff);
+    }
+
     public void onIris(View v) {
         setCurrentPage(v, irisPage);
         imageButtonAboutPage.setImageResource(R.drawable.ic_aboutoff);
@@ -433,5 +447,9 @@ public class SampleActivity extends BiometricsActivity {
     public void onNfcView(View v) {
         setCurrentPage(v, nfcPage);
         imageButtonAboutPage.setImageResource(R.drawable.ic_aboutoff);
+    }
+
+    public FaceCameraPage getFaceCameraPage() {
+        return this.faceCameraPage;
     }
 }

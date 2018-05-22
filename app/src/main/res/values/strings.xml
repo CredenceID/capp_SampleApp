@@ -5,6 +5,43 @@
     <string name="app_icon_name">C-SDK</string>
     <string name="menu_exit">Exit</string>
 
+    <!-- Product Name -->
+    <string name="credence_one_v1_product_name">Credence One V1</string>
+    <string name="credence_one_v2_product_name">Credence One V2</string>
+    <string name="credence_one_v3_product_name">Credence One V3</string>
+    <string name="credence_one_ektp_product_name">Credence One eKTP</string>
+
+    <string name="credence_two_v1_product_name">Credence Two V1</string>
+    <string name="credence_two_v2_product_name">Credence Two V2</string>
+
+    <string name="credence_trident_fingerprint_sensor_name">WATSON MINI</string>
+    <string name="credence_trident_fingerprint_sensor_type">USB</string>
+
+    <string name="credence_tab_fingerprint_sensor_name">COLUMBO</string>
+    <string name="credence_tab_fingerprint_sensor_type">USB</string>
+
+    <string name="credence_two_fingerprint_sensor_name">COLUMBO</string>
+    <string name="credence_two_fingerprint_sensor_type">PPI</string>
+
+    <string name="credence_one_usb_fingerprint_sensor_name">COLUMBO</string>
+    <string name="credence_one_usb_fingerprint_sensor_type">USB</string>
+
+    <string name="credence_one_parallel_fingerprint_sensor_name">COLUMBO</string>
+    <string name="credence_one_parallel_fingerprint_sensor_type">PPI</string>
+
+    <string name="trident1_product_name">Trident-1</string>
+    <string name="trident2_product_name">Trident-2</string>
+
+    <string name="twizzler_product_name">Twizzler</string>
+
+    <string name="credencetab_v1_product_name">Credence TAB V1</string>
+    <string name="credencetab_v2_product_name">Credence TAB V2</string>
+    <string name="credencetab_v3_product_name">Credence TAB V3</string>
+    <string name="credencetab_v4_product_name">Credence TAB V4</string>
+
+    <string name="unknown_product_name">Credence Product</string>
+
+
     <!-- About -->
     <string name="global_biometricsmanager">Global BiometricsManager</string>
     <string name="product_name">Product name:</string>

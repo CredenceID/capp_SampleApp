@@ -31,6 +31,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <com.credenceid.sdkapp.pages.FaceCameraPage
+            android:id="@+id/face_camera_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <com.credenceid.sdkapp.pages.IrisPage
             android:id="@+id/iris_view"
             android:layout_width="match_parent"
@@ -81,6 +86,12 @@
             style="@style/TabButton"
             android:onClick="onFingerprint"
             android:src="@drawable/ic_fingerprint" />
+
+        <ImageButton
+            android:id="@+id/face_camera_btn"
+            style="@style/TabButton"
+            android:onClick="onFaceCamera"
+            android:src="@drawable/ic_camera" />
 
         <ImageButton
             android:id="@+id/iris_btn"

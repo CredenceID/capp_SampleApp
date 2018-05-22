@@ -91,4 +91,39 @@
         <item name="android:background">#B6B6B4</item>
     </style>
 
+    <style name="ScanInfo" parent="TextInfo">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:layout_marginLeft">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginBottom">@dimen/activity_vertical_margin</item>
+        <item name="android:textColor">#FF0000</item>
+    </style>
+
+    <style name="ScanSubpanel">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">@dimen/scan_subpanel_margin_bottom</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="ImageButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@null</item>
+    </style>
+
+    <style name="ScanPanelButton" parent="ImageButton">
+        <item name="android:layout_alignParentBottom">true</item>
+    </style>
+
+    <style name="MenuImageButton" parent="ImageButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:layout_marginBottom">@dimen/menu_button_margin_bottom</item>
+        <!-- add paddings to the back button -->
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+    </style>
 </resources>
