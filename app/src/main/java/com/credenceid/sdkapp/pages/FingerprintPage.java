@@ -1589,6 +1589,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 } else {
                     fmdFingerTemplate1 = fmd;
                     buttonMatch.setEnabled(true);
+                    convertFmdToCCf(fmd);
                 }
                 // Calculate total time for callback & log output for debugging purposes
                 long duration = SystemClock.elapsedRealtime() - startTime;
@@ -1627,6 +1628,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 } else {
                     fmdFingerTemplate1 = fmd;
                     buttonMatch.setEnabled(true);
+                    convertFmdToCCf(fmd);
                 }
                 // Calculate total time for callback & log output for debugging purposes
                 long duration = SystemClock.elapsedRealtime() - startTime;
@@ -1802,6 +1804,45 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
                             getResources().getInteger(R.integer.toast_offset_y));
                     toast.show();
+                }
+            }
+        });
+    }
+
+    private void convertFmdToCCf(final byte[] fmdTemplate) {
+        Log.d(TAG, "convertFmdToCCf(byte[])");
+        this.biometrics.convertFmdToCcf(fmdTemplate, new Biometrics.OnFmdToCcfConversionListener() {
+            @Override
+            public void onFmdToCcfConversion(final Biometrics.ResultCode resultCode, final byte[] ccfBytes) {
+                Log.v(TAG,  "Fmd -> Ccf: " + resultCode.toString() + " " + ccfBytes.length);
+
+                if (resultCode == Biometrics.ResultCode.OK) {
+                    biometrics.convertCcfToFmd(ccfBytes, (short) 400, (short) 500, (short) 100, (short) 100, new Biometrics.OnCcfToFmdConverionListener() {
+                        @Override
+                        public void onCcfToFmdConversion(final Biometrics.ResultCode resultCode, final byte[] fmdBytes) {
+                            if (resultCode == Biometrics.ResultCode.OK) {
+                                biometrics.compareFmd(fmdTemplate, fmdBytes, Biometrics.FmdFormat.ISO_19794_2_2005, new Biometrics.OnCompareFmdListener() {
+                                    @Override
+                                    public void onCompareFmd(Biometrics.ResultCode resultCode, float v) {
+                                        Log.v(TAG, "compare Fmd and Fmd -> Ccf -> Fmd: " + fmdTemplate.length + " " + fmdBytes.length);
+                                        if (resultCode != Biometrics.ResultCode.OK) {
+                                            Toast.makeText(getContext(), "can't validate Fmd/Ccf conversion", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            if (v < (Integer.MAX_VALUE / 1000000)) {
+                                                Toast.makeText(getContext(), "Fmd/Ccf conversion is validated", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(getContext(), "Fmd/Ccf conversion is not validated", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {
+                                Toast.makeText(getContext(), "convert Ccf to Fmd failed", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                } else {
+                    Toast.makeText(getContext(), "convert Fmd to ccf failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
