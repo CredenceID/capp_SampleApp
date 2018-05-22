@@ -2,6 +2,7 @@ package com.credenceid.sdkapp.pages;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.AttributeSet;
@@ -39,6 +40,8 @@ import com.credenceid.sdkapp.utils.Beeper;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -571,6 +574,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
                                             getResources().getInteger(R.integer.toast_offset_y));
                                     toast.show();
+                                    byteArrayToBitmap(fingerprintSyncResponse.rawImage);
                                     Log.v(TAG, "Capture succeed: rawImage length is: "
                                             + fingerprintSyncResponse.rawImage.length);
                                 }
@@ -619,6 +623,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
                                             getResources().getInteger(R.integer.toast_offset_y));
                                     toast.show();
+                                    byteArrayToBitmap(rawImage);
                                 }
                                 /* Set global image variables. */
                                 pathName = filepath;
@@ -689,6 +694,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                         pathName = filepath;
                                         currentBitmap = bm;
 
+                                        if (wsq != null) {
+                                            decompressWsq(wsq);
+                                        }
                                         /* Display captured finger quality. */
                                         setInfoText("Fingerprint Quality: " + nfiqScore);
                                         Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
@@ -751,6 +759,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                         pathName = filepath;
                                         currentBitmap = bm;
 
+                                        if (wsq != null) {
+                                            decompressWsq(wsq);
+                                        }
                                         /* Display captured finger quality. */
                                         setInfoText("Fingerprint Quality: " + nfiqScore);
                                         Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
@@ -1783,6 +1794,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
                             getResources().getInteger(R.integer.toast_offset_y));
                     toast.show();
+                    byteArrayToBitmap(bytes);
                 } else {
                     Toast toast = Toast.makeText(getContext(),
                             message + ", Data was NULL.",
@@ -1793,6 +1805,50 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 }
             }
         });
+    }
+
+    private void byteArrayToBitmap(byte[] bytes) {
+        String productName = this.biometrics.getProductName();
+        Log.d(TAG, "productName: " + productName);
+        int width, height;
+        if ((biometrics.getFingerprintScannerType() == FingerprintScannerType.FAP45)) {
+            // Trident
+            width = 800;
+            height = 750;
+        } else if (productName.contains("Credence One")) {
+            width = 256;
+            height = 360;
+        } else if (productName.contains("Twizzler")) {
+            width = 300;
+            height = 400;
+        } else {
+            width = 400;
+            height = 500;
+        }
+        byte[] testBits = new byte[bytes.length * 4];
+        int i = 0;
+        for (i = 0; i < bytes.length; i++) {
+            testBits[i * 4] = testBits[i * 4 + 1] = testBits[i * 4 + 2] = (byte) bytes[i];
+            testBits[i * 4 + 3] = -1;
+        }
+        Bitmap recreatedBitmap = Bitmap.createBitmap(width , height,
+                Bitmap.Config.ARGB_8888);
+        recreatedBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(testBits));
+        imageViewCapturedImage.setImageBitmap(recreatedBitmap);
+
+        String recreatedfilepath = new File(
+                Environment.getExternalStorageDirectory(),
+                "fingerprint_recreated.png")
+                .getPath();
+        try {
+            FileOutputStream fos = new FileOutputStream(recreatedfilepath);
+            recreatedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+            Log.e(TAG, "save to file " + recreatedfilepath);
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to save PNG image to file " + recreatedfilepath);
+            e.printStackTrace();
+        }
     }
 
     private void showImageSize(String png, String wsq, long duration) {
