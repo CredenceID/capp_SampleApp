@@ -269,8 +269,23 @@ public class FaceCameraPage extends LinearLayout implements PageView,
     @Override
     public void doResume() {
         Log.i(TAG, "Camera onResume");
-        resetInternal();
-        doPreview();
+        new Thread(new Runnable(){
+            public void run(){
+                try {
+                    // Add a slight delay to avoid "app passed NULL surface" error
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                sampleActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        resetInternal();
+                        doPreview();
+                    }
+                });
+            }
+        }).start();
     }
 
     @Override
