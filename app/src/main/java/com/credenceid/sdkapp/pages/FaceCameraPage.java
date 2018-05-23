@@ -853,7 +853,10 @@ public class FaceCameraPage extends LinearLayout implements PageView,
 
                 Log.d("EXIF value", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
                 int rotation = 0;
-                if ((biometrics.getProductName().equals(R.string.credencetab_v1_product_name)) && isFrontCameraEnabled) {
+                if ((biometrics.getProductName().equals(R.string.credencetab_v1_product_name)
+                        || biometrics.getProductName().equals(R.string.credencetab_v2_product_name)
+                        || biometrics.getProductName().equals(R.string.credencetab_v3_product_name)
+                        || biometrics.getProductName().equals(R.string.credencetab_v4_product_name)) && isFrontCameraEnabled) {
                     rotation = 270;
                 } else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6"))
                     rotation = 90;

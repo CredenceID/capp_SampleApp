@@ -633,7 +633,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                  */
                                 if (filepath != null) {
                                     //if have filepath, then convert to wsq
-                                    createWsqImage(filepath);
+                                    createWsqImage(filepath, bm);
                                     getFingerQuality(filepath);
                                 } else {
                                     getFingerQuality(currentBitmap);
@@ -693,7 +693,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                         currentBitmap = bm;
 
                                         if (wsq != null) {
-                                            decompressWsq(wsq);
+                                            decompressWsq(wsq, bm);
                                         }
                                         /* Display captured finger quality. */
                                         setInfoText("Fingerprint Quality: " + nfiqScore);
@@ -758,7 +758,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                         currentBitmap = bm;
 
                                         if (wsq != null) {
-                                            decompressWsq(wsq);
+                                            decompressWsq(wsq, bm);
                                         }
                                         /* Display captured finger quality. */
                                         setInfoText("Fingerprint Quality: " + nfiqScore);
@@ -829,7 +829,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                          */
                                         //if have filepath, then convert to wsq
                                         if (filepath != null) {
-                                            createWsqImage(filepath);
+                                            createWsqImage(filepath, bm);
                                             getFingerQuality(filepath);
                                         } else {
                                             getFingerQuality(currentBitmap);
@@ -888,7 +888,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                          */
                                         //if have filepath, then convert to wsq
                                         if (filepath != null) {
-                                            createWsqImage(filepath);
+                                            createWsqImage(filepath, bm);
                                             getFingerQuality(filepath);
                                         } else {
                                             getFingerQuality(currentBitmap);
@@ -970,7 +970,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     }
                                     //if have filepath, then convert to wsq
                                     if (filepathFinger1 != null) {
-                                        createWsqImage(filepathFinger1);
+                                        createWsqImage(filepathFinger1, bitmapFinger1);
                                         getFingerQuality(filepathFinger1);
                                     } else {
                                         getFingerQuality(bitmapFinger1);
@@ -980,7 +980,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     imageViewCapturedImage.setVisibility(VISIBLE);
                                     //if have filepath, then convert to wsq
                                     if (filepath != null) {
-                                        createWsqImage(filepath);
+                                        createWsqImage(filepath, bm);
                                         getFingerQuality(filepath);
                                     } else {
                                         getFingerQuality(bm);
@@ -1072,7 +1072,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     }
                                     //if have filepath, then convert to wsq
                                     if (filepathFinger1 != null) {
-                                        createWsqImage(filepathFinger1);
+                                        createWsqImage(filepathFinger1, bitmapFinger1);
                                         getFingerQuality(filepathFinger1);
                                     } else {
                                         getFingerQuality(bitmapFinger1);
@@ -1082,7 +1082,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     imageViewCapturedImage.setVisibility(VISIBLE);
                                     //if have filepath, then convert to wsq
                                     if (filepath != null) {
-                                        createWsqImage(filepath);
+                                        createWsqImage(filepath, bm);
                                         getFingerQuality(filepath);
                                     } else {
                                         getFingerQuality(bm);
@@ -1726,8 +1726,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
     }
 
     /* Make API call to convert Bitmap image to compressed WSQ format. */
-    private void createWsqImage(final String originalFilePath) {
-        Log.i(TAG, "createWsqImage(final String filePath)");
+    private void createWsqImage(final String originalFilePath, final Bitmap bitmap) {
+        Log.i(TAG, "createWsqImage " + originalFilePath);
 
         /* Get original image size. */
         Log.i(TAG, "getting original image size");
@@ -1773,15 +1773,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     /* Now that we have compressed fingerprint image we will also decompress it in
                      * order to demonstrate another CredenceSDK API call.
                      */
-                    decompressWsq(pathname);
+                    decompressWsq(pathname, bitmap);
                 }
                 resetToOneFingerCaptureState();
             }
         });
     }
 
-    private void decompressWsq(String filePath) {
-        Log.i(TAG, "Going to call decompress API call");
+    private void decompressWsq(String filePath, final Bitmap bitmap) {
+        Log.i(TAG, "Going to call decompress API call " + filePath);
         biometrics.decompressWsq(filePath, new Biometrics.OnDecompressWsqListener() {
             @Override
             public void onDecompressWsq(ResultCode resultCode, byte[] bytes) {
@@ -1794,7 +1794,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
                             getResources().getInteger(R.integer.toast_offset_y));
                     toast.show();
-                    byteArrayToBitmap(bytes);
+                    Log.v(TAG, "De-CompressWsq length is " + bytes.length);
+                    byteArrayToBitmap(bytes, bitmap.getWidth(), bitmap.getHeight());
                 } else {
                     Toast toast = Toast.makeText(getContext(),
                             message + ", Data was NULL.",
@@ -1846,24 +1847,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
         });
     }
 
-    private void byteArrayToBitmap(byte[] bytes) {
+    private void byteArrayToBitmap(byte[] bytes, int width, int height) {
         String productName = this.biometrics.getProductName();
         Log.d(TAG, "productName: " + productName);
-        int width, height;
-        if ((biometrics.getFingerprintScannerType() == FingerprintScannerType.FAP45)) {
-            // Trident
-            width = 800;
-            height = 750;
-        } else if (productName.contains("Credence One")) {
-            width = 256;
-            height = 360;
-        } else if (productName.contains("Twizzler")) {
-            width = 300;
-            height = 400;
-        } else {
-            width = 400;
-            height = 500;
-        }
+
+        Log.v(TAG, "byteArrayToBitmap width: " + width + " height: " + height);
         byte[] testBits = new byte[bytes.length * 4];
         int i = 0;
         for (i = 0; i < bytes.length; i++) {
