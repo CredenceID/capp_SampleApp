@@ -299,7 +299,8 @@ public class SampleActivity extends BiometricsActivity {
         SharedPreferences.Editor editor = prefs.edit();
 
         editor.putBoolean("has_fingerprint_scanner", hasFingerprintScanner());
-        editor.putBoolean("has_face_camera", getProductName().contains("TAB"));
+        editor.putBoolean("has_face_camera", getProductName().contains("TAB")
+                || getProductName().contains("Trident"));
         editor.putBoolean("has_iris_scanner", hasIrisScanner());
         editor.putBoolean("has_card_reader", hasCardReader());
         editor.putBoolean("has_encryption", true);

@@ -64,6 +64,8 @@ public class FaceCameraPage extends LinearLayout implements PageView,
     private boolean isLive = true;
     private boolean cameraConfigured = false;
 
+    private boolean isRightSizeButtonVisible = false;
+
     /*
     * Callback for camera capture
     */
@@ -242,7 +244,13 @@ public class FaceCameraPage extends LinearLayout implements PageView,
         updateFlashButtons();
         setStatusText("");
 
-        rightSideButton.setVisibility(VISIBLE);
+        if (biometrics.getProductName().contains("TAB")) {
+            isRightSizeButtonVisible = true;
+            rightSideButton.setVisibility(VISIBLE);
+        } else {
+            isRightSizeButtonVisible = false;
+            rightSideButton.setVisibility(INVISIBLE);
+        }
     }
 
     /*
@@ -529,6 +537,12 @@ public class FaceCameraPage extends LinearLayout implements PageView,
             inPreview = true;
             scanButton.setImageResource(R.drawable.button_capture);
             scanButton.setVisibility(VISIBLE);
+
+            if (isRightSizeButtonVisible) {
+                rightSideButton.setVisibility(VISIBLE);
+            } else {
+                rightSideButton.setVisibility(INVISIBLE);
+            }
         }
     }
 
@@ -853,11 +867,12 @@ public class FaceCameraPage extends LinearLayout implements PageView,
 
                 Log.d("EXIF value", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
                 int rotation = 0;
-                if ((biometrics.getProductName().equals(R.string.credencetab_v1_product_name)
-                        || biometrics.getProductName().equals(R.string.credencetab_v2_product_name)
-                        || biometrics.getProductName().equals(R.string.credencetab_v3_product_name)
-                        || biometrics.getProductName().equals(R.string.credencetab_v4_product_name)) && isFrontCameraEnabled) {
-                    rotation = 270;
+
+                if ((biometrics.getProductName().equals(getResources().getString(R.string.credencetab_v1_product_name))
+                        || biometrics.getProductName().equals(getResources().getString(R.string.credencetab_v2_product_name))
+                        || biometrics.getProductName().equals(getResources().getString(R.string.credencetab_v3_product_name))
+                        || biometrics.getProductName().equals(getResources().getString(R.string.credencetab_v4_product_name))) && isFrontCameraEnabled) {
+                    rotation = 180;
                 } else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6"))
                     rotation = 90;
                 else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("8"))
@@ -865,8 +880,9 @@ public class FaceCameraPage extends LinearLayout implements PageView,
                 else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("3"))
                     rotation = 180;
                 else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("0"))
-                    rotation = 90;
+                    rotation = 0;
 
+                Log.v(TAG, "rotation value " + rotation);
                 return ImageTools.Editor.Rotate(realImage, rotation);
             }
         }.execute(imageData);
