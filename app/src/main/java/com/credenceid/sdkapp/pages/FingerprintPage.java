@@ -574,7 +574,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
                                             getResources().getInteger(R.integer.toast_offset_y));
                                     toast.show();
-                                    byteArrayToBitmap(fingerprintSyncResponse.rawImage);
                                     Log.v(TAG, "Capture succeed: rawImage length is: "
                                             + fingerprintSyncResponse.rawImage.length);
                                 }
@@ -623,7 +622,6 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                     toast.setGravity(Gravity.BOTTOM, getResources().getInteger(R.integer.toast_offset_x),
                                             getResources().getInteger(R.integer.toast_offset_y));
                                     toast.show();
-                                    byteArrayToBitmap(rawImage);
                                 }
                                 /* Set global image variables. */
                                 pathName = filepath;
@@ -1732,7 +1730,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         Log.i(TAG, "createWsqImage(final String filePath)");
 
         /* Get original image size. */
-        Log.i(TAG, "getting original image size)");
+        Log.i(TAG, "getting original image size");
         this.originalImageSize = 0;
         File uncompressed = new File(originalFilePath);
         if (uncompressed.exists()) {
