@@ -1663,6 +1663,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
      * compare first FMD template with second.
      */
     private void compareFmd(byte[] fmd1, byte[] fmd2) {
+        if (fmd1 == null || fmd1.length == 0 || fmd2 == null || fmd2.length == 0) {
+            Toast.makeText(getContext(), "FMD template for comparison is empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Log.d(TAG, "FMD1 = " + fmd1.length);
         Log.d(TAG, "FMD2 = " + fmd2.length);
 
@@ -1702,6 +1706,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
     /* Make API call to get NIST NFIQ fingerprint score. */
     private void getFingerQuality(Bitmap bitmap) {
         Log.v(TAG, "get finger quality with bitmap");
+        if (bitmap == null) {
+            Toast.makeText(getContext(), "Bitmap is null. Can't get FingerQuality", Toast.LENGTH_SHORT).show();
+            return;
+        }
         this.biometrics.getFingerQuality(bitmap, new Biometrics.OnGetFingerQualityListener() {
             @Override
             public void onGetFingerQuality(ResultCode resultCode, int nfiqScore) {
@@ -1715,6 +1723,10 @@ public class FingerprintPage extends LinearLayout implements PageView {
     /* Make API call to get NIST NFIQ fingerprint score. Pass absolute file path as the parameter. */
     private void getFingerQuality(String filePath) {
         Log.v(TAG, "get finger quality for: " + filePath);
+        if (filePath == null || filePath.length() == 0) {
+            Toast.makeText(getContext(), "filePath is empty. Can't get FingerQuality", Toast.LENGTH_SHORT).show();
+            return;
+        }
         this.biometrics.getFingerQuality(filePath, new Biometrics.OnFingerQualityListener() {
             @Override
             public void onGetFingerQuality(ResultCode resultCode, FingerQuality fingerQuality) {
@@ -1728,6 +1740,15 @@ public class FingerprintPage extends LinearLayout implements PageView {
     /* Make API call to convert Bitmap image to compressed WSQ format. */
     private void createWsqImage(final String originalFilePath, final Bitmap bitmap) {
         Log.i(TAG, "createWsqImage " + originalFilePath);
+
+        if (originalFilePath == null || originalFilePath.length() == 0) {
+            Toast.makeText(getContext(), "filePath is empty. Can't create wsq image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (bitmap == null) {
+            Toast.makeText(getContext(), "bitmap is null. Can't create wsq image", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         /* Get original image size. */
         Log.i(TAG, "getting original image size");
@@ -1782,6 +1803,16 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
     private void decompressWsq(String filePath, final Bitmap bitmap) {
         Log.i(TAG, "Going to call decompress API call " + filePath);
+
+        if (filePath == null || filePath.length() == 0) {
+            Toast.makeText(getContext(), "filePath is empty. Can't decompress wsq", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (bitmap == null) {
+            Toast.makeText(getContext(), "bitmap is null. Can't decompress wsq", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         biometrics.decompressWsq(filePath, new Biometrics.OnDecompressWsqListener() {
             @Override
             public void onDecompressWsq(ResultCode resultCode, byte[] bytes) {
@@ -1810,9 +1841,19 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
     private void convertFmdToCCf(final byte[] fmdTemplate) {
         Log.d(TAG, "convertFmdToCCf(byte[])");
+
+        if (fmdTemplate == null || fmdTemplate.length == 0) {
+            Toast.makeText(getContext(), "fmd template is empty. Can't convert to ccf", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         this.biometrics.convertFmdToCcf(fmdTemplate, new Biometrics.OnFmdToCcfConversionListener() {
             @Override
             public void onFmdToCcfConversion(final Biometrics.ResultCode resultCode, final byte[] ccfBytes) {
+                if (ccfBytes == null || ccfBytes.length == 0) {
+                    Toast.makeText(getContext(), "fmd to ccf conversion is not supported", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Log.v(TAG,  "Fmd -> Ccf: " + resultCode.toString() + " " + ccfBytes.length);
 
                 if (resultCode == Biometrics.ResultCode.OK) {
@@ -1848,6 +1889,17 @@ public class FingerprintPage extends LinearLayout implements PageView {
     }
 
     private void byteArrayToBitmap(byte[] bytes, int width, int height) {
+        Log.d(TAG, "byteArrayToBitmap");
+
+        if (bytes == null || bytes.length == 0) {
+            Toast.makeText(getContext(), "byte array is empty. Can't convert to bitmap", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (width <= 0 || height <= 0) {
+            Toast.makeText(getContext(), "bitmap size is negative", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String productName = this.biometrics.getProductName();
         Log.d(TAG, "productName: " + productName);
 
@@ -1879,6 +1931,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
     }
 
     private void showImageSize(String png, String wsq, long duration) {
+        if (png == null || png.length() == 0) {
+            Toast.makeText(getContext(), "PNG file path is empty. Can't show image size", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (wsq == null || wsq.length() == 0) {
+            Toast.makeText(getContext(), "WSQ file path is empty. Can't show image size", Toast.LENGTH_SHORT).show();
+            return;
+        }
         this.compressedImageSize = 0;
         File uncompressed = new File(png);
         if (uncompressed.exists()) this.originalImageSize = uncompressed.length();
