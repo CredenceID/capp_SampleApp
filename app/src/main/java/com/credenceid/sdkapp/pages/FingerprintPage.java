@@ -704,6 +704,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                             //Convert to wsq
                                             if (wsqFilepath != null) {
                                                 convertToFmd(wsqFilepath);
+                                            } else {
+                                                convertToFmd(currentBitmap);
                                             }
                                             if (filepath != null && wsqFilepath != null) {
                                                 showImageSize(filepath, wsqFilepath, duration);
