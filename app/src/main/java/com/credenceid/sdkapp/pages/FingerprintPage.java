@@ -670,7 +670,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                                  Bitmap bm, byte[] iso,
                                                                  String filepath,
-                                                                 String wsq,
+                                                                 String wsqFilepath,
                                                                  String hint,
                                                                  int nfiqScore) {
                                     /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
@@ -692,9 +692,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                         pathName = filepath;
                                         currentBitmap = bm;
 
-                                        if (wsq != null) {
-                                            decompressWsq(wsq, bm);
-                                        }
+                                        Log.v(TAG, "wsq file path is: " + wsqFilepath);
+                                        decompressWsq(wsqFilepath, bm);
                                         /* Display captured finger quality. */
                                         setInfoText("Fingerprint Quality: " + nfiqScore);
                                         Log.d(TAG, "NFIQ Score - Fingerprint Quality: " + nfiqScore);
@@ -702,13 +701,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                          * template from Bitmap.
                                          */
                                         if (hasFmdMatcher) {
-                                            //if have filepath, then convert to wsq
-                                            if (filepath != null) {
-                                                convertToFmd(wsq);
-                                                showImageSize(filepath, wsq, duration);
-                                            } else {
-                                                convertToFmd(currentBitmap);
-                                            }
+                                            //Convert to wsq
+                                            convertToFmd(wsqFilepath);
+                                            showImageSize(filepath, wsqFilepath, duration);
                                         }
                                     }
                                 }
@@ -735,7 +730,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                                  Bitmap bm, byte[] iso,
                                                                  String filepath,
-                                                                 String wsq,
+                                                                 String wsqFilepath,
                                                                  String hint,
                                                                  int nfiqScore) {
                                     /* If we got a valid Bitmap result back then ImageView to display Bitmap. */
@@ -757,8 +752,8 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                         pathName = filepath;
                                         currentBitmap = bm;
 
-                                        if (wsq != null) {
-                                            decompressWsq(wsq, bm);
+                                        if (wsqFilepath != null) {
+                                            decompressWsq(wsqFilepath, bm);
                                         }
                                         /* Display captured finger quality. */
                                         setInfoText("Fingerprint Quality: " + nfiqScore);
@@ -768,9 +763,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                          */
                                         if (hasFmdMatcher) {
                                             //if have filepath, then convert to wsq
-                                            if (filepath != null) {
-                                                convertToFmd(wsq);
-                                                showImageSize(filepath, wsq, duration);
+                                            if (filepath != null && wsqFilepath != null) {
+                                                showImageSize(filepath, wsqFilepath, duration);
+                                            }
+                                            if (wsqFilepath != null) {
+                                                convertToFmd(wsqFilepath);
                                             } else {
                                                 convertToFmd(currentBitmap);
                                             }
