@@ -702,8 +702,12 @@ public class FingerprintPage extends LinearLayout implements PageView {
                                          */
                                         if (hasFmdMatcher) {
                                             //Convert to wsq
-                                            convertToFmd(wsqFilepath);
-                                            showImageSize(filepath, wsqFilepath, duration);
+                                            if (wsqFilepath != null) {
+                                                convertToFmd(wsqFilepath);
+                                            }
+                                            if (filepath != null && wsqFilepath != null) {
+                                                showImageSize(filepath, wsqFilepath, duration);
+                                            }
                                         }
                                     }
                                 }
