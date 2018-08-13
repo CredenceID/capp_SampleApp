@@ -13,7 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.credenceid.biometrics.Biometrics;
-import com.credenceid.biometrics.Biometrics.CardReaderStatusListner;
+import com.credenceid.biometrics.Biometrics.CardReaderStatusListener;
 import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
@@ -218,7 +218,7 @@ public class NfcPage extends LinearLayout implements PageView {
 
         mCardDetailsTextView.setText("Requesting Card Open");
 
-        mBiometrics.cardOpenCommand(new CardReaderStatusListner() {
+        mBiometrics.cardOpenCommand(new CardReaderStatusListener() {
             @Override
             public void onCardReaderOpen(ResultCode arg0) {
 

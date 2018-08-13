@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.credenceid.biometrics.ApduCommand;
 import com.credenceid.biometrics.Biometrics;
-import com.credenceid.biometrics.Biometrics.CardReaderStatusListner;
+import com.credenceid.biometrics.Biometrics.CardReaderStatusListener;
 import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.OnCardCommandListener;
 import com.credenceid.biometrics.Biometrics.OnCardStatusListener;
@@ -337,7 +337,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
         textViewStatus.setText(R.string.opening_card_reader);
         openCommandCount = 0;
 
-        this.biometrics.cardOpenCommand(new CardReaderStatusListner() {
+        this.biometrics.cardOpenCommand(new CardReaderStatusListener() {
             @Override
             public void onCardReaderOpen(ResultCode resultCode) {
                 /* Increase counter of how many times card has been opened. */
