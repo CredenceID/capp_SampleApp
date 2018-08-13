@@ -198,7 +198,7 @@
     <string name="insert_card">Insert Card To Continue</string>
     <string name="card_reader_disconnected">SmartCard reader disconnected</string>
     <string name="open_card_reader">Open reader To Continue</string>
-    <string name="closing_card_reader">Closing CardReade</string>
+    <string name="closing_card_reader">Closing CardReader</string>
     <string name="opening_card_reader">Opening CardReader</string>
     <string name="reader_result">SmartCard reader RESULT: </string>
     <string name="grab_fingerprint">Grab Fingerprint</string>
