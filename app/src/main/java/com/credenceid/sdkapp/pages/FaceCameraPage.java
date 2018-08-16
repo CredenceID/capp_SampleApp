@@ -20,11 +20,16 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.camera.DrawingView;
 import com.android.camera.PreviewFrameLayout;
 import com.credenceid.biometrics.Biometrics;
+import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.biometrics.BiometricsManager;
+import com.credenceid.face.FaceEngine.Emotion;
+import com.credenceid.face.FaceEngine.Gender;
+import com.credenceid.face.FaceEngine.HeadPoseDirection;
 import com.credenceid.sdkapp.R;
 import com.credenceid.sdkapp.SampleActivity;
 import com.credenceid.sdkapp.TheApp;
@@ -36,6 +41,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -724,7 +730,6 @@ public class FaceCameraPage extends LinearLayout implements PageView,
 		this.flashOffButton.setVisibility(visiblity ? VISIBLE : INVISIBLE);
 	}
 
-
 	public String getFaceFileLocation() {
 		return fileLocation;
 	}
@@ -795,47 +800,82 @@ public class FaceCameraPage extends LinearLayout implements PageView,
 	doFaceOperation(byte[] imageBytes) {
 		Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
 
-		mBiometricsManger.submitImage(bitmap, (Biometrics.ResultCode resultCode) -> {
-			if (resultCode == Biometrics.ResultCode.OK) {
-				Log.i(TAG, "Submitted image, trying to detect faces...");
-				detectFace();
-			}
-		});
-	}
+		mBiometricsManger.analyzeFaceImage(imageBytes, bitmap.getWidth(), bitmap.getHeight(),
+				(ResultCode resultCode,
+				 RectF faceRect,
+				 ArrayList<PointF> landmark5,
+				 ArrayList<PointF> landmark68,
+				 float[] headPoseEstimations,
+				 HeadPoseDirection[] headPoseDirections,
+				 Gender gender,
+				 int age,
+				 Emotion dominantEmotion,
+				 boolean hasGlasses,
+				 int imageQuality) -> {
+					if (resultCode == ResultCode.OK) {
+						Log.i(TAG, "Face has been analyzed.");
+						Log.i(TAG, "RectF: " + faceRect);
 
-	private void
-	detectFace() {
-		mBiometricsManger.detectFaceAndLandmark68((Biometrics.ResultCode resultCode,
-												   RectF rectF,
-												   ArrayList<PointF> arrayList,
-												   ArrayList<PointF> arrayList1) -> {
-			if (resultCode == Biometrics.ResultCode.OK) {
-				Log.i(TAG, "Detected face, will now try to get template...");
-				getFaceTemplate();
-			}
-		});
-	}
+						StringBuilder printString = new StringBuilder();
+						for (PointF point : landmark5) {
+							printString.append(point.toString());
+							printString.append(" ");
+						}
+						Log.i(TAG, "Landmark5: " + printString);
 
-	private void
-	getFaceTemplate() {
-		mBiometricsManger.getTemplate((Biometrics.ResultCode resultCode, byte[] template) -> {
-			if (resultCode == Biometrics.ResultCode.OK) {
-				Log.i(TAG, "Got face template: " + template.length);
-				Log.i(TAG, "Bytes: " + template.toString());
+						printString.setLength(0);
+						for (PointF point : landmark68) {
+							printString.append(point.toString());
+							printString.append(" ");
+						}
+						Log.i(TAG, "Landmark68: " + landmark68);
 
-				matchFaceTemplates(template);
-			}
-		});
-	}
+						printString.setLength(0);
+						printString.append("[" + headPoseEstimations[0]
+								+ ", " + headPoseEstimations[1]
+								+ ", " + headPoseEstimations[2] + "]");
+						Log.i(TAG, "HeadPose: " + printString);
 
-	private void
-	matchFaceTemplates(byte[] template) {
-		mBiometricsManger.matchTemplates(template, template,
-				(Biometrics.ResultCode resultCode, int i) -> {
-					if (resultCode == Biometrics.ResultCode.OK) {
-						Log.i(TAG, "Face matching score: " + i);
+						Toast.makeText(getContext(), "Roll: " + headPoseEstimations[0], Toast.LENGTH_LONG).show();
+
+						printString.setLength(0);
+						printString.append("[Roll:" + headPoseDirections[0] + ", Pitch: "
+								+ headPoseDirections[1] + ", Yaw: "
+								+ headPoseDirections[2] + "]");
+						Log.i(TAG, "HeadPose Directions: " + printString);
+
+						Log.i(TAG, "Gender: " + gender);
+						Log.i(TAG, "Age: " + age);
+						Log.i(TAG, "Emotion: " + dominantEmotion);
+						Log.i(TAG, "Glasses: " + hasGlasses);
+						Log.i(TAG, "Image Quality: " + imageQuality);
+
+						this.createFaceTemplate(bitmap);
 					}
 				});
+	}
+
+	public void
+	createFaceTemplate(Bitmap bitmap){
+		mBiometricsManger.createFaceTemplate(bitmap, (ResultCode resultCode, byte[] bytes) -> {
+			if (resultCode == ResultCode.OK) {
+				Log.i(TAG, "Face template created.");
+				Log.i(TAG, "Length: " + bytes.length);
+
+				try {
+					Log.i(TAG, "Template data: " + new String(bytes, "UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					// Ignored.
+				}
+
+				mBiometricsManger.matchFaceTemplates(bytes, bytes,
+						(ResultCode resultCodeTwo, int i) -> {
+							if (resultCodeTwo == ResultCode.OK) {
+								Log.i(TAG, "MATCH SCORE: " + i);
+							}
+						});
+			}
+		});
 	}
 
 	// Saves given image.
