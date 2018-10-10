@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
-import com.credenceid.sdkapp.SampleActivity;
+import com.credenceid.sdkapp.activity.SampleActivity;
 
 public class PreviewFrameLayout extends RelativeLayout {
     private String TAG = "PreviewFrameLayout";

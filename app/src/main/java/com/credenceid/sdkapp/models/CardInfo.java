@@ -2,31 +2,38 @@ package com.credenceid.sdkapp.models;
 
 import java.util.Hashtable;
 
-/* Custom class which is used to represent different cards. Holds specific card information. */
+/* Custom class which is used to represent a cards information and type. */
 public class CardInfo {
-    /* Holds card name, apdu table, and atr value. */
-    private String atr;
-    private String cardName;
-    private String[] apduTable;
+	// Holds card name/ATR, APDU table appropriate to card.
+	private String mATR;
+	private String mName;
+	private String[] mAPDUTable;
 
-    public CardInfo(String ATR, String cardName, String[] apduTable, Hashtable hashtable) {
-        this.atr = ATR;
-        this.cardName = cardName;
-        this.apduTable = apduTable;
+	public CardInfo(String ATR,
+					String cardName,
+					String[] apduTable,
+					Hashtable hashtable) {
 
-        hashtable.put(atr, this);
-    }
+		mATR = ATR;
+		mName = cardName;
+		mAPDUTable = apduTable;
 
-    @SuppressWarnings("unused")
-    public String getATR() {
-        return (atr);
-    }
+		hashtable.put(ATR, this);
+	}
 
-    public String getCardName() {
-        return (cardName);
-    }
+	@SuppressWarnings("unused")
+	public String
+	getATR() {
+		return mATR;
+	}
 
-    public String[] getApduTable() {
-        return (apduTable);
-    }
+	public String
+	getCardName() {
+		return mName;
+	}
+
+	public String[]
+	getApduTable() {
+		return mAPDUTable;
+	}
 }

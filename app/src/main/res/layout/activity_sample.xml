@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/FaintBgColor"
-    tools:context=".SampleActivity" >
+    tools:context=".activity.SampleActivity" >
 
     <ViewFlipper
     	style="@style/DarkBgColor"
@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.credenceid.sdkapp.pages.FaceCameraPage
+        <com.credenceid.sdkapp.pages.CameraPage
             android:id="@+id/face_camera_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -72,55 +72,46 @@
         <ImageButton
             android:id="@+id/about_btn"
             style="@style/TabButton"
-            android:onClick="onAbout"
             android:src="@drawable/ic_launcher" />
 
         <ImageButton
             android:id="@+id/nfc_btn"
             style="@style/TabButton"
-            android:onClick="onNfcView"
             android:src="@drawable/ic_nfc" />
 
         <ImageButton
             android:id="@+id/fingerprint_btn"
             style="@style/TabButton"
-            android:onClick="onFingerprint"
             android:src="@drawable/ic_fingerprint" />
 
         <ImageButton
             android:id="@+id/face_camera_btn"
             style="@style/TabButton"
-            android:onClick="onFaceCamera"
             android:src="@drawable/ic_camera" />
 
         <ImageButton
             android:id="@+id/iris_btn"
             style="@style/TabButton"
-            android:onClick="onIris"
             android:src="@drawable/ic_iris" />
 
         <ImageButton
             android:id="@+id/card_reader_btn"
             style="@style/TabButton"
-            android:onClick="onCardReader"
             android:src="@drawable/ic_card_reader" />
         
         <ImageButton
             android:id="@+id/mrz_reader_btn"
             style="@style/TabButton"
-            android:onClick="onMRZ"
             android:src="@drawable/ic_mrz" />
 
         <ImageButton
             android:id="@+id/usb_access_btn"
             style="@style/TabButton"
-            android:onClick="onUsbAccess"
             android:src="@drawable/ic_usb_access" />
 
         <ImageButton
             android:id="@+id/encryption_btn"
             style="@style/TabButton"
-            android:onClick="onEncrypt"
             android:src="@drawable/ic_encrypt" />
     </LinearLayout>
 

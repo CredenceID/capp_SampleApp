@@ -31,7 +31,7 @@ import com.credenceid.face.FaceEngine.Emotion;
 import com.credenceid.face.FaceEngine.Gender;
 import com.credenceid.face.FaceEngine.HeadPoseDirection;
 import com.credenceid.sdkapp.R;
-import com.credenceid.sdkapp.SampleActivity;
+import com.credenceid.sdkapp.activity.SampleActivity;
 import com.credenceid.sdkapp.TheApp;
 import com.credenceid.sdkapp.models.PageView;
 import com.credenceid.sdkapp.utils.Beeper;
@@ -45,14 +45,16 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FaceCameraPage extends LinearLayout implements PageView,
-		SurfaceHolder.Callback {
-	private static final String TAG = FaceCameraPage.class.getName();
+public class CameraPage
+		extends LinearLayout
+		implements PageView, SurfaceHolder.Callback {
+	private static final String TAG = CameraPage.class.getName();
+
 	public Camera camera;
 	private Biometrics biometrics;
 	private BiometricsManager mBiometricsManger;
 	private SampleActivity sampleActivity;
-	// File Location
+
 	private String fileLocation = Environment.getExternalStorageDirectory() + File.separator + "face.jpg";
 	private Bitmap finalBitmap = null;
 	private PreviewFrameLayout previewFrameLayout;
@@ -103,17 +105,17 @@ public class FaceCameraPage extends LinearLayout implements PageView,
 		}
 	};
 
-	public FaceCameraPage(Context context) {
+	public CameraPage(Context context) {
 		super(context);
 		this.initialize();
 	}
 
-	public FaceCameraPage(Context context, AttributeSet attrs) {
+	public CameraPage(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.initialize();
 	}
 
-	public FaceCameraPage(Context context, AttributeSet attrs, int defStyle) {
+	public CameraPage(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		this.initialize();
 	}
@@ -856,7 +858,7 @@ public class FaceCameraPage extends LinearLayout implements PageView,
 	}
 
 	public void
-	createFaceTemplate(Bitmap bitmap){
+	createFaceTemplate(Bitmap bitmap) {
 		mBiometricsManger.createFaceTemplate(bitmap, (ResultCode resultCode, byte[] bytes) -> {
 			if (resultCode == ResultCode.OK) {
 				Log.i(TAG, "Face template created.");

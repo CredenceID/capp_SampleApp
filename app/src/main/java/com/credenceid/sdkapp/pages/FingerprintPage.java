@@ -32,7 +32,7 @@ import com.credenceid.biometrics.Biometrics.ScanType;
 import com.credenceid.biometrics.FingerQuality;
 import com.credenceid.biometrics.FingerprintSyncResponse;
 import com.credenceid.sdkapp.R;
-import com.credenceid.sdkapp.SampleActivity;
+import com.credenceid.sdkapp.activity.SampleActivity;
 import com.credenceid.sdkapp.TheApp;
 import com.credenceid.sdkapp.models.PageView;
 import com.credenceid.sdkapp.utils.Beeper;

@@ -44,15 +44,15 @@
 
     <!-- About -->
     <string name="global_biometricsmanager">Global BiometricsManager</string>
-    <string name="product_name">Product name:</string>
+    <string name="product_name">Product Name:</string>
     <string name="device_id">Device ID: </string>
-    <string name="sdk_version">SDK version: </string>
-    <string name="device_library_version">Library version: </string>
-    <string name="app_version">App version: </string>
-    <string name="license_status">License status: </string>
-    <string name="obtained">obtained</string>
-    <string name="not_obtained">not obtained</string>
-    <string name="obtaining">obtaining</string>
+    <string name="cid_service_version_label">C-Service Version: </string>
+    <string name="device_lib_version_label">DeviceLib Version: </string>
+    <string name="app_version">SDKApp Version: </string>
+    <string name="license_status">License Status: </string>
+    <string name="obtained">Valid</string>
+    <string name="not_obtained">Invalid</string>
+    <string name="obtaining">Processing...</string>
 
     <!-- Face Camera -->
     <string name="title_face_camera">Face Camera</string>

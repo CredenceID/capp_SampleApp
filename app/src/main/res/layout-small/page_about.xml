@@ -46,7 +46,7 @@
 
         <TextView
             style="@style/TextLabel"
-            android:text="@string/sdk_version" />
+            android:text="@string/cid_service_version_label" />
 
         <TextView
             android:id="@+id/sdk_version"
@@ -61,7 +61,7 @@
 
         <TextView
             style="@style/TextLabel"
-            android:text="@string/device_library_version" />
+            android:text="@string/device_lib_version_label" />
 
         <TextView
             android:id="@+id/device_library_version"
@@ -173,7 +173,7 @@
 
         <TextView
             style="@style/TextLabel"
-            android:text="@string/sdk_version" />
+            android:text="@string/cid_service_version_label" />
 
         <TextView
             android:id="@+id/sdk_version_man"
@@ -188,7 +188,7 @@
 
         <TextView
             style="@style/TextLabel"
-            android:text="@string/device_library_version" />
+            android:text="@string/device_lib_version_label" />
 
         <TextView
             android:id="@+id/device_library_version_man"

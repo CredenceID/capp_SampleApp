@@ -20,7 +20,7 @@ import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.icao.ICAODocumentData;
 import com.credenceid.icao.ICAOReadIntermediateCode;
 import com.credenceid.sdkapp.R;
-import com.credenceid.sdkapp.SampleActivity;
+import com.credenceid.sdkapp.activity.SampleActivity;
 import com.credenceid.sdkapp.models.PageView;
 
 import static com.credenceid.biometrics.Biometrics.ResultCode.API_UNAVAILABLE;
