@@ -51,14 +51,14 @@ import static com.credenceid.biometrics.Biometrics.ResultCode.OK;
 import static com.credenceid.sdkapp.R.id.status;
 
 public class FingerprintPage extends LinearLayout implements PageView {
-    private static final String TAG = FingerprintPage.class.getName();
+    private static final String TAG = FingerprintPage.class.getSimpleName();
     private final Biometrics.ScanType scanTypes[] = {
             ScanType.SINGLE_FINGER,
             ScanType.TWO_FINGERS, ScanType.ROLL_SINGLE_FINGER,
             ScanType.TWO_FINGERS_SPLIT
     };
-    private SampleActivity sampleActivity;
-    private Biometrics biometrics;
+    private SampleActivity mSampleActivity;
+    private Biometrics mBiometrics;
     private Button buttonCapture;
     private Button buttonOpenClose;
     private Button buttonMatch;
@@ -143,7 +143,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
     }
 
     public void setActivity(SampleActivity activity) {
-        this.sampleActivity = activity;
+        mSampleActivity = activity;
     }
 
     private void initialize() {
@@ -164,9 +164,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 // if saveToDisk is true, show the full screen image with the PNG format;
                 // if saveToDisk is false, show the full screen image with the Bitmap format
                 if (saveToDisk) {
-                    sampleActivity.showFullScreenScannedImage(pathName);
+                    mSampleActivity.showFullScreenImage(pathName);
                 } else {
-                    sampleActivity.showFullScreenScannedImage(currentBitmap);
+                    mSampleActivity.showFullScreenImage(currentBitmap);
                 }
             }
         });
@@ -179,9 +179,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 // if saveToDisk is true, show the full screen image with the PNG format;
                 // if saveToDisk is false, show the full screen image with the Bitmap format
                 if (saveToDisk) {
-                    sampleActivity.showFullScreenScannedImage(pathNameFingerprint1);
+                    mSampleActivity.showFullScreenImage(pathNameFingerprint1);
                 } else {
-                    sampleActivity.showFullScreenScannedImage(currentFingerprint1Bitmap);
+                    mSampleActivity.showFullScreenImage(currentFingerprint1Bitmap);
                 }
             }
         });
@@ -194,9 +194,9 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 // if saveToDisk is true, show the full screen image with the PNG format;
                 // if saveToDisk is false, show the full screen image with the Bitmap format
                 if (saveToDisk) {
-                    sampleActivity.showFullScreenScannedImage(pathNameFingerprint2);
+                    mSampleActivity.showFullScreenImage(pathNameFingerprint2);
                 } else {
-                    sampleActivity.showFullScreenScannedImage(currentFingerprint2Bitmap);
+                    mSampleActivity.showFullScreenImage(currentFingerprint2Bitmap);
                 }
             }
         });
@@ -480,7 +480,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
     @Override
     public void activate(Biometrics biometrics) {
-        this.biometrics = biometrics;
+        mBiometrics = biometrics;
 
         /* A FAP 45 sensor is used on the Trident devices, which allows them to do all four
          * different scan types. Only for Trident devices do we actually show a spinner which allows
@@ -500,14 +500,14 @@ public class FingerprintPage extends LinearLayout implements PageView {
         useFingerprintFullListener = showSpinner;
 
         /* Determine if Credece device supports FMD template matching. */
-        hasFmdMatcher = sampleActivity.hasFmdMatcher();
+        hasFmdMatcher = mSampleActivity.hasFmdMatcher();
         viewMatchButtonSpacer.setVisibility(hasFmdMatcher ? VISIBLE : GONE);
         buttonMatch.setVisibility(hasFmdMatcher ? VISIBLE : GONE);
 
         /* Only Tridents/CredenceTABs support using the WSQ fingerprint listener, but we only
          * use listener for TABs so for Tridents we may instead demonstrate fullListener.
          */
-        String name = this.biometrics.getProductName();
+        String name = mBiometrics.getProductName();
         useFingerprintWsqListener = name.contains("TAB");
         /* Always reset our captures when we activate this page. */
         this.doResume();
@@ -553,7 +553,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             Runnable mRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    final FingerprintSyncResponse fingerprintSyncResponse = biometrics.grabFingerprintSync(8000);
+                    final FingerprintSyncResponse fingerprintSyncResponse = mBiometrics.grabFingerprintSync(8000);
                     final Bitmap bitmap = fingerprintSyncResponse.bitmap;
                     //Beeper.getInstance().click();
                     syncHandler.post(new Runnable() {
@@ -593,7 +593,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             new Thread(mRunnable).start();
         } else if (this.grabFingerprintAsyncRaw) {
             Log.v(TAG, "grabFingerprintAsyncRaw is true. saveToDisk is " + saveToDisk);
-            this.biometrics.grabFingerprint(this.scanType, this.saveToDisk,
+            mBiometrics.grabFingerprint(this.scanType, this.saveToDisk,
                     new Biometrics.OnFingerprintGrabbedRawListener() {
                         @Override
                         public void onFingerprintGrabbed(ResultCode result,
@@ -664,7 +664,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 Log.v(TAG, "useFingerprintWsqListener is true.");
                 if (this.saveToDiskDefault) {
                     Log.v(TAG, "saveToDiskDefault is true.");
-                    this.biometrics.grabFingerprint(this.scanType,
+                    mBiometrics.grabFingerprint(this.scanType,
                             new Biometrics.OnFingerprintGrabbedWSQListener() {
                                 @Override
                                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
@@ -730,7 +730,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             });
                 } else {
                     Log.v(TAG, "saveToDisk is " + saveToDisk);
-                    this.biometrics.grabFingerprint(this.scanType, this.saveToDisk,
+                    mBiometrics.grabFingerprint(this.scanType, this.saveToDisk,
                             new Biometrics.OnFingerprintGrabbedWSQListener() {
                                 @Override
                                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
@@ -801,7 +801,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 Log.v(TAG, "useFingerprintFullListener is false.");
                 if (this.saveToDiskDefault) {
                     Log.v(TAG, "saveToDiskDefault is true.");
-                    this.biometrics.grabFingerprint(this.scanType,
+                    mBiometrics.grabFingerprint(this.scanType,
                             new Biometrics.OnFingerprintGrabbedListener() {
                                 @Override
                                 public void onFingerprintGrabbed(ResultCode result,
@@ -860,7 +860,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             });
                 } else {
                     Log.v(TAG, "saveToDisk is " + saveToDisk);
-                    this.biometrics.grabFingerprint(this.scanType, this.saveToDisk,
+                    mBiometrics.grabFingerprint(this.scanType, this.saveToDisk,
                             new Biometrics.OnFingerprintGrabbedListener() {
                                 @Override
                                 public void onFingerprintGrabbed(ResultCode result,
@@ -923,7 +923,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 Log.v(TAG, "useFingerprintFullListener is true.");
                 if (this.saveToDiskDefault) {
                     Log.v(TAG, "saveToDiskDefault is true.");
-                    this.biometrics.grabFingerprint(this.scanType, new OnFingerprintGrabbedFullListener() {
+                    mBiometrics.grabFingerprint(this.scanType, new OnFingerprintGrabbedFullListener() {
                         @Override
                         public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                          Bitmap bm,
@@ -1025,7 +1025,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     });
                 } else {
                     Log.v(TAG, "saveToDisk is " + saveToDisk);
-                    this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new OnFingerprintGrabbedFullListener() {
+                    mBiometrics.grabFingerprint(this.scanType, this.saveToDisk, new OnFingerprintGrabbedFullListener() {
                         @Override
                         public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                          Bitmap bm,
@@ -1136,7 +1136,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
         // Set text view letting user know we are opening the fingerprint reader
         setStatusText("Opening scanner");
-        this.biometrics.openFingerprintReader(new Biometrics.FingerprintReaderStatusListener() {
+        mBiometrics.openFingerprintReader(new Biometrics.FingerprintReaderStatusListener() {
             @Override
             public void onOpenFingerprintReader(ResultCode resultCode, String hint) {
                 Log.d(TAG, "Fingerprint reader opened- " + resultCode.name());
@@ -1178,7 +1178,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
          /* Start by resetting capture system. */
         this.resetCapture();
         /* Now close fingerprint sensor. */
-        this.biometrics.closeFingerprintReader();
+        mBiometrics.closeFingerprintReader();
     }
 
     /* The match section works by first looking to make sure user has already made on+e successful
@@ -1216,7 +1216,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             Runnable mRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    FingerprintSyncResponse fingerprintSyncResponse = biometrics.grabFingerprintSync(8000);
+                    FingerprintSyncResponse fingerprintSyncResponse = mBiometrics.grabFingerprintSync(8000);
                     final Bitmap bitmap = fingerprintSyncResponse.bitmap;
                     //Beeper.getInstance().click();
                     syncHandler.post(new Runnable() {
@@ -1241,7 +1241,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             new Thread(mRunnable).start();
         } else if (this.grabFingerprintAsyncRaw) {
             Log.v(TAG, "grabFingerprintAsyncRaw is true");
-            this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new Biometrics.OnFingerprintGrabbedRawListener() {
+            mBiometrics.grabFingerprint(this.scanType, this.saveToDisk, new Biometrics.OnFingerprintGrabbedRawListener() {
                 @Override
                 public void onFingerprintGrabbed(ResultCode result,
                                                  Bitmap bm,
@@ -1300,7 +1300,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 Log.v(TAG, "useFingerprintFullListener is true");
                 if (this.saveToDiskDefault) {
                     Log.v(TAG, "saveToDiskDefault is true");
-                    this.biometrics.grabFingerprint(this.scanType, new OnFingerprintGrabbedFullListener() {
+                    mBiometrics.grabFingerprint(this.scanType, new OnFingerprintGrabbedFullListener() {
                         @Override
                         public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                          Bitmap bm,
@@ -1386,7 +1386,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                     });
                 } else {
                     Log.v(TAG, "saveToDisk is " + saveToDisk);
-                    this.biometrics.grabFingerprint(this.scanType, this.saveToDisk, new OnFingerprintGrabbedFullListener() {
+                    mBiometrics.grabFingerprint(this.scanType, this.saveToDisk, new OnFingerprintGrabbedFullListener() {
                         @Override
                         public void onFingerprintGrabbed(Biometrics.ResultCode result,
                                                          Bitmap bm,
@@ -1475,7 +1475,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 Log.v(TAG, "useFingerprintFullListener is false");
                 if (this.saveToDiskDefault) {
                     Log.v(TAG, "saveToDiskDefault is true");
-                    this.biometrics.grabFingerprint(this.scanType,
+                    mBiometrics.grabFingerprint(this.scanType,
                     new Biometrics.OnFingerprintGrabbedListener() {
                                 @Override
                                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
@@ -1524,7 +1524,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
                             });
                 } else {
                     Log.v(TAG, "saveToDisk is " + saveToDisk);
-                    this.biometrics.grabFingerprint(this.scanType, this.saveToDisk,
+                    mBiometrics.grabFingerprint(this.scanType, this.saveToDisk,
                             new Biometrics.OnFingerprintGrabbedListener() {
                                 @Override
                                 public void onFingerprintGrabbed(Biometrics.ResultCode result,
@@ -1581,7 +1581,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         final long startTime = SystemClock.elapsedRealtime();
 
         // Call biometrics API for image conversion
-        this.biometrics.convertToFmd(capturedImage, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
+        mBiometrics.convertToFmd(capturedImage, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
             @Override
             public void onConvertToFmd(ResultCode result, byte[] fmd) {
                 if (result != OK || fmd == null) {
@@ -1619,7 +1619,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         }
 
         Log.i(TAG, "now going to make CredenceSDK API call");
-        biometrics.convertToFmd(bytes, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
+        mBiometrics.convertToFmd(bytes, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
             @Override
             public void onConvertToFmd(ResultCode resultCode, byte[] fmd) {
                 Log.i(TAG, "onConvertToFmd(ResultCode, byte[]): CALLBACK INVOKED");
@@ -1643,7 +1643,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
      */
     private void convertToFmdAndMatch(Bitmap inputImage) {
         /* Make API call to convert image to FMD template. */
-        this.biometrics.convertToFmd(inputImage, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
+        mBiometrics.convertToFmd(inputImage, Biometrics.FmdFormat.ISO_19794_2_2005, new OnConvertToFmdListener() {
             @Override
             public void onConvertToFmd(ResultCode result, byte[] fmd) {
                 if (result != OK || fmd == null) {
@@ -1677,7 +1677,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
         final long startTime = SystemClock.elapsedRealtime();
 
         // Call API function to compare Fmd type images, pass callback to handle result
-        this.biometrics.compareFmd(fmd1, fmd2, Biometrics.FmdFormat.ISO_19794_2_2005, new OnCompareFmdListener() {
+        mBiometrics.compareFmd(fmd1, fmd2, Biometrics.FmdFormat.ISO_19794_2_2005, new OnCompareFmdListener() {
             @Override
             public void onCompareFmd(ResultCode result, float dissimilarity) {
                 String matchDecision;
@@ -1713,7 +1713,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             Toast.makeText(getContext(), "Bitmap is null. Can't get FingerQuality", Toast.LENGTH_SHORT).show();
             return;
         }
-        this.biometrics.getFingerQuality(bitmap, new Biometrics.OnGetFingerQualityListener() {
+        mBiometrics.getFingerQuality(bitmap, new Biometrics.OnGetFingerQualityListener() {
             @Override
             public void onGetFingerQuality(ResultCode resultCode, int nfiqScore) {
                 if (resultCode == OK)
@@ -1730,7 +1730,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             Toast.makeText(getContext(), "filePath is empty. Can't get FingerQuality", Toast.LENGTH_SHORT).show();
             return;
         }
-        this.biometrics.getFingerQuality(filePath, new Biometrics.OnFingerQualityListener() {
+        mBiometrics.getFingerQuality(filePath, new Biometrics.OnFingerQualityListener() {
             @Override
             public void onGetFingerQuality(ResultCode resultCode, FingerQuality fingerQuality) {
                 if (resultCode == OK)
@@ -1766,7 +1766,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
 
         // Call biometrics API for converting images
         Log.i(TAG, "Making convertToWsq API call");
-        this.biometrics.convertToWsq(originalFilePath, bitrate, new OnConvertToWsqListener() {
+        mBiometrics.convertToWsq(originalFilePath, bitrate, new OnConvertToWsqListener() {
             @Override
             public void onConvertToWsq(final ResultCode result, String pathname) {
                     /* If result is in between FAIL and OK, it is still being converted. */
@@ -1816,7 +1816,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             return;
         }
 
-        biometrics.decompressWsq(filePath, new Biometrics.OnDecompressWsqListener() {
+        mBiometrics.decompressWsq(filePath, new Biometrics.OnDecompressWsqListener() {
             @Override
             public void onDecompressWsq(ResultCode resultCode, byte[] bytes) {
                 String message = "De-CompressWsq was " + resultCode.toString();
@@ -1850,7 +1850,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             return;
         }
 
-        this.biometrics.convertFmdToCcf(fmdTemplate, new Biometrics.OnFmdToCcfConversionListener() {
+        mBiometrics.convertFmdToCcf(fmdTemplate, new Biometrics.OnFmdToCcfConversionListener() {
             @Override
             public void onFmdToCcfConversion(final Biometrics.ResultCode resultCode, final byte[] ccfBytes) {
                 if (ccfBytes == null || ccfBytes.length == 0) {
@@ -1860,11 +1860,11 @@ public class FingerprintPage extends LinearLayout implements PageView {
                 Log.v(TAG,  "Fmd -> Ccf: " + resultCode.toString() + " " + ccfBytes.length);
 
                 if (resultCode == Biometrics.ResultCode.OK) {
-                    biometrics.convertCcfToFmd(ccfBytes, (short) 400, (short) 500, (short) 100, (short) 100, new Biometrics.OnCcfToFmdConverionListener() {
+                    mBiometrics.convertCcfToFmd(ccfBytes, (short) 400, (short) 500, (short) 100, (short) 100, new Biometrics.OnCcfToFmdConverionListener() {
                         @Override
                         public void onCcfToFmdConversion(final Biometrics.ResultCode resultCode, final byte[] fmdBytes) {
                             if (resultCode == Biometrics.ResultCode.OK) {
-                                biometrics.compareFmd(fmdTemplate, fmdBytes, Biometrics.FmdFormat.ISO_19794_2_2005, new Biometrics.OnCompareFmdListener() {
+                                mBiometrics.compareFmd(fmdTemplate, fmdBytes, Biometrics.FmdFormat.ISO_19794_2_2005, new Biometrics.OnCompareFmdListener() {
                                     @Override
                                     public void onCompareFmd(Biometrics.ResultCode resultCode, float v) {
                                         Log.v(TAG, "compare Fmd and Fmd -> Ccf -> Fmd: " + fmdTemplate.length + " " + fmdBytes.length);
@@ -1903,7 +1903,7 @@ public class FingerprintPage extends LinearLayout implements PageView {
             return;
         }
 
-        String productName = this.biometrics.getProductName();
+        String productName = mBiometrics.getProductName();
         Log.d(TAG, "productName: " + productName);
 
         Log.v(TAG, "byteArrayToBitmap width: " + width + " height: " + height);

@@ -17,24 +17,29 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.credenceid.biometrics.Biometrics;
-import com.credenceid.biometrics.Biometrics.OnConvertToKind7Listener;
+import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.OnIrisesCapturedListener;
 import com.credenceid.biometrics.Biometrics.ResultCode;
-import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.IrisQuality;
 import com.credenceid.sdkapp.R;
-import com.credenceid.sdkapp.activity.SampleActivity;
 import com.credenceid.sdkapp.TheApp;
+import com.credenceid.sdkapp.activity.SampleActivity;
 import com.credenceid.sdkapp.models.PageView;
 import com.credenceid.sdkapp.utils.Beeper;
 
 import java.io.File;
+import java.util.Locale;
 
-public class IrisPage extends LinearLayout implements PageView {
-	private static final String TAG = IrisPage.class.getName();
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static com.credenceid.biometrics.Biometrics.EyeSelection.LEFT_EYE;
+
+public class IrisPage
+		extends LinearLayout
+		implements PageView {
+	private static final String TAG = IrisPage.class.getSimpleName();
 
 	private Biometrics mBiometrics;
-	private SampleActivity sampleActivity;
+	private SampleActivity mSampleActivity;
 
 	private Button mCaptureBtn;
 	private Button mCloseBtn;
@@ -43,164 +48,197 @@ public class IrisPage extends LinearLayout implements PageView {
 	private TextView mStatusTextView;
 	private TextView mInfoTextView;
 
-	private String mPathnameLeft;
-	private String mPathnameRight;
+	private String mLeftEyeImagePath;
+	private String mRightEyeImagePath;
 	private boolean mCapturing = false;
 
-	private long uncompressed_size;
-	private long compressed_size;
-	private long start_time;
+	private long mUncompressedImageSize;
+	private long mCompressedImageSize;
+	private long mKind7ConvertStartTime;
 
-	private Biometrics.EyeSelection mEyeSelection = Biometrics.EyeSelection.BOTH_EYES;
+	// Currently selected iris-capture type.
+	private Biometrics.EyeSelection mCurrentCaptureType = Biometrics.EyeSelection.BOTH_EYES;
 
-	private Biometrics.EyeSelection eye_selection_types[] = { Biometrics.EyeSelection.BOTH_EYES,
-			Biometrics.EyeSelection.LEFT_EYE, Biometrics.EyeSelection.RIGHT_EYE };
+	// Avaiable capture type.s
+	private Biometrics.EyeSelection mCaptureTypes[] = {
+			Biometrics.EyeSelection.BOTH_EYES,
+			LEFT_EYE,
+			Biometrics.EyeSelection.RIGHT_EYE};
 
 	public IrisPage(Context context) {
 		super(context);
-		initialize();
+
+		this.initializeLayoutComponents();
+		this.configureLayoutComponents();
 	}
 
-	public IrisPage(Context context, AttributeSet attrs) {
+	public IrisPage(Context context,
+					AttributeSet attrs) {
 		super(context, attrs);
-		initialize();
+
+		this.initializeLayoutComponents();
+		this.configureLayoutComponents();
 	}
 
-	public IrisPage(Context context, AttributeSet attrs, int defStyle) {
+	public IrisPage(Context context,
+					AttributeSet attrs,
+					int defStyle) {
 		super(context, attrs, defStyle);
-		initialize();
+
+		this.initializeLayoutComponents();
+		this.configureLayoutComponents();
 	}
 
-	public void setActivity(SampleActivity activity) {
-		sampleActivity = activity;
+	public void
+	setActivity(SampleActivity activity) {
+		mSampleActivity = activity;
 	}
 
-	private void initialize() {
-		Log.d(TAG, "initialize");
-
-		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	/* Loads layout out and finds all components in file.  */
+	private void
+	initializeLayoutComponents() {
+		// Tell view which layout file to display.
+		LayoutInflater li = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		li.inflate(R.layout.page_iris, this, true);
+
 		mCaptureRight = (ImageView) findViewById(R.id.capture_1_image);
-		mCaptureRight.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				sampleActivity.showFullScreenScannedImage(mPathnameRight);
-			}
-		});
 		mCaptureLeft = (ImageView) findViewById(R.id.capture_2_image);
-		mCaptureLeft.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				sampleActivity.showFullScreenScannedImage(mPathnameLeft);
-			}
-		});
 		mCaptureBtn = (Button) findViewById(R.id.capture_btn);
-		mCaptureBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onCapture();
-			}
-		});
 		mCloseBtn = (Button) findViewById(R.id.close_btn);
-		mCloseBtn.setEnabled(false);
-		mCloseBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onClose();
-			}
-		});
 		mStatusTextView = (TextView) findViewById(R.id.status);
 		mInfoTextView = (TextView) findViewById(R.id.info);
+	}
 
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.iris_scan_type, android.R.layout.simple_spinner_item);
+	/* Configures each component along with its onClick action. */
+	private void
+	configureLayoutComponents() {
+		mCaptureRight.setOnClickListener((View v) ->
+				mSampleActivity.showFullScreenImage(mRightEyeImagePath));
+
+		mCaptureLeft.setOnClickListener((View v) ->
+				mSampleActivity.showFullScreenImage(mLeftEyeImagePath));
+
+		mCaptureBtn.setOnClickListener((View v) -> this.onCapture());
+
+		mCloseBtn.setEnabled(false);
+		mCloseBtn.setOnClickListener((View v) -> this.onClose());
+
+		// Configures Spinner which allows user to select iris capture type. This initialization is
+		// only required one time, so need need to create a global object for it.
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+				getContext(),
+				R.array.iris_scan_type,
+				android.R.layout.simple_spinner_item);
+
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 		Spinner irisTypeSpinner = (Spinner) findViewById(R.id.iris_type_spinner);
 		irisTypeSpinner.setAdapter(adapter);
+
 		irisTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				mEyeSelection = eye_selection_types[position];
-				if (mCapturing) {
+			public void
+			onItemSelected(AdapterView<?> parent,
+						   View view,
+						   int position,
+						   long id) {
+				mCurrentCaptureType = mCaptureTypes[position];
+				if (mCapturing)
 					onCapture();
-				}
 			}
 
 			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
+			public void
+			onNothingSelected(AdapterView<?> parent) {
 
 			}
 		});
 	}
 
 	@Override
-	public String getTitle() {
+	public String
+	getTitle() {
 		return getContext().getResources().getString(R.string.title_iris);
 	}
 
 	@Override
-	public void activate(Biometrics biometrics) {
+	public void
+	activate(Biometrics biometrics) {
 		this.mBiometrics = biometrics;
-		doResume();
+		this.doResume();
 	}
 
 	@Override
-	public void doResume() {
-		setInfoText("");
+	public void
+	doResume() {
+		this.setInfoText("");
 	}
 
 	@Override
-	public void deactivate() {
+	public void
+	deactivate() {
 	}
 
-	private void onCapture() {
-		resetCapture();
-		enableCapture(false);
+	private void
+	onCapture() {
+		this.resetCapture();
+		this.enableCapture(false);
+		this.setStatusText("Initializing...");
 
-        setStatusText("initalizing...");
-
-		mBiometrics.captureIrises(mEyeSelection, new OnIrisesCapturedListener() {
-
+		mBiometrics.captureIrises(mCurrentCaptureType, new OnIrisesCapturedListener() {
 			@Override
-			public void onIrisesCaptured(Biometrics.ResultCode result, Bitmap bmLeft,
-										 Bitmap bmRight, String pathnameLeft, String pathnameRight, String status) {
-				boolean ok = (result == ResultCode.OK);
+			public void
+			onIrisesCaptured(ResultCode result,
+							 Bitmap bmLeft,
+							 Bitmap bmRight,
+							 String leftEyeImagePath,
+							 String rightEyeImagePath,
+							 String status) {
+				final boolean ok = (result == ResultCode.OK);
 
-				if (mEyeSelection != Biometrics.EyeSelection.LEFT_EYE && bmRight != null) {
-					if (!ok) {
-						mCaptureRight.setImageBitmap(bmRight);
-					}
-					mPathnameRight = pathnameRight;
-				}
-
-				if (mEyeSelection != Biometrics.EyeSelection.RIGHT_EYE && bmLeft != null) {
-					if (!ok) {
-						mCaptureLeft.setImageBitmap(bmLeft);
-					}
-					mPathnameLeft = pathnameLeft;
-				}
-
-				if (status != null && !status.isEmpty()) {
+				// Update status text so user is aware of what is going on.
+				if (status != null && !status.isEmpty())
 					setStatusText(status);
+
+				if (mCurrentCaptureType != LEFT_EYE && bmRight != null) {
+					if (!ok)
+						mCaptureRight.setImageBitmap(bmRight);
+					mRightEyeImagePath = rightEyeImagePath;
 				}
 
+				if (mCurrentCaptureType != Biometrics.EyeSelection.RIGHT_EYE && bmLeft != null) {
+					if (!ok)
+						mCaptureLeft.setImageBitmap(bmLeft);
+					mLeftEyeImagePath = leftEyeImagePath;
+				}
+
+				// Once iris capture is complete, result code OK is returned.
 				if (result == ResultCode.OK) {
 					Log.i(TAG, "Iris Captured Completed");
-					// MEE 12/28/2016 - moved shutter from CredenceService to here in the client
+
+					// On capture play a "click" sound, similar to sound when an imae is capture via
+					// a camera.
 					Beeper.getInstance().click();
 					enableCapture(false);
-					convertToKind7(mPathnameLeft, mPathnameRight);
+
+					// Convert both images to NIST Kind7 format.
+					convertToKind7(mLeftEyeImagePath, mRightEyeImagePath);
 				}
 
-				if (result == ResultCode.INTERMEDIATE && (status != null && status.equals("Capture Stopped"))) {
+
+				// If sensor is still capturing, and it suddenly stops, due to cancel/error we then
+				// reset the capturing state/system.
+				if (result == ResultCode.INTERMEDIATE
+						&& (status != null && status.equals("Capture Stopped"))) {
 					resetCapture();
 					enableCapture(true);
 				}
 
-				// If result failed
+				// If sensor failed to capture, notify user, and reset.
 				if (result == ResultCode.FAIL) {
 					Log.e(TAG, "onIrisesCaptured - FAILED");
-					// Let user know captured failed
+
+					// Let user know captured failed.
 					setStatusText("Iris Captured Open-FAILED");
 					mCloseBtn.setEnabled(false);
 					enableCapture(true);
@@ -208,22 +246,22 @@ public class IrisPage extends LinearLayout implements PageView {
 			}
 
 			@Override
-			public void onCloseIrisScanner(ResultCode resultCode, CloseReasonCode closeReasonCode) {
+			public void onCloseIrisScanner(ResultCode resultCode,
+										   CloseReasonCode closeReasonCode) {
 				if (resultCode == ResultCode.OK) {
-					// Log output for debugging
-					Log.d(TAG, "Iris Scanner closed: " + closeReasonCode.toString());
-					resetCapture();
 					// Let uesr know why scanner reader closed
-					setStatusText("Iris Scanner closed: " + closeReasonCode.toString());
+					setStatusText("Iris Scanner Closed: " + closeReasonCode.toString());
+
+					resetCapture();
 					enableCapture(true);
-					// Make close button unclickable, since the scanner has just closed
+
+					// Disable close button since there is nothing to re-close.F
 					mCloseBtn.setEnabled(false);
 				} else if (resultCode == ResultCode.FAIL) {
 					mCloseBtn.setEnabled(true);
 					mCaptureBtn.setEnabled(false);
-					Log.d(TAG, "Iris Scanner closed: FAILED");
-					// Let uesr know why scanner reader closed
-					setStatusText("Iris Scanner closed: FAILED");
+
+					setStatusText("Iris Scanner FAILED to close.");
 				}
 			}
 		});
@@ -231,90 +269,101 @@ public class IrisPage extends LinearLayout implements PageView {
 		mCloseBtn.setEnabled(true);
 	}
 
-	// Enable/disable capture by updating Capture button based on parameter
-	private void enableCapture(boolean enable) {
-		// Enable capture by turning on capture button for user
+	// Enable/disable capture by updating Capture button based on parameter.
+	private void
+	enableCapture(boolean enable) {
 		mCaptureBtn.setEnabled(enable);
 		mCapturing = !enable;
 	}
 
-	// Resets capture state
-	private void resetCapture() {
+	// Resets capture state.
+	private void
+	resetCapture() {
 		mCaptureRight.setImageDrawable(null);
 		mCaptureLeft.setImageDrawable(null);
-		mPathnameLeft = null;
-		mPathnameRight = null;
-		setInfoText("");
+		mLeftEyeImagePath = null;
+		mRightEyeImagePath = null;
+
+		this.setInfoText("");
 	}
 
 	// Closes Iris Scanner and puts state back to Close state
-	private void onClose() {
-		resetCapture();
-		enableCapture(true);
+	private void
+	onClose() {
+		this.resetCapture();
+		this.enableCapture(true);
 
 		// Turn off close button since we are going to close everything
 		mCloseBtn.setEnabled(false);
-
 		// Disable capture button to avoid double clicks
 		mCaptureBtn.setEnabled(false);
-
-		setStatusText("Closing scanner, Please wait...");
-
+		// Notify user scanner is closing.
+		this.setStatusText("Closing Iris scanner, Please wait...");
 		// Close Iris Scanner
 		mBiometrics.closeIrisScanner();
 	}
 
-	// Calls the convertToKind7 API call
-	private void convertToKind7(String left_pathname, String right_pathname) {
-		uncompressed_size = 0;
-		String pathname = left_pathname != null ? left_pathname : right_pathname;
+	// Calls the convertToKind7 API call.
+	private void
+	convertToKind7(String left_pathname,
+				   String right_pathname) {
+		mUncompressedImageSize = 0;
+
+		// If left path is invalid it then uses right. If right path is invalid then API call
+		// will return back with FAIL.
+		String pathname = (left_pathname != null ? left_pathname : right_pathname);
+
 		if (pathname != null) {
 			File uncompressed = new File(pathname);
-			if (uncompressed.exists()) {
-				uncompressed_size = uncompressed.length();
-			}
+			if (uncompressed.exists())
+				mUncompressedImageSize = uncompressed.length();
 		}
-		start_time = SystemClock.elapsedRealtime();
-		mBiometrics.convertToKind7(left_pathname, right_pathname, new OnConvertToKind7Listener() {
-			@Override
-			public void onConvertToKind7(ResultCode result, String pathnameLeft,
-										 IrisQuality iqLeft, String pathnameRight, IrisQuality iqRight) {
-				if (result == ResultCode.INTERMEDIATE) {
-					setInfoText("Algorithms initializing...");
-				} else if (result == ResultCode.FAIL) {
-					setInfoText("Convert to Kind7 failed");
-				} else {
-					compressed_size = 0;
-					String pathname = pathnameLeft != null ? pathnameLeft : pathnameRight;
-					if (pathname != null) {
-						File compressed = new File(pathname);
-						if (compressed.exists()) {
-							compressed_size = compressed.length();
+
+		mKind7ConvertStartTime = SystemClock.elapsedRealtime();
+
+		mBiometrics.convertToKind7(left_pathname, right_pathname,
+				(ResultCode result,
+				 String pathnameLeft,
+				 IrisQuality iqLeft,
+				 String pathnameRight,
+				 IrisQuality iqRight) -> {
+
+					if (result == ResultCode.INTERMEDIATE)
+						setInfoText("Algorithms Initializing...");
+					else if (result == ResultCode.FAIL)
+						setInfoText("Convert to Kind7 failed");
+					else {
+						mCompressedImageSize = 0;
+
+						String path = (pathnameLeft != null ? pathnameLeft : pathnameRight);
+
+						if (path != null) {
+							File compressed = new File(path);
+							if (compressed.exists())
+								mCompressedImageSize = compressed.length();
 						}
+
+						long duration = SystemClock.elapsedRealtime() - mKind7ConvertStartTime;
+
+						String str = String.format(Locale.US,
+								"PNG: %s, Kind7: %s, Duration: %dms",
+								TheApp.abbreviateNumber(mUncompressedImageSize),
+								TheApp.abbreviateNumber(mCompressedImageSize),
+								duration);
+						setInfoText(str);
 					}
-					long duration = SystemClock.elapsedRealtime() - start_time;
-					String str = String.format("PNG: %s, Kind7: %s, Dur: %dms",
-							TheApp.abbreviateNumber(uncompressed_size),
-							TheApp.abbreviateNumber(compressed_size), duration);
-					setInfoText(str);
-				}
-			}
-		});
+				});
 	}
 
-	// Sets the Status TextView based on parameter string
-	private void setStatusText(String text) {
-		if (!text.isEmpty()) {
-			Log.d(TAG, "setStatusText: " + text);
-		}
+	/* Sets StatusTextView text. */
+	private void
+	setStatusText(String text) {
 		mStatusTextView.setText(text);
 	}
 
-	// Sets the Info TextView based on parameter string
-	private void setInfoText(String text) {
-		if (!text.isEmpty()) {
-			Log.d(TAG, "setInfoText: " + text);
-		}
+	/* Sets IntoTextView text. */
+	private void
+	setInfoText(String text) {
 		mInfoTextView.setText(text);
 	}
 }

@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 public class NfcPage extends LinearLayout implements PageView {
-	private static final String TAG = NfcPage.class.getName();
+	private static final String TAG = NfcPage.class.getSimpleName();
 
 	private Biometrics mBiometrics;
 	private String cardReadDetailText;

@@ -45,9 +45,8 @@ import static android.widget.Toast.LENGTH_LONG;
 /* This class uses the second technique of using the CredenceID biometrics, via BiometricsActivity.
  */
 public class SampleActivity
-		extends BiometricsActivity
-		implements SampleContract.View {
-	private static final String TAG = SampleActivity.class.getName();
+		extends BiometricsActivity {
+	private static final String TAG = SampleActivity.class.getSimpleName();
 
 	private static final int MENU_EXIT = Menu.FIRST;
 
@@ -86,12 +85,6 @@ public class SampleActivity
 	private long mOnPauseTime = 0;
 
 	@Override
-	public void
-	setPresenter(SampleContract.Presenter presenter) {
-
-	}
-
-	@Override
 	protected void
 	onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -110,6 +103,8 @@ public class SampleActivity
 	/* Sets application orientation and window flags based on device's screen parameters. */
 	private void
 	initializeScreen() {
+		Log.d(TAG, "initializeScreen()");
+
 		// Setting up screen based on device screen size and resolution.
 		Point size = this.getDisplaySize();
 
@@ -122,9 +117,11 @@ public class SampleActivity
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	}
 
-	/* Method used to load different pages inside layout file. */
+	/* Initialize and find all components from layout file. */
 	private void
 	initializeLayoutComponents() {
+		Log.d(TAG, "initializeLayoutComponents()");
+
 		// Initialize all PageViews.
 		mPageViewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
 		mWebView = (WebView) findViewById(R.id.web_view);
@@ -150,9 +147,11 @@ public class SampleActivity
 		mImageButtonMrzPage = (ImageButton) findViewById(R.id.mrz_reader_btn);
 	}
 
-	/* Method used to load all buttons from layout file. */
+	/* Configures each component along with its onClick action. */
 	private void
 	configureLayoutComponents() {
+		Log.d(TAG, "configureLayoutComponents()");
+
 		mFingerprintPage.setActivity(this);
 		mCameraPage.setActivity(this);
 		mIrisPage.setActivity(this);
@@ -165,7 +164,7 @@ public class SampleActivity
 
 		mImageButtonFingerprintPage.setOnClickListener((View v) -> {
 			setCurrentPage(v, mFingerprintPage);
-			mImageButtonFingerprintPage.setImageResource(R.drawable.ic_aboutoff);
+			mImageButtonAboutPage.setImageResource(R.drawable.ic_aboutoff);
 		});
 
 		mImageButtonCardReaderPage.setOnClickListener((View v) -> {
@@ -204,6 +203,12 @@ public class SampleActivity
 		});
 	}
 
+	/* This method is auto invoked when C-Service binds to this application and initializes.
+	 *
+	 * @param result OK, FAIL
+	 * @param sdk_version CredenceService Version
+	 * @param required_version Minimum required C-Service version to work with this DeviceLib.
+	 */
 	@Override
 	public void
 	onBiometricsInitialized(ResultCode result,
@@ -220,7 +225,7 @@ public class SampleActivity
 			this.showValidPages();
 
 			// Re-display AboutPage since DeviceID and SDKVersion may have changed. This can happen
-			// if CredenceService was previously binded to this application. The service was then
+			// if CredenceService was previously bind to this application. The service was then
 			// uninstalled and re-installed (different version maybe). Now when it re-binds it may
 			// report a different version, etc.
 			this.setCurrentPage(this.mImageButtonAboutPage, mAboutPage);
@@ -228,6 +233,8 @@ public class SampleActivity
 			// Re-initialize MRZ page since it varies based on DeviceType.
 			mMRZReaderPage.setActivity(this);
 
+			// Set peripheral timeout to be 60 seconds, meaning once a peripheral is opened it will
+			// auto-close 60 seconds later.
 			setPreferences("PREF_TIMEOUT", "60", (ResultCode prefResult,
 												  String key,
 												  String value) -> {
@@ -251,9 +258,11 @@ public class SampleActivity
 				return true;
 			}
 
+			// If user is on very first page, page when application launches, if "Back" is pressed
+			// then it should kill the application, since user is technically on first "Activity".
 			if (mImageButtonCurrentPage == mImageButtonAboutPage) {
 				Log.d(TAG, "Closing application.");
-				onExit();
+				this.onExit();
 				return true;
 			}
 		}
@@ -268,7 +277,7 @@ public class SampleActivity
 		mOnPauseTime = SystemClock.elapsedRealtime();
 
 		// Only CameraPage requires deactivate to also happen on "onPause()" because in Android the
-		// camera resource needs to be "let go of" so other apps, etc. may use it.
+		// mCamera resource needs to be "let go of" so other apps, etc. may use it.
 		if (mCurrentPageView == mCameraPage)
 			mCurrentPageView.deactivate();
 	}
@@ -314,7 +323,7 @@ public class SampleActivity
 	@Override
 	protected void
 	onActivityResult(int requestCode, int resultCode, Intent data) {
-		/* Give BiometricsManager a chance to process onActivityResult. */
+		// Give BiometricsManager a chance to process onActivityResult.
 		TheApp.getInstance().getBiometricsManager().onActivityResult(requestCode, resultCode, data);
 	}
 
@@ -324,10 +333,13 @@ public class SampleActivity
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
-		Log.d(TAG, "getDisplaySize - width: " + size.x + ", height: " + size.y);
 		return size;
 	}
 
+	/* Enable or disable buttons that allow user to navigate between pages.
+	 *
+	 * @param enable If true, then buttons are enabled. If false, buttons are disabled.
+	 */
 	private void
 	setGlobalButtonEnable(boolean enable) {
 		setButtonEnable(mImageButtonAboutPage, enable);
@@ -340,9 +352,15 @@ public class SampleActivity
 		setButtonEnable(mImageButtonMrzPage, enable);
 	}
 
+	/* Enable or disable a single ImageButton.
+	 *
+	 * @param button Button object to set enable of.
+	 * @param enabled If true, then buttons are enabled. If false, buttons are disabled.
+	 */
 	private void
 	setButtonEnable(ImageButton button, boolean enabled) {
-		if (button != null) button.setEnabled(enabled);
+		if (button != null)
+			button.setEnabled(enabled);
 	}
 
 	/* Set visibility of Biometric pages based on device type. */
@@ -354,7 +372,7 @@ public class SampleActivity
 		mImageButtonFingerprintPage.setVisibility(hasFingerprintScanner ? View.VISIBLE : View.GONE);
 
 		boolean hasFaceCameraScanner = prefs.getBoolean("has_face_camera", true);
-		mImageButtonFaceCameraPage.setVisibility(hasFaceCameraScanner ? View.VISIBLE : View.GONE);
+		mImageButtonCameraPage.setVisibility(hasFaceCameraScanner ? View.VISIBLE : View.GONE);
 
 		boolean hasIrisScanner = prefs.getBoolean("has_iris_scanner", true);
 		mImageButtonIrisPage.setVisibility(hasIrisScanner ? View.VISIBLE : View.GONE);
@@ -375,8 +393,8 @@ public class SampleActivity
 		mImageButtonNfcPage.setVisibility(hasNfcCard ? View.VISIBLE : View.GONE);
 	}
 
-	/* Based on what device CredenceService was initialized on, this will save what peripherals
-	 * pages are valid with SharesPreferences.
+	/* Based on what device C-Service was initialized on, this will save what pages are valid.
+	 * Data is saved to "SharedPreferences".
 	 */
 	private void
 	saveValidPages() {
@@ -394,58 +412,64 @@ public class SampleActivity
 		editor.apply();
 	}
 
-	/* Called from menu or device back button to call finalize API and end application. */
+	/* Tells c-Service to unbind from this application and kill all current Biometrics operations.
+	 * It then finishes or exits this application.
+	 */
 	private void
 	onExit() {
-		this.finalizeBiometrics(true);
+		// com.credenceid.biometrics
+		finalizeBiometrics(true);
+
+		// Android built in API
 		finish();
 	}
 
 	/* Sets current page based on which corresponding PageView button was clicked. */
 	private void
 	setCurrentPage(View pageViewButton, View pageView) {
-		/* If application was on Fingerprint/Iris page, we need to cancel any on going captures. */
-		if (this.currentPageView == this.fingerprintPage || this.currentPageView == this.irisPage)
+		// If application was on Fingerprint/Iris page, we need to cancel any on going captures.
+		if (mCurrentPageView == mFingerprintPage || mCurrentPageView == mIrisPage)
 			this.cancelCapture();
-		/* Deactivate current page application was on. */
-		if (this.currentPageView != null) {
-			//            if(currentPageView.getTitle().compareToIgnoreCase("Fingerprint") != 0){
-			this.currentPageView.deactivate();
-			this.currentPageView = null;
-			//            }
+
+		// Deactivate current page application was on.
+		if (mCurrentPageView != null) {
+			mCurrentPageView.deactivate();
+			mCurrentPageView = null;
 		}
-		/* Deactivates old current page's ImageButton. */
+		// Deactivate current page's button.
 		if (this.mImageButtonCurrentPage != null)
 			this.mImageButtonCurrentPage.setActivated(false);
 
-		/* If new button is IN-valid or button is not an ImageButton then we return, since that
-		 * means a non-page view button was pressed.
-		 */
-		if (pageViewButton == null || !(pageViewButton instanceof ImageButton)) {
+		// If new button is invalid or button is not an ImageButton then we return, since that
+		// means a non-page view button was pressed.
+		if (!(pageViewButton instanceof ImageButton)) {
 			this.mImageButtonCurrentPage = null;
 			return;
 		}
-		/* Reaching here means all conditions were valid and met. Set current ImageButton to match
-		 * passed argument and set button as activated.
-		 */
+
+		// Reaching here means all conditions were valid and met. Set current ImageButton to match
+		// passed argument and set button as activated.
 		this.mImageButtonCurrentPage = (ImageButton) pageViewButton;
 		this.mImageButtonCurrentPage.setActivated(true);
 
-		/* Calculate index of page for which PageView we want to switch to. */
-		int index = mPageViewFlipper.indexOfChild(pageView);
-		/* This would only be the case if we pass a custom PageView not belonging to any listed
-		 * inside layout file. Otherwise can set respective page.
-		 */
-		if (index < 0) Log.w(TAG, "invalid view");
+		// Calculate index of page for which PageView we want to switch to.
+		final int index = mPageViewFlipper.indexOfChild(pageView);
+
+		// This would only be the case if we pass a custom PageView not belonging to any listed
+		//inside layout file. Otherwise set respective page.
+		if (index < 0)
+			Log.w(TAG, "invalid view");
 		else {
 			mPageViewFlipper.setDisplayedChild(index);
+
 			if (pageView instanceof PageView) {
-				/* Update our current page variables and activate new page. */
-				currentPageView = (PageView) pageView;
-				currentPageView.activate(this);
-				/* Grab applications title, new Pagees title, and build fill title string. */
+				// Update our current page variables and activate new page.
+				mCurrentPageView = (PageView) pageView;
+				mCurrentPageView.activate(this);
+
+				// Grab applications title, new Pages title, and build title string.
 				String title = getResources().getString(R.string.app_name);
-				String page_title = currentPageView.getTitle();
+				String page_title = mCurrentPageView.getTitle();
 				title += (page_title != null) ? (" - " + page_title) : "";
 				setTitle(title);
 			}
@@ -454,24 +478,26 @@ public class SampleActivity
 
 	/* If user taps on scanned Fingerprint/Iris images, then application zooms in allowing user to
 	 * interact with images in full screen "mode".
+	 *
+	 * String path_name Absolute path to file to display in zoom mode.
 	 */
 	public void
-	showFullScreenScannedImage(String path_name) {
+	showFullScreenImage(String path_name) {
 		if (path_name == null || path_name.isEmpty()) return;
 
-		webView.setVisibility(View.VISIBLE);
-		webView.getSettings().setBuiltInZoomControls(true);
+		mWebView.setVisibility(View.VISIBLE);
+		mWebView.getSettings().setBuiltInZoomControls(true);
 
-		File file = new File(path_name);
-		webView.loadUrl("file:///" + file.getAbsolutePath());
+		mWebView.loadUrl("file:///" + new File(path_name).getAbsolutePath());
 	}
 
-	/*
-	 * If user taps on scanned the fingerprint and it is not save to disk, then application zooms in
-	 * allowing user to interact with images in full screen "mode" with its Bitmap format.
+	/* If user taps on scanned Fingerprint/Iris images, then application zooms in allowing user to
+	 * interact with images in full screen "mode".
+	 *
+	 * Bitmap bitmap Image to display in zoom mode.
 	 */
 	public void
-	showFullScreenScannedImage(Bitmap bitmap) {
+	showFullScreenImage(Bitmap bitmap) {
 		if (bitmap == null)
 			return;
 
@@ -487,12 +513,13 @@ public class SampleActivity
 		String imgageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
 		String image = "data:image/png;base64," + imgageBase64;
 
-		// Use image for the img src parameter in html and load to webview
+		// Use image as HTML image source, then load to WebView.
 		html = html.replace("{IMAGE_PLACEHOLDER}", image);
-		webView.loadData(html, "text/html", null);
+		mWebView.loadData(html, "text/html", null);
 	}
 
-	public CameraPage getFaceCameraPage() {
-		return this.faceCameraPage;
+	public CameraPage
+	getFaceCameraPage() {
+		return mCameraPage;
 	}
 }

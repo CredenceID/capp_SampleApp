@@ -21,7 +21,7 @@ import com.credenceid.sdkapp.models.PageView;
 import java.math.BigInteger;
 
 public class EncryptPage extends LinearLayout implements PageView {
-    private static final String TAG = EncryptPage.class.getName();
+    private static final String TAG = EncryptPage.class.getSimpleName();
 
     private Button buttonGenerate;
     private Button buttonEncrypt;

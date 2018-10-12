@@ -32,7 +32,7 @@ import static com.credenceid.icao.ICAOReadIntermediateCode.DG3;
 
 @SuppressWarnings({"SpellCheckingInspection"})
 public class MrzReaderPage extends LinearLayout implements PageView {
-	private static final String TAG = MrzReaderPage.class.getName();
+	private static final String TAG = MrzReaderPage.class.getSimpleName();
 
 	// Keep track of how many times MRZ/EPassport sensor has been closed.
 	private static int close_cmd_counter = 0;

@@ -21,7 +21,7 @@ import java.io.IOException;
 public class Beeper {
     private final static String CLICK_ASSET = "camera_click.ogg";
     private static Beeper instance;
-    private final String TAG = Beeper.class.getName();
+    private final String TAG = Beeper.class.getSimpleName();
     private final int beepDurationInSeconds = 1;
     private final int sampleRate = 8000;
     private final int sampleCount = beepDurationInSeconds * sampleRate;

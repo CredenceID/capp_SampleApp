@@ -39,7 +39,7 @@ import static com.credenceid.sdkapp.models.CardDataTables.US_ePassport_APDU_tabl
 import static com.credenceid.sdkapp.models.CardDataTables.noAPDU_table;
 
 public class CardReaderPage extends LinearLayout implements PageView {
-	private static final String TAG = CardReaderPage.class.getName();
+	private static final String TAG = CardReaderPage.class.getSimpleName();
 	/* Keeps track of how many times CardReader was opened/closed. */
 	private static int closeCommandCount = 0;
 	private static int openCommandCount = 0;
@@ -122,7 +122,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
 	private Button buttonSyncAsync;
 	private boolean isSyncMode = false;
 	/* Biometrics object for making Credence API calls. */
-	private Biometrics biometrics;
+	private Biometrics mBiometrics;
 
 	public CardReaderPage(Context context) {
 		super(context);
@@ -282,11 +282,11 @@ public class CardReaderPage extends LinearLayout implements PageView {
 
 	@Override
 	public void activate(Biometrics biometrics) {
-		this.biometrics = biometrics;
+		mBiometrics = biometrics;
 		/* Every time we activate this page we need to register the card status change listener,
 		 * since we unregister it during deactivate().
 		 */
-		this.biometrics.registerCardStatusListener(this.onCardStatusListener);
+		mBiometrics.registerCardStatusListener(this.onCardStatusListener);
 	}
 
 	@Override
@@ -307,7 +307,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
 	/* Connect to card. Assume card reader is already open. */
 	public void connectCardReader() {
 		textViewStatus.setText(R.string.connecting);
-		boolean cardConnected = this.biometrics.cardConnectSync(5000);
+		boolean cardConnected = mBiometrics.cardConnectSync(5000);
 		if (cardConnected) {
 			textViewStatus.setText(R.string.connected);
 			buttonConnectDisconnect.setText(R.string.disconnect);
@@ -320,7 +320,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
 	/* Disconnect to card. Assume card reader is already open. */
 	public void disConnectCardReader() {
 		textViewStatus.setText(R.string.disconnecting);
-		boolean cardDisconnected = this.biometrics.cardDisconnectSync(5000);
+		boolean cardDisconnected = mBiometrics.cardDisconnectSync(5000);
 		if (cardDisconnected) {
 			textViewStatus.setText(R.string.disconnected);
 			buttonConnectDisconnect.setText(R.string.connect);
@@ -336,7 +336,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
 		textViewStatus.setText(R.string.opening_card_reader);
 		openCommandCount = 0;
 
-		this.biometrics.cardOpenCommand(new CardReaderStatusListener() {
+		mBiometrics.cardOpenCommand(new CardReaderStatusListener() {
 			@Override
 			public void onCardReaderOpen(ResultCode resultCode) {
 				/* Increase counter of how many times card has been opened. */
@@ -371,7 +371,7 @@ public class CardReaderPage extends LinearLayout implements PageView {
 	private void closeCardReader() {
 		textViewStatus.setText(R.string.closing_card_reader);
 		closeCommandCount = 0;
-		this.biometrics.cardCloseCommand();
+		mBiometrics.cardCloseCommand();
 	}
 
 	/* Update buttons state based on parameter. */

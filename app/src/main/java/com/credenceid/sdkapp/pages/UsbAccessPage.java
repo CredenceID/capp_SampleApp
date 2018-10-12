@@ -14,7 +14,7 @@ import com.credenceid.sdkapp.R;
 import com.credenceid.sdkapp.models.PageView;
 
 public class UsbAccessPage extends LinearLayout implements PageView {
-    private static final String TAG = UsbAccessPage.class.getName();
+    private static final String TAG = UsbAccessPage.class.getSimpleName();
 
     private Biometrics mBiometrics;
     private TextView mStatusTextView;

@@ -62,30 +62,61 @@ public class AboutPage
 		this.initialize(context);
 	}
 
-	public AboutPage(Context context, AttributeSet attrs) {
+	public AboutPage(Context context,
+					 AttributeSet attrs) {
 		super(context, attrs);
 		this.initialize(context);
 	}
 
-	public AboutPage(Context context, AttributeSet attrs, int defStyle) {
+	public AboutPage(Context context,
+					 AttributeSet attrs,
+					 int defStyle) {
 		super(context, attrs, defStyle);
 		this.initialize(context);
 	}
 
-	private void initialize(Context context) {
-		Log.d(TAG, "initialize");
+	private void
+	initialize(Context context) {
+		Log.d(TAG, "initialize(Context)");
 
 		this.context = context;
 
-		LayoutInflater li = (LayoutInflater) getContext()
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		li.inflate(R.layout.page_about, this, true);
 
 		this.initializeLayoutComponents();
+		this.configureLayoutComponents();
+
+		// Create new instance of BiometricsManager.
+		BiometricsManagerInstance.getInstance();
+	}
+
+	private void
+	initializeLayoutComponents() {
+		Log.d(TAG, "initializeLayoutComponents()");
+
+		this.textViewBiometricsManagerProductName = (TextView) findViewById(R.id.product_name_man);
+		this.textViewBiometricsManagerSdkVersion = (TextView) findViewById(R.id.cid_service_version_man);
+		this.textViewBiometricsManagerDeviceLibJarVersion = (TextView) findViewById(R.id.device_lib_version_man);
+
+		this.textViewProductName = (TextView) findViewById(R.id.textview_product_name);
+		this.textViewDeviceID = (TextView) findViewById(R.id.textview_device_id);
+		this.textViewSdkVersion = (TextView) findViewById(R.id.textview_cid_service_version);
+		this.textViewDeviceLibJarVersion = (TextView) findViewById(R.id.textview_device_lib_version);
+		this.textViewLicenseStatus = (TextView) findViewById(R.id.textview_license_status);
 
 		this.textViewGetPreferencesValue = (TextView) findViewById(R.id.get_pref_value);
-
 		this.spinnerGetPreferencesKey = (Spinner) findViewById(R.id.get_pref_name);
+		this.spinnerSetPreferencesKey = (Spinner) findViewById(R.id.set_pref_name);
+	}
+
+	private void
+	configureLayoutComponents() {
+		Log.d(TAG, "configureLayoutComponents()");
+
+		TextView textViewAppVersion = (TextView) findViewById(R.id.textview_app_version);
+		textViewAppVersion.setText(getPackageVersion());
+
 		this.spinnerGetPreferencesKey.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -93,21 +124,15 @@ public class AboutPage
 			}
 
 			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				// TODO Auto-generated method stub
-
-			}
+			public void onNothingSelected(AdapterView<?> parent) { }
 		});
 
-		this.spinnerSetPreferencesKey = (Spinner) findViewById(R.id.set_pref_name);
 		this.spinnerSetPreferencesKey.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-			}
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { }
 
 			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-			}
+			public void onNothingSelected(AdapterView<?> parent) { }
 		});
 
 		Spinner spinnerSetPreferencesValue = (Spinner) findViewById(R.id.set_pref_value);
@@ -127,45 +152,29 @@ public class AboutPage
 			public void onNothingSelected(AdapterView<?> parent) {
 			}
 		});
-
-		/* Call our singleton for BiometricsManager. This will cause BiometricsManager to
-		 * initialize.
-		 */
-		BiometricsManagerInstance.getInstance();
-	}
-
-	private void initializeLayoutComponents() {
-		TextView textViewAppVersion = (TextView) findViewById(R.id.app_version);
-		textViewAppVersion.setText(getPackageVersion());
-
-		this.textViewProductName = (TextView) findViewById(R.id.product_name);
-		this.textViewDeviceID = (TextView) findViewById(R.id.device_id);
-		this.textViewSdkVersion = (TextView) findViewById(R.id.sdk_version);
-		this.textViewDeviceLibJarVersion = (TextView) findViewById(R.id.device_library_version);
-		this.textViewLicenseStatus = (TextView) findViewById(R.id.license_status);
-
-		this.textViewBiometricsManagerProductName = (TextView) findViewById(R.id.product_name_man);
-		this.textViewBiometricsManagerSdkVersion = (TextView) findViewById(R.id.sdk_version_man);
-		this.textViewBiometricsManagerDeviceLibJarVersion = (TextView) findViewById(R.id.device_library_version_man);
 	}
 
 	/* Get this application's version number through manifest file. */
-	private String getPackageVersion() {
+	private String
+	getPackageVersion() {
+		Log.d(TAG, "getPackageVersion()");
+
 		String version = "???";
 		try {
-			PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+			PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
 			version = pInfo.versionName;
 		} catch (NameNotFoundException e) {
 			Log.w(TAG, "getVersion - " + e.getMessage());
 		} catch (Exception e1) {
 			Log.w(TAG, "getVersion - " + e1.getMessage());
 		}
+
 		return version;
 	}
 
 	@Override
 	public void activate(Biometrics biometrics) {
-		this.biometrics = biometrics;
+		mBiometrics = biometrics;
 		doResume();
 	}
 
@@ -180,18 +189,18 @@ public class AboutPage
 
 	@Override
 	public void doResume() {
-		Log.w(TAG, "doResume - DeviceId: " + this.biometrics.getDeviceId());
+		Log.w(TAG, "doResume - DeviceId: " + mBiometrics.getDeviceId());
 
-		this.biometrics.checkAlgorithmLicenses(onCheckAlgorithmLicensesListener);
+		mBiometrics.checkAlgorithmLicenses(onCheckAlgorithmLicensesListener);
 
-		this.textViewProductName.setText(this.biometrics.getProductName());
-		this.textViewDeviceID.setText(this.biometrics.getDeviceId());
-		this.textViewSdkVersion.setText(this.biometrics.getSDKVersion());
-		this.textViewDeviceLibJarVersion.setText(this.biometrics.getDeviceLibraryVersion());
+		this.textViewProductName.setText(mBiometrics.getProductName());
+		this.textViewDeviceID.setText(mBiometrics.getDeviceId());
+		this.textViewSdkVersion.setText(mBiometrics.getSDKVersion());
+		this.textViewDeviceLibJarVersion.setText(mBiometrics.getDeviceLibraryVersion());
 
-		this.textViewBiometricsManagerProductName.setText(this.biometrics.getProductName());
-		this.textViewBiometricsManagerSdkVersion.setText(this.biometrics.getSDKVersion());
-		this.textViewBiometricsManagerDeviceLibJarVersion.setText(this.biometrics.getDeviceLibraryVersion());
+		this.textViewBiometricsManagerProductName.setText(mBiometrics.getProductName());
+		this.textViewBiometricsManagerSdkVersion.setText(mBiometrics.getSDKVersion());
+		this.textViewBiometricsManagerDeviceLibJarVersion.setText(mBiometrics.getDeviceLibraryVersion());
 
 		Log.w(TAG, "doInBackground - getPreferences");
 		getPreferences(spinnerGetPreferencesKey.getSelectedItem().toString());
@@ -201,9 +210,9 @@ public class AboutPage
 	private void getPreferences(String name) {
 		Log.w(TAG, "getPreferences: " + name);
 
-		if (this.biometrics == null) return;
+		if (mBiometrics == null) return;
 
-		this.biometrics.getPreferences(name, new PreferencesListener() {
+		mBiometrics.getPreferences(name, new PreferencesListener() {
 			@Override
 			public void onPreferences(ResultCode result, String key, String value) {
 				Log.w(TAG, "onPreferences: " + key + ", " + value);
@@ -220,9 +229,9 @@ public class AboutPage
 	private void setPreferences(String name, String value) {
 		Log.w(TAG, "setPreferences: " + name + ", " + value);
 
-		if (this.biometrics == null) return;
+		if (mBiometrics == null) return;
 
-		this.biometrics.setPreferences(name, value, new PreferencesListener() {
+		mBiometrics.setPreferences(name, value, new PreferencesListener() {
 			@Override
 			public void onPreferences(ResultCode result, String key, String value) {
 				Log.w(TAG, "onPreferences: " + key + ", " + value);

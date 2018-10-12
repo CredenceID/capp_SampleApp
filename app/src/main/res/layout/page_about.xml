@@ -55,7 +55,7 @@
                 android:text="@string/cid_service_version_label"/>
 
             <TextView
-                android:id="@+id/textview_cid_service_version"
+                android:id="@+id/cid_service_version_man"
                 style="@style/TextInfo"
                 android:layout_marginStart="5dp"/>
         </LinearLayout>
@@ -70,7 +70,7 @@
                 android:text="@string/device_lib_version_label"/>
 
             <TextView
-                android:id="@+id/textview_device_lib_version"
+                android:id="@+id/device_lib_version_man"
                 style="@style/TextInfo"
                 android:layout_marginStart="5dp"/>
         </LinearLayout>
@@ -132,7 +132,7 @@
                 android:text="@string/cid_service_version_label"/>
 
             <TextView
-                android:id="@+id/textview_cid_service_version_two"
+                android:id="@+id/textview_cid_service_version"
                 style="@style/TextInfo"
                 android:layout_marginStart="5dp"/>
         </LinearLayout>
@@ -147,7 +147,7 @@
                 android:text="@string/device_lib_version_label"/>
 
             <TextView
-                android:id="@+id/textview_device_lib_version_two"
+                android:id="@+id/textview_device_lib_version"
                 style="@style/TextInfo"
                 android:layout_marginStart="5dp"/>
         </LinearLayout>

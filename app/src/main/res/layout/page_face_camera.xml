@@ -92,9 +92,9 @@
             android:layout_weight="1" />
 
         <ImageButton
-            android:id="@+id/right_side_button"
+            android:id="@+id/camera_flip_button"
             style="@style/MenuImageButton"
-            android:src="@drawable/icon_check"
+            android:src="@drawable/icon_camera_flip"
             android:visibility="invisible" />
     </LinearLayout>
 
