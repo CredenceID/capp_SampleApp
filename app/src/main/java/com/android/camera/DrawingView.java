@@ -14,28 +14,41 @@ public class DrawingView extends View {
 	@SuppressWarnings("unused")
 	private final static String TAG = DrawingView.class.getSimpleName();
 
+	// Purposely use two separate paints, one for TapToFocus and another for drawing face Rect.
+	// TapToFocus is drawn with white paint and face Rect. with green. We could use the same object,
+	// but change the
+	private Paint mTouchPaint;
+	private Paint mFacePaint;
+
 	// Tells us if user touched view
 	private boolean mHaveTouch;
 	// Rect to hold our user touched area
 	private Rect mTouchArea;
-	// Paint color of strokes
-	private Paint mPaint;
+
 	// Scaling used for displaying face Rect.
 	private float mBitmapScale;
 	// Rect. containing found face region.
 	private RectF mFaceRect;
 	// If true, View will draw "mFaceRect" to surface.
 	private boolean mHasFace;
+	// Used for calculating "true" width of detected face Rect. We need to take into account the
+	// given Bitmap image width vs. DrawingView Layout width.
 	private int mFaceImageWidth;
 
 	public DrawingView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
-		mPaint = new Paint();
-		mPaint.setColor(Color.GREEN);
-		mPaint.setStyle(Paint.Style.STROKE);
-		mPaint.setStrokeWidth(2);
-		mPaint.setAntiAlias(true);
+		mTouchPaint = new Paint();
+		mTouchPaint.setColor(Color.GREEN);
+		mTouchPaint.setStyle(Paint.Style.STROKE);
+		mTouchPaint.setStrokeWidth(2);
+		mTouchPaint.setAntiAlias(true);
+
+		mFacePaint = new Paint();
+		mFacePaint.setColor(Color.GREEN);
+		mFacePaint.setStyle(Paint.Style.STROKE);
+		mFacePaint.setStrokeWidth(2);
+		mFacePaint.setAntiAlias(true);
 
 		mHaveTouch = false;
 		mHasFace = false;
@@ -51,23 +64,15 @@ public class DrawingView extends View {
 			// Grab CENTER coordinates of touch
 			int x = (mTouchArea.left + mTouchArea.right) / 2;
 			int y = (mTouchArea.top + mTouchArea.bottom) / 2;
-			// Set our PAINT parameters
-			mPaint.setColor(Color.WHITE);
-			mPaint.setStrokeWidth(4f);
 
 			// Draw circle at x, y with radius 55 and paint Green.
 			int mTapToFocusRadius = 75;
-			canvas.drawCircle(x, y, mTapToFocusRadius, mPaint);
+			canvas.drawCircle(x, y, mTapToFocusRadius, mTouchPaint);
 		}
 
 		// If face was found, then draw face rect.
-		if (mHasFace) {
-			// Set paint color appropriately
-			mPaint.setColor(Color.GREEN);
-			mPaint.setStrokeWidth(4f);
-
-			canvas.drawRoundRect(mFaceRect, 10, 10, mPaint);
-		}
+		if (mHasFace)
+			canvas.drawRoundRect(mFaceRect, 10, 10, mFacePaint);
 	}
 
 	// This function is to be called when a user touch event is detected, it tells the DrawingView

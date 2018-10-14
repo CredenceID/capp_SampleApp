@@ -48,6 +48,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.hardware.Camera.Parameters.FLASH_MODE_OFF;
+import static android.hardware.Camera.Parameters.FLASH_MODE_TORCH;
 import static android.media.ExifInterface.TAG_ORIENTATION;
 
 public class CameraPage
@@ -83,7 +85,6 @@ public class CameraPage
 	private TextView mStatusTextView;
 
 	private Bitmap mFinalBitmap = null;
-	private byte[] mCameraPreviewBuffer;
 
 	private boolean mInPreview = false;
 	private boolean mIsLive = false;
@@ -109,7 +110,8 @@ public class CameraPage
 			Log.d(TAG, "onPreviewFrame()");
 
 			detectFace(data);
-			camera.addCallbackBuffer(mCameraPreviewBuffer);
+
+			//camera.addCallbackBuffer(mCameraPreviewBuffer);
 		}
 	};
 
@@ -152,7 +154,7 @@ public class CameraPage
 	initialize() {
 		LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		//noinspection ConstantConditions
-		layoutInflater.inflate(R.layout.page_face_camera, this, true);
+		layoutInflater.inflate(R.layout.page_camera, this, true);
 
 		this.initializeLayoutComponents();
 		this.configureLayoutComponents();
@@ -160,7 +162,6 @@ public class CameraPage
 		this.resetInternal();
 		this.updateFlashButtons();
 		this.setStatusText("");
-		this.doPreview();
 	}
 
 	private void
@@ -229,17 +230,17 @@ public class CameraPage
 		mIsFrontCameraEnabled = false;
 
 		this.setFlashButtonVisibility(true);
-		this.resetInternal();
-		this.doPreview();
 		this.updateFlashButtons();
 		this.setStatusText("");
+		this.resetInternal();
+		this.doPreview();
 	}
 
 	@Override
 	public void
 	deactivate() {
 		if (mCamera != null) {
-			setFlashMode(false);
+			this.setFlashMode(false);
 
 			if (mInPreview)
 				mCamera.stopPreview();
@@ -249,10 +250,11 @@ public class CameraPage
 			mInPreview = false;
 			Log.d(TAG, "deactivate: ->>>Camera - null + inPreview = false");
 		}
+
 		Log.d(TAG, "deactivate: ->>>Camera - Deactivate is Called");
-		resetMisc();
+		this.resetMisc();
 		mSurfaceHolder.removeCallback(this);
-		surfaceDestroyed(mSurfaceHolder);
+		this.surfaceDestroyed(mSurfaceHolder);
 	}
 
 	@Override
@@ -283,7 +285,7 @@ public class CameraPage
 	surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 		Log.d(TAG, "surfaceChanged(W: )" + width + ", H: " + height + ")");
 
-		if (mCamera != null) {
+		if (mCamera == null) {
 			Log.w(TAG, "Camera object is NULL, will not set up preview.");
 			return;
 		}
@@ -311,15 +313,16 @@ public class CameraPage
 	@Override
 	public void
 	surfaceDestroyed(SurfaceHolder holder) {
+		Log.d(TAG, "surfaceDestroyed(SurfaceHolder)");
+
 		if (mCamera != null) {
-			Log.d(TAG, "surfaceDestroyed mCamera is not null");
 			if (mInPreview)
 				mCamera.stopPreview();
+
 			mCamera.release();
 			mCamera = null;
-			mInPreview = false;
-		} else
-			Log.d(TAG, "surfaceDestroyed mCamera is null.");
+			 mInPreview = false;
+		}
 	}
 
 	private void
@@ -364,10 +367,6 @@ public class CameraPage
 			size.width = FACEENGINE_PREVIEW_WIDTH;
 			size.height = FACEENGINE_PREVIEW_HEIGHT;
 
-			mCameraPreviewBuffer = new byte[size.width * size.height *
-					ImageFormat.getBitsPerPixel(
-							mCamera.getParameters().getPreviewFormat()) / 8];
-
 			if (TheApp.getDeviceFamily() == DeviceFamily.TRIDENT) {
 				mPreviewFrameLayout.setAspectRatio((size.height) / (double) (size.width));
 				parameters.setZoom(0);
@@ -382,11 +381,9 @@ public class CameraPage
 				Camera.Size picSize = CameraUtils.getLargestPictureSize(parameters);
 				parameters.setPictureSize(picSize.width, picSize.height);
 
-				Log.i(TAG, "PreviewFrameLayout: " + mPreviewFrameLayout.getLayoutParams().toString());
-
 				ViewGroup.LayoutParams params = mDrawingView.getLayoutParams();
-				params.width = size.width * 3;
-				params.height = size.height * 3;
+				params.width = (int) (size.width * 2.5);
+				params.height = (int) (size.height * 2.5);
 				mDrawingView.setLayoutParams(params);
 
 				// We need to set FaceEngine specific bitmap size so DrawingView knows
@@ -402,8 +399,6 @@ public class CameraPage
 
 				ViewGroup.LayoutParams prevParams = mPreviewFrameLayout.getLayoutParams();
 				ViewGroup.LayoutParams params = mDrawingView.getLayoutParams();
-
-				Log.i(TAG, "preview: " + prevParams.width + " x " + prevParams.height);
 
 				params.width = prevParams.width;
 				params.height = prevParams.height;
@@ -434,8 +429,6 @@ public class CameraPage
 
 		try {
 			if (mCamera == null) {
-				Log.d(TAG, "page_type was face");
-
 				if (TheApp.getDeviceFamily() == DeviceFamily.CTAB && mIsFrontCameraEnabled) {
 					Log.d(TAG, "Opening front camera.");
 					mCamera = CameraUtils.openFrontFacingCamera();
@@ -451,12 +444,14 @@ public class CameraPage
 
 			if (mCamera != null) {
 				Log.d(TAG, "Camera opened, setting preview buffers, surfaces, etc.");
-
 				mCamera.setPreviewDisplay(mSurfaceHolder);
-				mCamera.addCallbackBuffer(mCameraPreviewBuffer);
-				mCamera.setPreviewCallbackWithBuffer(mCameraPreviewCallback);
-
 				this.setCameraDisplayOrientation();
+
+//				mCamera.addCallbackBuffer(mCameraPreviewBuffer);
+//				mCamera.setPreviewCallbackWithBuffer(mCameraPreviewCallback);
+
+				mCamera.setPreviewCallback(mCameraPreviewCallback);
+
 				this.startPreview();
 				mInPreview = true;
 			}
@@ -474,8 +469,10 @@ public class CameraPage
 	setPreviewSize(int width, int height, double ratio) {
 		Camera.Parameters parameters = mCamera.getParameters();
 		parameters.setPreviewSize(width, height);
+
 		//set picture size for mCamera
-		parameters.setPictureSize(width, height);
+		//parameters.setPictureSize(width, height);
+
 		mPreviewFrameLayout.setAspectRatio(ratio);
 		mCamera.setParameters(parameters);
 	}
@@ -491,13 +488,15 @@ public class CameraPage
 			mScannedImageView.setVisibility(VISIBLE);
 
 			mCamera.startPreview();
+
 			mInPreview = true;
 			mCaptureButton.setImageResource(R.drawable.button_capture);
 			mCaptureButton.setVisibility(VISIBLE);
 		} else Log.w(TAG, "Camera not configured, aborting start preview.");
 	}
 
-	private void setCameraDisplayOrientation() {
+	private void
+	setCameraDisplayOrientation() {
 		if (mBiometrics.getProductName().equals(getResources().getString(R.string.trident1_product_name)))
 			mCamera.setDisplayOrientation(0);
 		else if (mBiometrics.getProductName().equals(getResources().getString(R.string.trident2_product_name)))
@@ -521,6 +520,8 @@ public class CameraPage
 	}
 
 	public void resetInternal() {
+		Log.d(TAG, "resetInternal()");
+
 		mInPreview = true;
 
 		if (mFinalBitmap != null)
@@ -531,8 +532,9 @@ public class CameraPage
 		mDrawingView.setVisibility(VISIBLE);
 		mScannedImageView.setVisibility(VISIBLE);
 
-		setControlButtonVisibility(true);
 		mCaptureButton.setImageResource(R.drawable.button_capture);
+
+		this.setControlButtonVisibility(true);
 	}
 
 	/*
@@ -621,8 +623,23 @@ public class CameraPage
 
 	private void
 	flashControl(boolean useFlash) {
-		if (mCamera != null)
+		Log.d(TAG, "flashControl(" + useFlash + ")");
+
+		if (mCamera == null)
+			return;
+
+		DeviceFamily deviceFamily = TheApp.getDeviceFamily();
+		if (deviceFamily == DeviceFamily.CTAB || deviceFamily == DeviceFamily.TRIDENT)
 			mBiometrics.cameraFlashControl(useFlash);
+		else {
+			try {
+				Camera.Parameters p = mCamera.getParameters();
+				p.setFlashMode(useFlash ? FLASH_MODE_TORCH : FLASH_MODE_OFF);
+				mCamera.setParameters(p);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private void
@@ -792,9 +809,15 @@ public class CameraPage
 		return ImageTools.Editor.Rotate(realImage, rotation);
 	}
 
+	/* Attempts to detect face Rect. region in given image.
+	 *
+	 * @param bitmapBytes Bitmap image in byte format to run detection on.
+	 */
 	private void
-	detectFace(byte[] frameData) {
-		if (mCamera == null)
+	detectFace(byte[] bitmapBytes) {
+		// If camera was closed, immediately after a preview callback exit out, this is to prevent
+		// NULL pointer exceptions when using the camera object later on.
+		if (mCamera == null || bitmapBytes == null)
 			return;
 
 		// We need to stop camera preview callbacks from continuously being invoked while processing
@@ -810,12 +833,14 @@ public class CameraPage
 		//
 		// Using this technique does not drop camera frame-rate, so camera does not look "laggy".
 		// Instead now we use every 5-th frame for face detection.
-		mCamera.setPreviewCallbackWithBuffer(null);
+		//mCamera.setPreviewCallbackWithBuffer(null);
+
+		mCamera.setPreviewCallback(null);
 
 		// Need to fix color format of raw camera preview frames.
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		Rect rect = new Rect(0, 0, 320, 240);
-		YuvImage yuvimage = new YuvImage(frameData, ImageFormat.NV21, 320, 240, null);
+		YuvImage yuvimage = new YuvImage(bitmapBytes, ImageFormat.NV21, 320, 240, null);
 		yuvimage.compressToJpeg(rect, 100, outStream);
 		// Save fixed color image as final good Bitmap.
 		mFinalBitmap = BitmapFactory.decodeByteArray(outStream.toByteArray(), 0, outStream.size());
@@ -824,36 +849,39 @@ public class CameraPage
 //			mFinalBitmap = ImageTools.Editor.Rotate(mFinalBitmap, 90);
 //		}
 
-		mBiometricsManger.detectFace(mFinalBitmap,
-				(Biometrics.ResultCode resultCode, RectF rectF) -> {
-					if (mCamera == null || !mInPreview)
-						return;
+		// Detect face on finalized Bitmap image.
+		mBiometricsManger.detectFace(mFinalBitmap, (Biometrics.ResultCode resultCode,
+													RectF rectF) -> {
+			// If camera was closed or preview stopped, immediately exit out. This is done so that
+			// we do not continue to process invalid frames, or draw to NULL surfaces.
+			if (mCamera == null || !mInPreview)
+				return;
 
-					mCamera.addCallbackBuffer(mCameraPreviewBuffer);
-					mCamera.setPreviewCallbackWithBuffer(mCameraPreviewCallback);
+			// Tell camera to start preview callbacks again.
+			mCamera.setPreviewCallback(mCameraPreviewCallback);
 
-					Log.i(TAG, "FaceEngine result: " + resultCode);
+			if (resultCode == Biometrics.ResultCode.OK) {
+				// Tell view that it will need to draw a detected face's Rect. region.
+				mDrawingView.faceEngineSetHasFace(true);
 
-					if (resultCode == Biometrics.ResultCode.OK) {
-						mDrawingView.faceEngineSetHasFace(true);
+				if (TheApp.getDeviceFamily() == DeviceFamily.CTWO) {
+					mDrawingView.faceEngineSetFaceRect(rectF.left + 40,
+							rectF.top - 50,
+							rectF.right + 40,
+							rectF.bottom - 50);
+				} else {
+					mDrawingView.faceEngineSetFaceRect(rectF.left,
+							rectF.top,
+							rectF.right,
+							rectF.bottom);
+				}
+			} else {
+				// Tell view to not draw face Rect. region on next "onDraw()" call.
+				mDrawingView.faceEngineSetHasFace(false);
+			}
 
-//						if (VIBEApplication.isDeviceOfType(CREDENCE_TWO_FAMILY)) {
-//							mDrawingView.faceEngineSetFaceRect(rectF.left + 40,
-//									rectF.top - 50,
-//									rectF.right + 40,
-//									rectF.bottom - 50);
-//						} else {
-						mDrawingView.faceEngineSetFaceRect(rectF.left,
-								rectF.top,
-								rectF.right,
-								rectF.bottom);
-//						}
-
-						Log.i(TAG, "Face rect: " + rectF);
-
-					} else mDrawingView.faceEngineSetHasFace(false);
-
-					mDrawingView.invalidate();
-				});
+			// Tell view to invoke an "onDraw()".
+			mDrawingView.invalidate();
+		});
 	}
 }
