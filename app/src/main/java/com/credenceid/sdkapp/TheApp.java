@@ -112,7 +112,6 @@ public class TheApp
 			return;
 		}
 
-
 		if (productName.equals("Twizzler")) {
 			mDeviceType = DeviceType.TWIZZLER;
 			mDeviceFamily = DeviceFamily.TWIZZLER;

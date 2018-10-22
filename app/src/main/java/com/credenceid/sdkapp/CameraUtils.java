@@ -1,6 +1,5 @@
 package com.credenceid.sdkapp;
 
-
 import android.hardware.Camera;
 import android.util.Log;
 

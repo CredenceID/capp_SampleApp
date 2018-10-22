@@ -128,7 +128,6 @@ public class CameraPage
 	};
 
 	private boolean mIsCameraConfigured = false;
-	private boolean isRightSizeButtonVisible = false;
 
 	public CameraPage(Context context) {
 		super(context);
@@ -191,6 +190,7 @@ public class CameraPage
 
 		mCameraReverseButton.setVisibility(VISIBLE);
 		mCameraReverseButton.setImageResource(R.drawable.icon_camera_flip);
+
 //		mCameraReverseButton.setOnClickListener((View v) -> {
 //			onClickReverseCamera();
 //			mIsLive = true;
@@ -321,7 +321,7 @@ public class CameraPage
 
 			mCamera.release();
 			mCamera = null;
-			 mInPreview = false;
+			mInPreview = false;
 		}
 	}
 
@@ -519,7 +519,8 @@ public class CameraPage
 		return getContext().getResources().getString(R.string.title_face_camera);
 	}
 
-	public void resetInternal() {
+	public void
+	resetInternal() {
 		Log.d(TAG, "resetInternal()");
 
 		mInPreview = true;
