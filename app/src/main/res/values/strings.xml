@@ -1,207 +1,44 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="app_name">C-SDKApp</string>
 
-    <string name="app_name">Credence SDK App</string>
-    <string name="app_icon_name">C-SDK</string>
-    <string name="menu_exit">Exit</string>
+	<string name="product_name">Product Name:</string>
+	<string name="device_id">Device ID: </string>
+	<string name="cid_service_version_label">C-Service Version: </string>
+	<string name="device_lib_version_label">DeviceLib Version: </string>
+	<string name="app_version">SDKApp Version: </string>
 
-    <!-- Product Name -->
-    <string name="credence_one_v1_product_name">Credence One V1</string>
-    <string name="credence_one_v2_product_name">Credence One V2</string>
-    <string name="credence_one_v3_product_name">Credence One V3</string>
-    <string name="credence_one_ektp_product_name">Credence One eKTP</string>
+	<string name="open">Open</string>
+	<string name="close">Close</string>
+	<string name="capture">Capture</string>
+	<string name="match">Match</string>
 
-    <string name="credence_two_v1_product_name">Credence Two V1</string>
-    <string name="credence_two_v2_product_name">Credence Two V2</string>
+	<string name="fingerprint_selection_label">
+		Click on a box to select that fingerprint for capture.
+	</string>
+	<string name="fingerprint_one_imageview_label">Fingerprint One</string>>
+	<string name="fingerprint_two_imageview_label">Fingerprint Two</string>
 
-    <string name="credence_trident_fingerprint_sensor_name">WATSON MINI</string>
-    <string name="credence_trident_fingerprint_sensor_type">USB</string>
+	<string name="flash_on_label">Flash On</string>
+	<string name="flash_off_label">Flash Off</string>
+	<string name="capture_label">Capture</string>
+	<string name="recapture_label">Re-Capture</string>
 
-    <string name="credence_tab_fingerprint_sensor_name">COLUMBO</string>
-    <string name="credence_tab_fingerprint_sensor_type">USB</string>
+	<string name="open_mrz">Open MRZ</string>
+	<string name="close_mrz">Close MRZ</string>
+	<string name="open_epassport">Open EPassport</string>
+	<string name="close_epassport">Close EPassport</string>
 
-    <string name="credence_two_fingerprint_sensor_name">COLUMBO</string>
-    <string name="credence_two_fingerprint_sensor_type">PPI</string>
+	<string name="mrz_opening">Opening MRZ reader…</string>
+	<string name="mrz_open_failed">Failed to open MRZ reader.</string>
+	<string name="mrz_opened">MRZ reader is open.</string>
+	<string name="mrz_closed">MRZ Reader is closed.</string>
 
-    <string name="credence_one_usb_fingerprint_sensor_name">COLUMBO</string>
-    <string name="credence_one_usb_fingerprint_sensor_type">USB</string>
+	<string name="epassport_opening">Opening EPassport reader…</string>
+	<string name="epassport_open_failed">Failed to open EPassport reader.</string>
+	<string name="epassport_opened">EPassport reader is open.</string>
+	<string name="epassport_closed">EPassport Reader is closed.</string>
 
-    <string name="credence_one_parallel_fingerprint_sensor_name">COLUMBO</string>
-    <string name="credence_one_parallel_fingerprint_sensor_type">PPI</string>
-
-    <string name="trident1_product_name">Trident-1</string>
-    <string name="trident2_product_name">Trident-2</string>
-
-    <string name="twizzler_product_name">Twizzler</string>
-
-    <string name="credencetab_v1_product_name">Credence TAB V1</string>
-    <string name="credencetab_v2_product_name">Credence TAB V2</string>
-    <string name="credencetab_v3_product_name">Credence TAB V3</string>
-    <string name="credencetab_v4_product_name">Credence TAB V4</string>
-
-    <string name="unknown_product_name">Credence Product</string>
-
-
-    <!-- About -->
-    <string name="global_biometricsmanager">Global BiometricsManager</string>
-    <string name="product_name">Product Name:</string>
-    <string name="device_id">Device ID: </string>
-    <string name="cid_service_version_label">C-Service Version: </string>
-    <string name="device_lib_version_label">DeviceLib Version: </string>
-    <string name="app_version">SDKApp Version: </string>
-    <string name="license_status">License Status: </string>
-    <string name="obtained">Valid</string>
-    <string name="not_obtained">Invalid</string>
-    <string name="obtaining">Processing...</string>
-
-    <!-- Face Camera -->
-    <string name="title_face_camera">Face Camera</string>
-    <string name="preview">Preview</string>
-    <string name="capture">Capture</string>
-    <string name="flash">Flash</string>
-    <string name="image_captured">Image captured</string>
-
-    <string-array name="quality_array">
-        <item>quality 100</item>
-        <item>quality 75</item>
-        <item>quality 50</item>
-        <item>quality 25</item>
-        <item>quality 0</item>
-    </string-array>
-
-    <!-- Fingerprint -->
-    <string name="title_fingerprint">Fingerprint</string>
-    <string name="match">Match</string>
-    <string name="match_function_coming_soon">Match function coming soon</string>
-
-    <string-array name="scan_type">
-        <item>Single finger</item>
-        <item>Two fingers</item>
-        <item>Roll finger</item>
-        <item>Two fingers split</item>
-    </string-array>
-    <string-array name="bitrate_array">
-        <item>bitrate 1.00</item>
-        <item>bitrate 0.75</item>
-        <item>bitrate 0.60</item>
-        <item>bitrate 0.50</item>
-        <item>bitrate 0.40</item>
-        <item>bitrate 0.25</item>
-        <item>bitrate 0.10</item>
-        <item>bitrate 0.0</item>
-    </string-array>
-    <string-array name="save_to_disk_array">
-        <item>Default(Save as PNG)</item>
-        <item>Save as PNG</item>
-        <item>No PNG</item>
-    </string-array>
-    <string name="trident_product_name">Trident</string>
-    <string name="sync">Sync</string>
-    <string name="async">Async</string>
-    <string name="async_raw">Async w/ RawImage</string>
-    <string name="no_png">No PNG</string>
-    <string name="save_as_png">Save as PNG</string>
-    <string name="default_save_png">Default(Save as PNG)</string>
-    <string name="single_finger">Single finger</string>
-    <string name="two_fingers">Two fingers</string>
-    <string name="roll_finger">Roll finger</string>
-    <string name="two_finger_split">Two fingers split</string>
-
-    <!-- Iris -->
-    <string name="title_iris">Iris</string>
-
-    <string-array name="iris_scan_type">
-        <item>Both eyes</item>
-        <item>Left eye</item>
-        <item>Right eye</item>
-    </string-array>
-
-    <!-- Card Reader -->
-    <string name="title_card_reader">Card Reader</string>
-    <string name="card_reader_hint">Enter text to be written to the memory card</string>
-    <string name="data_header">Data:</string>
-    <string name="reader_detected_header">Reader detected: </string>
-    <string name="card_detected_header">Card detected: </string>
-    <string name="read_card">Read Card</string>
-    <string name="write_card">Write Card</string>
-    <string name="read_id">Read ID</string>
-    <string name="yes">yes</string>
-    <string name="no">no</string>
-    <string name="card_read_succeeded">card read succeeded</string>
-    <string name="card_read_failed">card read failed</string>
-    <string name="card_write_succeeded">card write succeeded</string>
-    <string name="card_write_failed">card write failed</string>
-    <string name="select_applet_failed">select applet failed</string>
-    <string name="get_citizen_number_succeeded">get citizen number succeeded</string>
-    <string name="get_citizen_number_failed">get citizen number failed</string>
-
-    <!-- Encryption -->
-    <string name="title_encryption">AES Encryption</string>
-    <string name="encrypt">Encrypt</string>
-    <string name="decrypt">Decrypt</string>
-    <string name="passphrase_header">Passphrase:</string>
-    <string name="generate">Generate</string>
-    <string name="passphrase_hint">Enter passphrase here, click Generate to create key</string>
-    <string name="key_heading">Key:</string>
-    <string name="random">Random</string>
-    <string name="key_hint">Use random key, or generate from passphrase</string>
-
-    <!-- USB Access -->
-    <string name="usb_access_header">USB File Access</string>
-    <string name="enable">Enable</string>
-    <string name="disable">Disable</string>
-    <string name="usb_access_enabled">USB file access enabled</string>
-    <string name="usb_access_disabled">USB file access disabled</string>
-    <string name="title_nfc_card_reader">NFC Card Reader</string>
-
-    <!-- Extracted strings -->
-    <string name="mrz_page_title">MRZ Reader</string>
-
-    <!-- Perferences -->
-    <string-array name="preferences_key_list">
-        <item>PREF_TIMEOUT</item>
-        <item>PREF_SIMULTANEOUS_DEVICES</item>
-    </string-array>
-
-    <string-array name="preferences_value_list">
-        <item>PREF_TIMEOUT</item>
-        <item>60</item>
-        <item>300</item>
-        <item>900</item>
-        <item>3600</item>
-        <item>36000</item>
-        <item>-1</item>
-        <item> </item>
-        <item>PREF_SIMULTANEOUS_DEVICES</item>
-        <item>One</item>
-        <item>All</item>
-        <item> </item>
-    </string-array>
-
-    <string name="open">Open</string>
-    <string name="close">Close</string>
-    <string name="close_id">Close</string>
-
-    <string name="connect">Connect card</string>
-    <string name="disconnect">Disconnect card</string>
-
-    <string name="connecting">Connecting card</string>
-    <string name="connected">Card is connected</string>
-    <string name="connected_fail">Connect fail</string>
-    <string name="disconnecting">Disconnecting card</string>
-    <string name="disconnected">Card is disconnected</string>
-    <string name="disconnected_fail">Disconnect fail</string>
-
-    <string name="open_card">Open Card</string>
-    <string name="close_card">Close Card</string>
-
-    <string name="insert_card">Insert Card To Continue</string>
-    <string name="card_reader_disconnected">SmartCard reader disconnected</string>
-    <string name="open_card_reader">Open reader To Continue</string>
-    <string name="closing_card_reader">Closing CardReader</string>
-    <string name="opening_card_reader">Opening CardReader</string>
-    <string name="reader_result">SmartCard reader RESULT: </string>
-    <string name="grab_fingerprint">Grab Fingerprint</string>
-    <string name="fingerprint_uninitialized">Fingerprint reader not initialized</string>
-    <string name="card_reader_uninitialized">Card reader not initialized</string>
+	<string name="mrz_failed_reswipe">Failed to read MRZ, please re-swipe document.</string>
+	<string name="mrz_reading_wait">Reading MRZ, please wait…</string>
+	<string name="mrz_read_success">MRZ successfully read.</string>
 </resources>

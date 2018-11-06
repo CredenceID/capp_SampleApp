@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_gravity="center"
+	android:background="@color/background"
+	android:gravity="center"
+	android:orientation="vertical">
+
+	<TextView
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:text="@string/fingerprint_selection_label"
+		android:textColor="@color/black"
+		android:textSize="20sp" />
+
+	<!-- *************************************************************************************** -->
+	<!-- Two fingerprint boxes w/ labels on top of page. -->
+	<!-- *************************************************************************************** -->
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="50dp"
+		android:orientation="horizontal">
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<!-- *********************************************************************************** -->
+		<!-- Fingerprint One -->
+		<!-- *********************************************************************************** -->
+		<RelativeLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+
+			<ImageView
+				android:id="@+id/finger_one_imageview"
+				android:layout_width="@dimen/fingerprint_width"
+				android:layout_height="@dimen/fingerprint_height"
+				android:background="@drawable/image_border_on"
+				android:padding="@dimen/padding"
+				android:scaleType="fitXY"
+				tools:ignore="ContentDescription" />
+
+			<TextView
+				android:id="@+id/fingerprint_one_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/finger_one_imageview"
+				android:layout_centerInParent="true"
+				android:layout_marginTop="5dp"
+				android:text="@string/fingerprint_one_imageview_label"
+				android:textColor="@color/black"
+				android:textSize="16sp" />
+		</RelativeLayout>
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<!-- *********************************************************************************** -->
+		<!-- Fingerprint Two -->
+		<!-- *********************************************************************************** -->
+		<RelativeLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+
+			<ImageView
+				android:id="@+id/finger_two_imageview"
+				android:layout_width="@dimen/fingerprint_width"
+				android:layout_height="@dimen/fingerprint_height"
+				android:background="@drawable/image_border_off"
+				android:padding="@dimen/padding"
+				android:scaleType="fitXY"
+				tools:ignore="ContentDescription" />
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/finger_two_imageview"
+				android:layout_centerInParent="true"
+				android:layout_marginTop="5dp"
+				android:text="@string/fingerprint_two_imageview_label"
+				android:textColor="@color/black"
+				android:textSize="16sp" />
+
+		</RelativeLayout>
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+	</LinearLayout>
+
+	<!-- *************************************************************************************** -->
+	<!-- Open/Close, Capture, and Match buttons. -->
+	<!-- *************************************************************************************** -->
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="50dp"
+		android:orientation="horizontal">
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<Button
+			android:id="@+id/open_close_button"
+			style="@style/FingerprintActivityButton"
+			android:text="@string/open" />
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<Button
+			android:id="@+id/capture_button"
+			style="@style/FingerprintActivityButton"
+			android:text="@string/capture" />
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<Button
+			android:id="@+id/match_button"
+			style="@style/FingerprintActivityButton"
+			android:text="@string/match" />
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/status_textview"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="20dp"
+		android:gravity="center"
+		android:textColor="@color/black"
+		android:textSize="18sp" />
+
+	<TextView
+		android:id="@+id/fingeprint_info_textview"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="20dp"
+		android:gravity="center"
+		android:textColor="@color/black"
+		android:textSize="18sp" />
+</LinearLayout>

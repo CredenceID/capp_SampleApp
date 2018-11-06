@@ -1,28 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.credenceid.sdkapp"
-          android:versionCode="7">
+	xmlns:tools="http://schemas.android.com/tools"
+	package="com.cid.sdk">
 
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="com.credenceid.permission.SERVICE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+	<uses-permission android:name="android.permission.CAMERA" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="com.credenceid.permission.SERVICE" />
+	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-    <application
-        android:name="com.credenceid.sdkapp.TheApp"
-        android:allowBackup="true"
-        android:background="#CCCCCC"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_icon_name"
-        android:theme="@style/AppTheme">
+	<application
+		android:allowBackup="true"
+		android:icon="@drawable/ic_launcher"
+		android:label="@string/app_name"
+		android:roundIcon="@drawable/ic_launcher"
+		android:supportsRtl="true"
+		android:theme="@style/AppTheme"
+		tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-        <activity
-            android:name="com.credenceid.sdkapp.activity.SampleActivity"
-            android:label="@string/app_icon_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-    </application>
+		<activity
+			android:name=".MainActivity"
+			android:screenOrientation="locked">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+
+		<activity
+			android:name=".FingerprintActivity"
+			android:screenOrientation="locked" />
+
+		<activity
+			android:name=".CardReaderActivity"
+			android:screenOrientation="locked" />
+
+		<activity
+			android:name=".FaceActivity"
+			android:screenOrientation="locked" />
+
+		<activity
+			android:name=".MRZActivity"
+			android:screenOrientation="locked" />
+
+		<activity
+			android:name=".IrisActivity"
+			android:screenOrientation="locked" />
+
+	</application>
+
 </manifest>
