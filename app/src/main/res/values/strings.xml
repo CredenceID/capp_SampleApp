@@ -18,6 +18,18 @@
 	<string name="fingerprint_one_imageview_label">Fingerprint One</string>>
 	<string name="fingerprint_two_imageview_label">Fingerprint Two</string>
 
+	<string name="open_card">Open CardReader</string>
+	<string name="write_data">Write To Card</string>
+	<string name="read_data">Read From Card</string>
+	<string name="card_sync_checkbox_label">Use Synchronous APIs</string>
+	<string name="card_edtitext_hint">Enter text to write to card</string>
+	<string-array name="card_spinner_items">
+		<item>Data Written To Card</item>
+		<item>1K Data</item>
+		<item>2K Data</item>
+		<item>4K Data</item>
+	</string-array>
+
 	<string name="flash_on_label">Flash On</string>
 	<string name="flash_off_label">Flash Off</string>
 	<string name="capture_label">Capture</string>
