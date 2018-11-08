@@ -11,13 +11,16 @@ import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cid.sdk.android.camera.DrawingView;
 import com.cid.sdk.android.camera.PreviewFrameLayout;
@@ -28,6 +31,9 @@ import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.BiometricsManager;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +41,7 @@ import static android.hardware.Camera.Parameters.FLASH_MODE_OFF;
 import static android.hardware.Camera.Parameters.FLASH_MODE_TORCH;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_SHORT;
 import static com.cid.sdk.models.DeviceFamily.CONE;
 import static com.cid.sdk.models.DeviceFamily.CTAB;
 import static com.cid.sdk.models.DeviceFamily.CTWO;
@@ -53,18 +60,24 @@ public class FaceActivity
 	// loss in face image quality.
 	private final static int P_WIDTH = 320;
 	private final static int P_HEIGHT = 240;
-
 	// It is always good to have a global context in case non-activity classes require it. In this
 	// case "Beeper" class requires it so it may grab audio file from assets.
 	@SuppressLint("StaticFieldLeak")
 	private static Context mContext;
-
+	// --------------------------------------------------------------------------------------------
+	// CredenceSDK Biometrics objects.
+	// --------------------------------------------------------------------------------------------
 	@SuppressLint("StaticFieldLeak")
 	private static BiometricsManager mBiometricsManager;
 	private static DeviceFamily mDeviceFamily;
 	private static DeviceType mDeviceType;
-
+	private final File mFiveMPFile
+			= new File(Environment.getExternalStorageDirectory() + "/c-sdkapp_5mp.jpg");
+	private final File mEightMPFile
+			= new File(Environment.getExternalStorageDirectory() + "/c-sdkapp_8mp.jpg");
+	// --------------------------------------------------------------------------------------------
 	// Different components from layout file.
+	// --------------------------------------------------------------------------------------------
 	private PreviewFrameLayout mPreviewFrameLayout;
 	private DrawingView mDrawingView;
 	private SurfaceView mScannedImageView;
@@ -73,9 +86,10 @@ public class FaceActivity
 	private Button mFlashOnButton;
 	private Button mFlashOffButton;
 	private Button mCaptureButton;
-
-	// Camera object.
+	private CheckBox mEightMPCheckbox;
+	// --------------------------------------------------------------------------------------------
 	private Camera mCamera = null;
+	// --------------------------------------------------------------------------------------------
 	// If true then camera is in preview, if false it is not.
 	private boolean mInPreview = false;
 	// Has camera preview settings been initialized. If true yes, false otherwise. This is required
@@ -85,21 +99,24 @@ public class FaceActivity
 	/* This callback is invoked after camera finishes taking a picture. */
 	private Camera.PictureCallback mOnPictureTakenCallback = new Camera.PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera cam) {
+			// Now that picture has been taken, turn off flash.
+			setFlashMode(false);
+
 			// Produce "camera shutter" sound so user knows that picture was captured.
 			Beeper.getInstance().click();
+
 			// Camera is no longer in preview.
 			mInPreview = false;
 
-			// Now that picture has been taken, turn off flash.
-			setFlashMode(false);
 			// Remove previous status, "Starting capture, hold still..." since capture is complete.
 			mStatusTextView.setText("");
 			// Change button to let user know they may take another picture.
 			mCaptureButton.setText(getString(R.string.recapture_label));
-			// Now that camera has finished taking a picture we can allow user to re-take an iamge.
+			// Allow user to re-take an image.
 			setCaptureButtonVisibility(true);
 
-			//runFaceOperation(data);
+			// Save image to external storage.
+			saveImage(data);
 		}
 	};
 
@@ -284,6 +301,7 @@ public class FaceActivity
 		mFlashOnButton = findViewById(R.id.flash_on_button);
 		mFlashOffButton = findViewById(R.id.flash_off_button);
 		mCaptureButton = findViewById(R.id.capture_button);
+		mEightMPCheckbox = findViewById(R.id.eight_mp_checkbox);
 	}
 
 	/* Configured all layout file component objects. Assigns listeners, configurations, etc. */
@@ -374,6 +392,8 @@ public class FaceActivity
 				Camera.Size picSize = Utils.getLargestPictureSize(parameters);
 				parameters.setPictureSize(picSize.width, picSize.height);
 
+				Log.w(TAG, "WIDTH, HEIGHT: " + picSize.width + ", " + picSize.height);
+
 				ViewGroup.LayoutParams params = mDrawingView.getLayoutParams();
 				params.width = (int) (size.width * 2.75);
 				params.height = (int) (size.height * 2.75);
@@ -449,7 +469,7 @@ public class FaceActivity
 	}
 
 	/* Tells camera to rotate preview frames by a certain angle. This is required since on some
-	 * devices the physical camera hardware is 90 degress, etc.
+	 * devices the physical camera hardware is 90 degrees, etc.
 	 */
 	private void
 	setCameraPreviewDisplayOrientation() {
@@ -763,5 +783,31 @@ public class FaceActivity
 			// Tell view to invoke an "onDraw()".
 			mDrawingView.invalidate();
 		});
+	}
+
+	@SuppressWarnings("ResultOfMethodCallIgnored")
+	private void
+	saveImage(byte[] rawData) {
+		if (rawData == null || rawData.length == 0)
+			return;
+
+		Bitmap bitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);
+		File imageFile = mFiveMPFile;
+
+		if (mEightMPCheckbox.isChecked()) {
+			imageFile = mEightMPFile;
+			bitmap = Bitmap.createScaledBitmap(bitmap, 3264, 2448, false);
+		}
+
+		if (imageFile.exists())
+			imageFile.delete();
+
+		try (OutputStream outputStream = new FileOutputStream(imageFile)) {
+			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+			outputStream.flush();
+		} catch (Exception e) {
+			Log.e(TAG, "Unable to save image.");
+			Toast.makeText(mContext, "Unable to save image, please retry...", LENGTH_SHORT).show();
+		}
 	}
 }

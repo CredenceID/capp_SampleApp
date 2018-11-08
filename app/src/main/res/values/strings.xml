@@ -30,6 +30,21 @@
 		<item>4K Data</item>
 	</string-array>
 
+	<string name="opening_card_reader">Opening card reader, please wait…</string>
+	<string name="failed_open_card_reader">Failed to open card reader.</string>
+	<string name="card_reader_opened">Card reader opened.</string>
+	<string name="card_present">Card is present.</string>
+	<string name="card_absent">Card is absent.</string>
+	<string name="apdu_failed">APDU command failed, NULL response.</string>
+	<string name="no_card_present_to_write_to">No card present to write to.</string>
+	<string name="no_data_to_write_to_card">No data to write to card.</string>
+	<string name="done_writing_to_card">Done writing data to card.</string>
+	<string name="no_card_present_read_from">No card present to read from.</string>
+	<string name="done_reading_from_card">Done reading data from card.</string>
+	<string name="reading_card_wait">Reading data from card, please wait…</string>
+	<string name="close_card_reader">Close CardReader</string>
+	<string name="open_card_reader">Open CardReader</string>
+
 	<string name="flash_on_label">Flash On</string>
 	<string name="flash_off_label">Flash Off</string>
 	<string name="capture_label">Capture</string>

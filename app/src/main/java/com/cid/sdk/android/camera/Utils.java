@@ -100,17 +100,16 @@ public class Utils {
 		List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
 
 		Camera.Size bestDimens = null;
+
 		for (Camera.Size dimens : sizes) {
-			if (dimens.width <= 1024 && dimens.height <= 768) {
-				if (bestDimens == null || (dimens.width > bestDimens.width && dimens.height > bestDimens.height)) {
-					Log.d(TAG, "Dimens: " + dimens.width + ", " + dimens.height);
-					bestDimens = dimens;
-				}
+			if (bestDimens == null ||
+					(dimens.width > bestDimens.width && dimens.height > bestDimens.height)) {
+				bestDimens = dimens;
 			}
 		}
-		//noinspection ConstantConditions
-		parameters.setPictureSize(bestDimens.width, bestDimens.height);
 
+		//noinspection ConstantConditions
+		 parameters.setPictureSize(bestDimens.width, bestDimens.height);
 		return bestDimens;
 	}
 }

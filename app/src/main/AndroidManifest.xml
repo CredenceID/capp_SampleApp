@@ -32,7 +32,8 @@
 
 		<activity
 			android:name=".CardReaderActivity"
-			android:screenOrientation="locked" />
+			android:screenOrientation="locked"
+			android:windowSoftInputMode="stateVisible|adjustResize" />
 
 		<activity
 			android:name=".FaceActivity"

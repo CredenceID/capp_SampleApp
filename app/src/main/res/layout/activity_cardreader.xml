@@ -33,15 +33,18 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_margin="20dp"
+		android:layout_marginStart="20dp"
+		android:layout_marginEnd="20dp"
 		android:gravity="center"
-		android:singleLine="true"
-		android:textColor="@color/red"
+		android:maxLines="20"
+		android:singleLine="false"
+		android:textColor="@color/black"
 		android:textSize="16sp" />
 
 	<View
 		android:layout_width="0dp"
 		android:layout_height="0dp"
-		android:layout_weight="1" />
+		android:layout_weight="0.1" />
 
 	<CheckBox
 		android:id="@+id/sync_checkbox"
@@ -59,7 +62,8 @@
 	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="25dp"
+		android:layout_marginTop="20dp"
+		android:layout_marginBottom="25dp"
 		android:orientation="horizontal">
 
 		<View
@@ -72,7 +76,6 @@
 			android:layout_width="300dp"
 			android:layout_height="wrap_content"
 			android:focusable="true"
-			android:focusableInTouchMode="true"
 			android:hint="@string/card_edtitext_hint"
 			android:inputType="text"
 			android:textSize="20sp"
@@ -107,10 +110,5 @@
 			android:layout_weight="0.5" />
 
 	</LinearLayout>
-
-	<View
-		android:layout_width="0dp"
-		android:layout_height="0dp"
-		android:layout_weight="0.5" />
 
 </LinearLayout>
