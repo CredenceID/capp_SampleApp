@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -15,8 +14,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.cid.sdk.models.DeviceFamily;
-import com.cid.sdk.models.DeviceType;
+import com.cid.sdk.util.Hex;
 import com.credenceid.biometrics.ApduCommand;
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.BiometricsManager;
@@ -32,86 +30,95 @@ public class CardReaderActivity
 
 	private static final String TAG = CardReaderActivity.class.getSimpleName();
 
+	/* CredenceSDK biometrics object, used to interface with APIs. */
 	@SuppressLint("StaticFieldLeak")
 	private static BiometricsManager mBiometricsManager;
 
-	private boolean mIsCardReaderOpen = false;
-	private boolean misCardPresent = false;
-
-	// ------------------------------------ Layout Components ------------------------------------
+	/*
+	 * Components in layout file.
+	 */
 	private TextView mCardReaderStatusTextView;
 	private TextView mCardStatusTextView;
 	private TextView mDataTextView;
-
 	private CheckBox mSyncCheckbox;
 	private Button mOpenCloseButton;
-
 	private EditText mWriteDataEditText;
 	private Button mWriteToCardButton;
 	private Spinner mReadAPDUSelectSpinner;
 	private Button mReadFromCardButton;
 
-	// ------------------------------------ READ APDU ------------------------------------
-	// Reads 4096 (4K) number of bytes from card.
-	private String mAPDURead4k = "FF"    // MiFare Card
-			+ "B0"                             // MiFare Card READ Command
-			+ "00"                             // P1
-			+ "00"                             // P2: Block Number
-			+ "001000";                        // Number of bytes to read
-	// Reads 2048 (2K) number of bytes from card.
-	private String mAPDURead2k = "FF"    // MiFare Card
-			+ "B0"                             // MiFare Card READ Command
-			+ "00"                             // P1
-			+ "00"                             // P2: Block Number
-			+ "000800";                        // Number of bytes to read
-	// Reads 1024 (1K) number of bytes from card.
-	private String mAPDURead1k = "FF"    // MiFare Card
-			+ "B0"                             // MiFare Card READ Command
-			+ "00"                             // P1
-			+ "00"                             // P2: Block Number
-			+ "000400";                        // Number of bytes to read
+	/* Keeps track of card reader sensor. If true then sensor is open, if false sensor is closed. */
+	private boolean mIsCardReaderOpen = false;
+	/* Keeps track of if card is present on sensor. If true card is present, if false no card is
+	 * present.
+	 */
+	private boolean misCardPresent = false;
 
-	// ------------------------------------ WRITE APDU ------------------------------------
-	// Writes 4096 (4K) number of bytes to card.
-	private String mAPDUWrite4k = "FF"   // MiFare Card
-			+ "D6"                             // MiFare Card READ Command
-			+ "00"                             // P1
-			+ "00"                             // P2: Block Number
-			+ "001000";                        // Number of bytes to read
-	// Writes 2048 (2K) number of bytes to card.
-	private String mAPDUWrite2k = "FF"   // MiFare Card
-			+ "D6"                             // MiFare Card READ Command
-			+ "00"                             // P1
-			+ "00"                             // P2: Block Number
-			+ "000800";                        // Number of bytes to read
-	// Writes 1024 (1K) number of bytes to card.
-	private String mAPDUWrite1k = "FF"   // MiFare Card
-			+ "D6"                             // MiFare Card READ Command
-			+ "00"                             // P1
-			+ "00"                             // P2: Block Number
-			+ "000400";                        // Number of bytes to read
+	/*
+	 * Different types of APDUs to read data from MiFare cards.
+	 */
+	/* Reads 4096 (4K) number of bytes from card. */
+	private String mAPDURead4k = "FF"         // MiFare Card
+			+ "B0"                            // MiFare Card READ Command
+			+ "00"                            // P1
+			+ "00"                            // P2: Block Number
+			+ "001000";                       // Number of bytes to read
+	/* Reads 2048 (2K) number of bytes from card. */
+	private String mAPDURead2k = "FF"         // MiFare Card
+			+ "B0"                            // MiFare Card READ Command
+			+ "00"                            // P1
+			+ "00"                            // P2: Block Number
+			+ "000800";                       // Number of bytes to read
+	/* Reads 1024 (1K) number of bytes from card. */
+	private String mAPDURead1k = "FF"         // MiFare Card
+			+ "B0"                            // MiFare Card READ Command
+			+ "00"                            // P1
+			+ "00"                            // P2: Block Number
+			+ "000400";                       // Number of bytes to read
 
-	// ------------------------------------ READ APDU ------------------------------------
-	// This APDU is used to read "mSpecialData" written to the card.
+	/* This APDU is used to read "mSpecialData" written to the card. */
 	private String mAPDUReadSpecialData = "FF"  // MiFare Card
 			+ "B0"                              // MiFare Card READ Command
 			+ "00"                              // P1
 			+ "01"                              // P2: Block Number
 			+ "0E";                             // Number of bytes to read
 
-	// -------------------------------- Special Data: Write to Card --------------------------------
-	// This is the data we will write to the card "CredenceID LLC"
+	/*
+	 * Different types of APDUs to write data to MiFare cards.
+	 */
+	/* Writes 4096 (4K) number of bytes to card. */
+	private String mAPDUWrite4k = "FF"        // MiFare Card
+			+ "D6"                            // MiFare Card READ Command
+			+ "00"                            // P1
+			+ "00"                            // P2: Block Number
+			+ "001000";                       // Number of bytes to read
+	/* Writes 2048 (2K) number of bytes to card. */
+	private String mAPDUWrite2k = "FF"        // MiFare Card
+			+ "D6"                            // MiFare Card READ Command
+			+ "00"                            // P1
+			+ "00"                            // P2: Block Number
+			+ "000800";                       // Number of bytes to read
+	/* Writes 1024 (1K) number of bytes to card. */
+	private String mAPDUWrite1k = "FF"        // MiFare Card
+			+ "D6"                            // MiFare Card READ Command
+			+ "00"                            // P1
+			+ "00"                            // P2: Block Number
+			+ "000400";                       // Number of bytes to read
+
+
+	/* Data to be written to card will be stored here. */
 	private byte[] mSpecialData = null;
 
-	// --------------------------------------- Read Command ----------------------------------------
-	// This is the read command
+	/* APDU executed when "mReadFromCardButton" is clicked. This APDU will change each time a
+	 * different type of read is selected via "mReadAPDUSelectSpinner".
+	 */
 	private String mReadAPDUCommand = mAPDURead1k;
 
-	// Listener invoked each time C-Service detects a card change from card reader.
+	/* Callback invoked each time sensor detects a card change. */
 	private Biometrics.OnCardStatusListener onCardStatusListener = (String ATR,
 																	int prevState,
 																	int currentState) -> {
-		// If currentState is 1, then no card is present.
+		/* If currentState is 1, then no card is present. */
 		if (currentState == 1) {
 			misCardPresent = false;
 			mCardStatusTextView.setText(getString(R.string.card_absent));
@@ -120,8 +127,9 @@ public class CardReaderActivity
 			mCardStatusTextView.setText(getString(R.string.card_present));
 		}
 
-		// currentStates [2, 6] represent a card present. If a card is present code will reach.
-		// Here you may perform any operations you want ran automatically when a card is detected.
+		/* currentStates [2, 6] represent a card present. If a card is present code will reach.
+		 * Here you may perform any operations you want ran automatically when a card is detected.
+		 */
 	};
 
 	@Override
@@ -136,19 +144,31 @@ public class CardReaderActivity
 		this.configureLayoutComponents();
 	}
 
+	/* Invoked when user pressed back menu button. */
 	@Override
 	public void
 	onBackPressed() {
 		super.onBackPressed();
 
-		// If user presses back button then close card reader.
+		/* If back button is pressed when we want to destroy activity. */
+		this.onDestroy();
+	}
+
+	/* Invoked when application is killed, either by user or system. */
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		/* Close card reader since user is exiting activity. */
 		mBiometricsManager.cardCloseCommand();
 
-		// If user presses back button then they are exiting application. If this is the case then
-		// tell C-Service to unbind from this application.
+		/* If user presses back button then they are exiting application. If this is the case then
+		 * tell C-Service to unbind from this application.
+		 */
 		mBiometricsManager.finalizeBiometrics(false);
 	}
 
+	/* Initializes all objects inside layout file. */
 	private void
 	initializeLayoutComponents() {
 		mCardReaderStatusTextView = findViewById(R.id.status_textview);
@@ -165,6 +185,7 @@ public class CardReaderActivity
 		mReadFromCardButton = findViewById(R.id.read_data_button);
 	}
 
+	/* Configure all objects in layout file, set up listeners, views, etc. */
 	private void
 	configureLayoutComponents() {
 		this.setReadWriteComponentEnable(false);
@@ -173,14 +194,17 @@ public class CardReaderActivity
 
 		mOpenCloseButton.setOnClickListener((View v) -> {
 			mOpenCloseButton.setEnabled(false);
-
 			mCardStatusTextView.setText("");
 
+			/* Based on status of card reader take appropriate action. */
 			if (mIsCardReaderOpen)
 				mBiometricsManager.cardCloseCommand();
 			else this.openCardReader();
 		});
 
+		/* Each time an item is selected we need up update "mReadAPDUCommand". This is so when user
+		 * presses "mReadFromCardButton", APDU which matches  selected option has already been set.
+		 */
 		mReadAPDUSelectSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void
@@ -205,45 +229,57 @@ public class CardReaderActivity
 		});
 
 		mWriteToCardButton.setOnClickListener((View v) -> {
+			/* Do not do anything if card is not present. */
 			if (!misCardPresent) {
 				mCardReaderStatusTextView.setText(getString(R.string.no_card_present_to_write_to));
 				return;
 			}
 
+			/* Disable UI components so they do not interfere with ongoing operation. */
 			this.setReadWriteComponentEnable(false);
 
+			/* Check to make sure user has entered some valid data to write to card. If nothing
+			 * exists then do not do anything.
+			 */
 			String data = mWriteDataEditText.getText().toString();
 			if (0 == data.length()) {
 				mCardReaderStatusTextView.setText(getString(R.string.no_data_to_write_to_card));
 				return;
 			}
 
+			/* Based on if user has selected sync/async APIs call appropriate method. */
 			if (mSyncCheckbox.isChecked())
 				writeCardSync(data);
 			else writeCardAsync();
 		});
 
 		mReadFromCardButton.setOnClickListener((View v) -> {
+			/* Do not do anything if card is not present. */
 			if (!misCardPresent) {
 				mCardReaderStatusTextView.setText(getString(R.string.no_card_present_read_from));
 				return;
 			}
 
+			/* Disable UI components so they do not interfere with ongoing operation. */
 			this.setReadWriteComponentEnable(false);
 
+			/* Based on if user has selected sync/async APIs call appropriate method. */
 			if (mSyncCheckbox.isChecked())
 				readCardSync(mReadAPDUCommand);
 			else readCardAsync(mReadAPDUCommand);
 		});
 	}
 
+	/* Calls Credence APIs to open card reader. */
 	private void
 	openCardReader() {
+		/* Let user know card reader will now try to be opened. */
 		mCardReaderStatusTextView.setText(getString(R.string.opening_card_reader));
 
 		mBiometricsManager.cardOpenCommand(new Biometrics.CardReaderStatusListener() {
 			@Override
 			public void onCardReaderOpen(Biometrics.ResultCode resultCode) {
+				/* Re-able button since sensor has returned back with binary answer yes or no. */
 				mOpenCloseButton.setEnabled(true);
 
 				if (FAIL == resultCode) {
@@ -453,18 +489,16 @@ public class CardReaderActivity
 	 */
 	private void
 	writeCardAsync() {
-		final String localTAG = TAG + ":writeCardAsync";
-		Log.d(localTAG, "writeCardAsync()");
-
 		String apdu = createWriteAPDUCommand((byte) 0x01, mSpecialData);
+
 		mBiometricsManager.cardCommand(new ApduCommand(apdu),
 				false,
 				(Biometrics.ResultCode resultCode, byte sw1, byte sw2, byte[] data) -> {
 					if (resultCode == FAIL) {
-						Log.w(localTAG, "APDU Execution error(SW1, SW2):" + sw1 + ", " + sw2);
+						Log.w(TAG, "APDU Execution error(SW1, SW2):" + sw1 + ", " + sw2);
 						return;
 					}
-					Log.d(localTAG, "SW1, SW2: " + Hex.toString(sw1) + ", " + Hex.toString(sw2));
+					Log.d(TAG, "SW1, SW2: " + Hex.toString(sw1) + ", " + Hex.toString(sw2));
 
 					// Now use SYNCHRONOUS APIs for reading that data back.
 					CardCommandResponse response = mBiometricsManager.cardCommandSync(new ApduCommand(mAPDUReadSpecialData), false, 4000);
@@ -472,7 +506,7 @@ public class CardReaderActivity
 						Log.w(TAG, "APDUCommand(" + apdu + "): NULL RESPONSE");
 						return;
 					}
-					Log.d(localTAG, "SW1, SW2: " + Hex.toString(response.sw1) + ", " + Hex.toString(response.sw2));
+					Log.d(TAG, "SW1, SW2: " + Hex.toString(response.sw1) + ", " + Hex.toString(response.sw2));
 
 					// Convert read data into human readable ASCII characters. Wrap data around quotes ''.
 					String name = "\'";
@@ -495,23 +529,24 @@ public class CardReaderActivity
 	private String
 	createWriteAPDUCommand(byte blockNumber,
 						   byte[] data) {
+
 		final int dataLen = data.length;
 
-		// 7 MiFare bytes, 2 Data size bytes, CID header bytes+ data
+		/* 7 MiFare bytes, 2 Data size bytes, CID header bytes+ data */
 		byte[] writeAPDU = new byte[7 + dataLen];
 
-		writeAPDU[0] = (byte) 0xFF;         // MiFare Card Header
-		writeAPDU[1] = (byte) 0xD6;         // MiFare Card WRITE Command
-		writeAPDU[2] = (byte) 0x00;         // P1
-		writeAPDU[3] = blockNumber;         // P2: Block Number
-		writeAPDU[4] = (byte) 0x00;         // Escape Character
-		writeAPDU[5] = (byte) ((dataLen >> 8) & 0xFF);    // Number of bytes: MSB
-		writeAPDU[6] = (byte) (dataLen & 0xFF);            // Number of bytes: LSB
+		writeAPDU[0] = (byte) 0xFF;						// MiFare Card Header
+		writeAPDU[1] = (byte) 0xD6;						// MiFare Card WRITE Command
+		writeAPDU[2] = (byte) 0x00;						// P1
+		writeAPDU[3] = blockNumber;						// P2: Block Number
+		writeAPDU[4] = (byte) 0x00;         			// Escape Character
+		writeAPDU[5] = (byte) ((dataLen >> 8) & 0xFF);	// Number of bytes: MSB
+		writeAPDU[6] = (byte) (dataLen & 0xFF);			// Number of bytes: LSB
 
-		// Append "data" to end of "writeAPDU" byte array.
+		/* Append "data" to end of "writeAPDU" byte array. */
 		System.arraycopy(data, 0, writeAPDU, 7, dataLen);
 
-		// Return "writeAPDU" as a String.
+		/* Return "writeAPDU" as a String. */
 		return Hex.toString(writeAPDU);
 	}
 }

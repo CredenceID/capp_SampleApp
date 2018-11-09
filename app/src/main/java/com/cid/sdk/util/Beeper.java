@@ -1,4 +1,4 @@
-package com.cid.sdk;
+package com.cid.sdk.util;
 
 
 import android.content.Context;
@@ -15,7 +15,7 @@ import static com.cid.sdk.FaceActivity.getContext;
  * class a custom Audio file we have placed inside the <assets/> directory.
  */
 @SuppressWarnings("WeakerAccess")
-class Beeper {
+public class Beeper {
 	private final static String CLICK_ASSET = "camera_click.ogg";
 	private static Beeper instance;
 	private final String TAG = Beeper.class.getSimpleName();

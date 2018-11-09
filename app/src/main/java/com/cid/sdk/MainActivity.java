@@ -27,7 +27,12 @@ import static android.widget.Toast.LENGTH_LONG;
 
 public class MainActivity extends AppCompatActivity {
 	private static final String TAG = MainActivity.class.getSimpleName();
+	/* When requested for permissions you must specify a number which sort of links the permissions
+	 * request to a "key". This way when you get back a permissions event you can tell from where
+	 * that permission was requested from.
+	 */
 	private static final int REQUEST_ALL_PERMISSIONS = 0;
+	/* List of all permissions we will request. */
 	private static final String[] PERMISSIONS = new String[]{
 			WRITE_EXTERNAL_STORAGE,
 			READ_EXTERNAL_STORAGE,
@@ -36,10 +41,17 @@ public class MainActivity extends AppCompatActivity {
 			READ_PHONE_STATE
 	};
 
+	/* CredenceSDK biometrics object, used to interface with APIs. */
 	@SuppressLint("StaticFieldLeak")
 	private static BiometricsManager mBiometricsManager;
+	/* Stores which Credence family of device's this app is running on. */
 	private static DeviceFamily mDeviceFamily = DeviceFamily.INVALID;
+	/* Stores which specific device this app is running on. */
 	private static DeviceType mDeviceType = DeviceType.INVALID;
+
+	/*
+	 * Components in layout file.
+	 */
 	private TextView mProductNameTextView;
 	private TextView mDeviceIDTextView;
 	private TextView mServiceVersionTextView;
@@ -70,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 	 *
 	 * @param productName Product name returned via BiometricsManager.getProductName()
 	 */
-	@SuppressWarnings("IfCanBeSwitch")
+	@SuppressWarnings({"IfCanBeSwitch", "SpellCheckingInspection"})
 	private void
 	setDeviceType(String productName) {
 		Log.d(TAG, "setDeviceType(" + productName + ")");
@@ -129,30 +141,32 @@ public class MainActivity extends AppCompatActivity {
 		this.initializeLayoutComponents();
 		this.configureLayoutComponents();
 
-		// Create new biometrics object.
+		/*  Create new biometrics object. */
 		mBiometricsManager = new BiometricsManager(this);
 
-		// Initialize object, meaning tell CredenceService to bind to this application.
+		/* Initialize object, meaning tell CredenceService to bind to this application. */
 		mBiometricsManager.initializeBiometrics((Biometrics.ResultCode resultCode,
 												 String sdk_version,
 												 String required_version) -> {
-			if (resultCode != Biometrics.ResultCode.OK)
+
+			if (Biometrics.ResultCode.OK != resultCode)
 				Toast.makeText(this, "Biometric initialization FAILED.", LENGTH_LONG).show();
 			else {
 				Toast.makeText(this, "Biometrics initialized.", LENGTH_LONG).show();
 
-				// Save DeviceType/DeviceFamily so other activities may more easily identify on
-				// what devices they are running on. This is used for activities to set up their
-				// layouts, etc.
+				/* Save DeviceType/DeviceFamily so other activities may more easily identify on
+				 * what devices they are running on. This is used for activities to set up their
+				 * layouts, etc.
+				 */
 				this.setDeviceType(mBiometricsManager.getProductName());
 
-				// Populate text fields which display device/app information.
+				/* Populate text fields which display device/app information. */
 				mProductNameTextView.setText(mBiometricsManager.getProductName());
 				mDeviceIDTextView.setText(mBiometricsManager.getDeviceId());
 				mServiceVersionTextView.setText(mBiometricsManager.getSDKVersion());
 				mDeviceLibVersionTextView.setText(mBiometricsManager.getDeviceLibraryVersion());
 
-				// Now display buttons which allow user to actually try out different biometrics.
+				/* Now display buttons which allow user to actually try out different biometrics. */
 				this.configureButtons();
 			}
 		});
@@ -216,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
 	/* For each button, either hides/shows based on DeviceType. This is because not all device's
 	 * support all biometrics.
 	 */
+	// TODO: Change all if comparisons so constant is on left hand.
 	private void
 	configureButtons() {
 		mFingerprintButton.setVisibility(View.VISIBLE);

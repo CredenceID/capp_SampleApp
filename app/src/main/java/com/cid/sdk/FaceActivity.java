@@ -27,6 +27,7 @@ import com.cid.sdk.android.camera.PreviewFrameLayout;
 import com.cid.sdk.android.camera.Utils;
 import com.cid.sdk.models.DeviceFamily;
 import com.cid.sdk.models.DeviceType;
+import com.cid.sdk.util.Beeper;
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.BiometricsManager;
 
@@ -146,11 +147,6 @@ public class FaceActivity
 		return mContext;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	//
-	// Methods called on Activity lifecycle.
-	//
-	// --------------------------------------------------------------------------------------------
 	@Override
 	protected void
 	onCreate(Bundle savedInstanceState) {
@@ -285,11 +281,6 @@ public class FaceActivity
 		mInPreview = false;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	//
-	// Methods used for initialization of layout components.
-	//
-	// --------------------------------------------------------------------------------------------
 	/* Initializes all layout file component objects. */
 	private void
 	initializeLayoutComponents() {
@@ -332,11 +323,6 @@ public class FaceActivity
 		mFlashOffButton.setOnClickListener((View v) -> this.setFlashMode(false));
 	}
 
-	// --------------------------------------------------------------------------------------------
-	//
-	// Methods used for camera initialization/preview/un-initialization.
-	//
-	// --------------------------------------------------------------------------------------------
 	private void
 	initPreview(int width,
 				int height) {
