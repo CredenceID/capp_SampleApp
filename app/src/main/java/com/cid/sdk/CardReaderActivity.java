@@ -2,11 +2,8 @@ package com.cid.sdk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -17,6 +14,7 @@ import android.widget.TextView;
 import com.cid.sdk.util.Hex;
 import com.credenceid.biometrics.ApduCommand;
 import com.credenceid.biometrics.Biometrics;
+import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.biometrics.BiometricsManager;
 import com.credenceid.biometrics.CardCommandResponse;
 
@@ -29,6 +27,9 @@ public class CardReaderActivity
 		extends Activity {
 
 	private static final String TAG = CardReaderActivity.class.getSimpleName();
+
+	private static final int mEMPTY_STRING_LEN = 0;
+	private static final int mREAD_SPECIAL_APDU_LEN = 10;
 
 	/* CredenceSDK biometrics object, used to interface with APIs. */
 	@SuppressLint("StaticFieldLeak")
@@ -81,7 +82,7 @@ public class CardReaderActivity
 			+ "B0"                              // MiFare Card READ Command
 			+ "00"                              // P1
 			+ "01"                              // P2: Block Number
-			+ "0E";                             // Number of bytes to read
+			+ "00";                             // Number of bytes to read
 
 	/*
 	 * Different types of APDUs to write data to MiFare cards.
@@ -104,7 +105,6 @@ public class CardReaderActivity
 			+ "00"                            // P1
 			+ "00"                            // P2: Block Number
 			+ "000400";                       // Number of bytes to read
-
 
 	/* Data to be written to card will be stored here. */
 	private byte[] mSpecialData = null;
@@ -188,9 +188,11 @@ public class CardReaderActivity
 	/* Configure all objects in layout file, set up listeners, views, etc. */
 	private void
 	configureLayoutComponents() {
+		/* Disable views which allow user to read/write to/from card until card reader is open. */
 		this.setReadWriteComponentEnable(false);
 
-		mWriteDataEditText.setText("CredenceID LCC");
+		/* This will remove focus from view, meaning keyboard will hide. */
+		mWriteDataEditText.clearFocus();
 
 		mOpenCloseButton.setOnClickListener((View v) -> {
 			mOpenCloseButton.setEnabled(false);
@@ -212,6 +214,7 @@ public class CardReaderActivity
 						   View view,
 						   int position,
 						   long id) {
+
 				if (0 == position)
 					mReadAPDUCommand = mAPDUReadSpecialData;
 				else if (1 == position)
@@ -235,22 +238,25 @@ public class CardReaderActivity
 				return;
 			}
 
-			/* Disable UI components so they do not interfere with ongoing operation. */
-			this.setReadWriteComponentEnable(false);
-
 			/* Check to make sure user has entered some valid data to write to card. If nothing
 			 * exists then do not do anything.
 			 */
 			String data = mWriteDataEditText.getText().toString();
-			if (0 == data.length()) {
+			if (mEMPTY_STRING_LEN == data.length()) {
 				mCardReaderStatusTextView.setText(getString(R.string.no_data_to_write_to_card));
 				return;
 			}
 
+			/* Disable UI components so they do not interfere with ongoing operation. */
+			this.setReadWriteComponentEnable(false);
+
+			/* Save data to write inside our global variable. */
+			mSpecialData = data.getBytes();
+
 			/* Based on if user has selected sync/async APIs call appropriate method. */
 			if (mSyncCheckbox.isChecked())
-				writeCardSync(data);
-			else writeCardAsync();
+				writeCardSync(mSpecialData);
+			else writeCardAsync(mSpecialData);
 		});
 
 		mReadFromCardButton.setOnClickListener((View v) -> {
@@ -294,12 +300,14 @@ public class CardReaderActivity
 
 				setReadWriteComponentEnable(true);
 
-				// If card reader opened successfully, register a listener will be invoked each time
-				// card reader's status changes. Meaning that anytime a card is placed/removed
-				// invoke this callback.
+				/* If card reader opened successfully, register a listener will be invoked each time
+				 * card reader's status changes. Meaning that anytime a card is placed/removed
+				 * invoke this callback.
+				 */
 				mBiometricsManager.registerCardStatusListener(onCardStatusListener);
 			}
 
+			@SuppressLint("SetTextI18n")
 			@Override
 			public void onCardReaderClosed(Biometrics.ResultCode resultCode,
 										   Biometrics.CloseReasonCode closeReasonCode) {
@@ -319,27 +327,16 @@ public class CardReaderActivity
 		});
 	}
 
+	/* Set enable for components which allow user to read/write from/to card and form APDUs.
+	 *
+	 * @param enabled If true enables components, if false dis-ables them.
+	 */
 	private void
 	setReadWriteComponentEnable(boolean enabled) {
-//		mWriteDataEditText.setEnabled(enabled);
+		mWriteDataEditText.setEnabled(enabled);
 		mWriteToCardButton.setEnabled(enabled);
-//		mReadAPDUSelectSpinner.setEnabled(enabled);
+		mReadAPDUSelectSpinner.setEnabled(enabled);
 		mReadFromCardButton.setEnabled(enabled);
-	}
-
-	public void
-	showSoftKeyboard(View view) {
-		if (view.requestFocus()) {
-			InputMethodManager imm = (InputMethodManager)
-					getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
-		}
-	}
-
-	public void
-	hideSoftKeyboard(View view) {
-		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
 	}
 
 	/* This method attempts to read 1K, 2K, and 4K blocks of data off of a card. You pass in either
@@ -355,6 +352,7 @@ public class CardReaderActivity
 	 *
 	 * @param APDUCommand Initial APDU command to execute.
 	 */
+	@SuppressWarnings("StringConcatenationInLoop")
 	private void
 	readCardAsync(String APDUCommand) {
 		mCardReaderStatusTextView.setText(getString(R.string.reading_card_wait));
@@ -370,12 +368,20 @@ public class CardReaderActivity
 						return;
 					}
 
+					String dataToDisplay;
+					if (mREAD_SPECIAL_APDU_LEN == mReadAPDUCommand.length()) {
+						dataToDisplay = "";
+						/* Convert read data into human readable ASCII characters. */
+						for (byte aData : data)
+							dataToDisplay += (char) aData;
+					} else dataToDisplay = Hex.toString(data);
+
 					String str = String.format(Locale.ENGLISH,
-							"SW1: %s, SW2: %s\nLength of data read: %d\n\n, %s",
+							"SW1: %s, SW2: %s\nLength of data read: %d\n\n %s",
 							Hex.toString(sw1),
 							Hex.toString(sw2),
 							data.length,
-							Hex.toString(data));
+							dataToDisplay);
 
 					mCardReaderStatusTextView.setText(getString(R.string.done_reading_from_card));
 					mDataTextView.setText(str);
@@ -388,6 +394,7 @@ public class CardReaderActivity
 	 * The purpose of this function is to demonstrate how you may execute multiple APDUs linearly
 	 * using sync. APIs.
 	 */
+	@SuppressWarnings("StringConcatenationInLoop")
 	private void
 	readCardSync(String APDUCommand) {
 		mCardReaderStatusTextView.setText(getString(R.string.reading_card_wait));
@@ -396,7 +403,7 @@ public class CardReaderActivity
 			CardCommandResponse response
 					= mBiometricsManager.cardCommandSync(new ApduCommand(APDUCommand), false, 4000);
 
-			// If APDU failed then response will be NULL. It is also possible to check SW1 and SW2.
+			/* If APDU failed then response will be NULL. */
 			if (response == null) {
 				runOnUiThread(() -> {
 					mCardReaderStatusTextView.setText(getString(R.string.done_reading_from_card));
@@ -406,12 +413,20 @@ public class CardReaderActivity
 				return;
 			}
 
+			String dataToDisplay;
+			if (mREAD_SPECIAL_APDU_LEN == mReadAPDUCommand.length()) {
+				dataToDisplay = "";
+				/* Convert read data into human readable ASCII characters. */
+				for (int i = 0; i < response.data.length; ++i)
+					dataToDisplay += (char) response.data[i];
+			} else dataToDisplay = Hex.toString(response.data);
+
 			String str = String.format(Locale.ENGLISH,
-					"SW1: %s, SW2: %s\nLength of data read: %d\n\n, %s",
+					"SW1: %s, SW2: %s\nLength of data read: %d\n\n %s",
 					Hex.toString(response.sw1),
 					Hex.toString(response.sw2),
 					response.data.length,
-					Hex.toString(response.data));
+					dataToDisplay);
 
 			runOnUiThread(() -> {
 				mCardReaderStatusTextView.setText(getString(R.string.done_reading_from_card));
@@ -422,22 +437,28 @@ public class CardReaderActivity
 		}).start();
 	}
 
-	/* This method attempts to write some data to MiFare card. */
+	/* This method attempts to write some data to MiFare card.
+	 *
+	 * data Data to write to card in String format.
+	 */
 	private void
 	writeCardSync(String data) {
 		this.writeCardSync(data.getBytes());
 	}
 
-	/* This method attempts to write some data to MiFare card. */
+	/* This method attempts to write some data to MiFare card.
+	 *
+	 * data Data to write to card in byte array format.
+	 */
 	private void
-	writeCardSync(byte[] data) {
+	writeCardSync(byte[] dataToWrite) {
 		new Thread(() -> {
-			String apdu = createWriteAPDUCommand((byte) 0x01, data);
+			String apdu = createWriteAPDUCommand((byte) 0x01, dataToWrite);
 			CardCommandResponse response
 					= mBiometricsManager.cardCommandSync(new ApduCommand(apdu), false, 4000);
 
-			// If APDU failed then response will be NULL. It is also possible to check SW1 and SW2.
-			if (response == null) {
+			/* If APDU failed then response will be NULL. */
+			if (null == response) {
 				runOnUiThread(() -> {
 					mCardReaderStatusTextView.setText(getString(R.string.done_writing_to_card));
 					mDataTextView.setText(getString(R.string.apdu_failed));
@@ -456,67 +477,49 @@ public class CardReaderActivity
 				mDataTextView.setText(str);
 
 				this.setReadWriteComponentEnable(true);
+
+				/* If a write was successful we should then update "mAPDUReadSpecialData" so that it
+				 * will same number of bytes that were written.
+				 */
+				this.updateReadSpecialAPDU(mSpecialData);
 			});
 		}).start();
 	}
-
-//		// After writing data to card we will now try to read that same data back!
-//		apdu = "FF"                   // MiFare Card
-//				+ "B0"                // MiFare Card READ Command
-//				+ "00"                // P1
-//				+ "01"                // P2: Block Number
-//				// "CredenceID LLC" is 14 bytes long. Fourteen in hex is "0E".
-//				+ "0E";               // Number of bytes to read;
-//
-//		// Execute read command.
-//		response = mBiometricsManager.cardCommandSync(new ApduCommand(apdu), false, 3000);
-//		if (response == null) {
-//			Log.w(TAG, "APDUCommand(" + apdu + "): NULL RESPONSE");
-//			return;
-//		}
-//
-//		// Convert read data into human readable ASCII characters. Wrap data around quotes ''.
-//		String name = "\'";
-//		for (int i = 0; i < response.data.length; i++) {
-//			//noinspection StringConcatenationInLoop
-//			name += (char) response.data[i];
-//		}
-//		name += "\'";
-//		Log.d(TAG, "Data read from card " + name);
 
 	/* This method attempts to write some data to MiFare card. After writing data it will then try
 	 * to read that same data back.
 	 */
 	private void
-	writeCardAsync() {
-		String apdu = createWriteAPDUCommand((byte) 0x01, mSpecialData);
+	writeCardAsync(byte[] dataToWrite) {
+		String apdu = createWriteAPDUCommand((byte) 0x01, dataToWrite);
 
-		mBiometricsManager.cardCommand(new ApduCommand(apdu),
-				false,
-				(Biometrics.ResultCode resultCode, byte sw1, byte sw2, byte[] data) -> {
-					if (resultCode == FAIL) {
-						Log.w(TAG, "APDU Execution error(SW1, SW2):" + sw1 + ", " + sw2);
-						return;
-					}
-					Log.d(TAG, "SW1, SW2: " + Hex.toString(sw1) + ", " + Hex.toString(sw2));
+		mBiometricsManager.cardCommand(new ApduCommand(apdu), false, (ResultCode resultCode,
+																	  byte sw1,
+																	  byte sw2,
+																	  byte[] data) -> {
 
-					// Now use SYNCHRONOUS APIs for reading that data back.
-					CardCommandResponse response = mBiometricsManager.cardCommandSync(new ApduCommand(mAPDUReadSpecialData), false, 4000);
-					if (response == null) {
-						Log.w(TAG, "APDUCommand(" + apdu + "): NULL RESPONSE");
-						return;
-					}
-					Log.d(TAG, "SW1, SW2: " + Hex.toString(response.sw1) + ", " + Hex.toString(response.sw2));
+			if (FAIL == resultCode) {
+				mCardReaderStatusTextView.setText(getString(R.string.done_writing_to_card));
+				mDataTextView.setText(getString(R.string.apdu_failed));
+				this.setReadWriteComponentEnable(true);
+				return;
+			}
 
-					// Convert read data into human readable ASCII characters. Wrap data around quotes ''.
-					String name = "\'";
-					for (int i = 0; i < response.data.length; i++) {
-						//noinspection StringConcatenationInLoop
-						name += (char) response.data[i];
-					}
-					name += "\'";
-					Log.d(TAG, "Data read from card " + name);
-				});
+			String str = String.format(Locale.ENGLISH,
+					"SW1: %s, SW2: %s",
+					Hex.toString(sw1),
+					Hex.toString(sw2));
+
+			mCardReaderStatusTextView.setText(getString(R.string.done_writing_to_card));
+			mDataTextView.setText(str);
+
+			this.setReadWriteComponentEnable(true);
+
+			/* If a write was successful we should then update "mAPDUReadSpecialData" so that it
+			 * will same number of bytes that were written.
+			 */
+			this.updateReadSpecialAPDU(mSpecialData);
+		});
 	}
 
 	/* Creates an APDU command for writing data to a MiFare card.
@@ -535,18 +538,37 @@ public class CardReaderActivity
 		/* 7 MiFare bytes, 2 Data size bytes, CID header bytes+ data */
 		byte[] writeAPDU = new byte[7 + dataLen];
 
-		writeAPDU[0] = (byte) 0xFF;						// MiFare Card Header
-		writeAPDU[1] = (byte) 0xD6;						// MiFare Card WRITE Command
-		writeAPDU[2] = (byte) 0x00;						// P1
-		writeAPDU[3] = blockNumber;						// P2: Block Number
-		writeAPDU[4] = (byte) 0x00;         			// Escape Character
-		writeAPDU[5] = (byte) ((dataLen >> 8) & 0xFF);	// Number of bytes: MSB
-		writeAPDU[6] = (byte) (dataLen & 0xFF);			// Number of bytes: LSB
+		writeAPDU[0] = (byte) 0xFF;                        // MiFare Card Header
+		writeAPDU[1] = (byte) 0xD6;                        // MiFare Card WRITE Command
+		writeAPDU[2] = (byte) 0x00;                        // P1
+		writeAPDU[3] = blockNumber;                        // P2: Block Number
+		writeAPDU[4] = (byte) 0x00;                        // Escape Character
+		writeAPDU[5] = (byte) ((dataLen >> 8) & 0xFF);     // Number of bytes: MSB
+		writeAPDU[6] = (byte) (dataLen & 0xFF);            // Number of bytes: LSB
 
 		/* Append "data" to end of "writeAPDU" byte array. */
 		System.arraycopy(data, 0, writeAPDU, 7, dataLen);
 
 		/* Return "writeAPDU" as a String. */
 		return Hex.toString(writeAPDU);
+	}
+
+	/* After writing "special" data to a card we also want to be able to read it back. This method
+	 * will update special APDU read command to read data that was last written to card.
+	 *
+	 * @param data
+	 */
+	private void
+	updateReadSpecialAPDU(byte[] data) {
+		mAPDUReadSpecialData = "FF"   // MiFare Card
+				+ "B0"                // MiFare Card READ Command
+				+ "00"                // P1
+				+ "01";               // P2: Block Number
+
+		mAPDUReadSpecialData += Hex.toString((byte) mSpecialData.length);
+
+		if (mREAD_SPECIAL_APDU_LEN == mReadAPDUCommand.length())
+			mReadAPDUCommand = mAPDUReadSpecialData;
+
 	}
 }

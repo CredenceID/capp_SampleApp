@@ -23,9 +23,18 @@ public class MRZActivity
 
 	private final static String TAG = MRZActivity.class.getSimpleName();
 
+	/* If a document is present on either MRZ/Epassport sensor then C-Service returns this code in
+	 * sensors respective callback.
+	 */
 	private static final int mDOCUMENT_PRESENT_CODE = 2;
-
+	/* MRZ reader returns one giant string of data back. Once user splits this string by space
+	 * delimiter they are supposed to have ten elements. This constant can be used to confirm
+	 * that appropriate data was read.
+	 */
 	private final int mMRZ_DATA_COUNT = 10;
+	/*
+	 *
+	 */
 	private final int mDATE_OF_BIRTH = 0;
 	private final int mDATE_OF_EXPIRY = 1;
 	private final int mISSUER = 2;
@@ -38,16 +47,35 @@ public class MRZActivity
 	private final int mDOCUMENT_NUMBER = 9;
 	private final int mGENDER = 10;
 
+	/*
+	 * Components in layout file.
+	 */
 	private TextView mStatusTextView;
 	private ImageView mICAOImageView;
 	private TextView mICAOTextView;
 	private Button mOpenMRZButton;
 	private Button mOpenRFButton;
+	/* This button should only be enabled if three conditions are all met.
+	 * 1. EPassport is open.
+	 * 2. MRZ has been read and document number, D.O.B., and D.O.E. have been captured
+	 * 3. A document is present on EPassport sensor.
+	 */
+	private Button mReadICAOButton;
 
+	/* CredenceSDK biometrics object, used to interface with APIs. */
 	private BiometricsManager mBiometricsManager;
 
+	/* These keep track of MRZ/EPassport sensor states. These are used to regulate button enables
+	 * and handle branches in functionality.
+	 */
 	private boolean mIsMRZOpen = false;
 	private boolean mIsEpassportOpen = false;
+	private boolean mHasMRZData = false;
+	private boolean mIsDocPresentOnEPassport = false;
+
+	private String mDocumentNumber = "";
+	private String mDateOfBirth = "";
+	private String mDateOfExpiry = "";
 
 	/* Callback invoked each time MRZ reader is able to read MRZ text from document. */
 	@SuppressWarnings("SpellCheckingInspection")
@@ -62,9 +90,10 @@ public class MRZActivity
 		Log.d(TAG, "OnMrzReadListener: Data: " + data);
 		Log.d(TAG, "OnMrzReadListener: ParsedData: " + parsedData);
 
-		if (FAIL == resultCode)
+		if (FAIL == resultCode) {
 			mStatusTextView.setText(getString(R.string.mrz_failed_reswipe));
-		else if (INTERMEDIATE == resultCode)
+			mHasMRZData = false;
+		} else if (INTERMEDIATE == resultCode)
 			mStatusTextView.setText(getString(R.string.mrz_reading_wait));
 		else {
 			/* Once data is read, it is auto parsed and returned as one big string of data. */
@@ -88,10 +117,11 @@ public class MRZActivity
 			mStatusTextView.setText(getString(R.string.mrz_read_success));
 			mICAOTextView.setText(parsedData);
 
-			/* Now try to read ICAO document with information from MRZ. */
-			readICAODocument(splitData[mDATE_OF_BIRTH],
-					splitData[mDOCUMENT_NUMBER],
-					splitData[mDATE_OF_EXPIRY]);
+			mDocumentNumber = splitData[mDOCUMENT_NUMBER];
+			mDateOfBirth = splitData[mDATE_OF_BIRTH];
+			mDateOfExpiry = splitData[mDATE_OF_EXPIRY];
+
+			mHasMRZData = true;
 		}
 	};
 
@@ -120,8 +150,15 @@ public class MRZActivity
 			= (int previousState, int currentState) -> {
 
 		/* If currentState is not 2, then no document is present. */
-		if (mDOCUMENT_PRESENT_CODE != currentState)
+		if (mDOCUMENT_PRESENT_CODE != currentState) {
 			Log.d(TAG, "Document was removed, no document present.");
+			mIsDocPresentOnEPassport = false;
+		} else {
+			mIsDocPresentOnEPassport = true;
+
+			/* Only if remaining other conditions (1 & 2) are met should button be enabled. */
+			mReadICAOButton.setEnabled(mHasMRZData && mIsEpassportOpen);
+		}
 	};
 
 	@Override
@@ -170,6 +207,7 @@ public class MRZActivity
 
 		mOpenMRZButton = findViewById(R.id.open_mrz_button);
 		mOpenRFButton = findViewById(R.id.open_epassport_buton);
+		mReadICAOButton = findViewById(R.id.read_icao_button);
 	}
 
 	/* Configure all objects in layout file, set up listeners, views, etc. */
@@ -194,6 +232,11 @@ public class MRZActivity
 			if (!mIsEpassportOpen)
 				openEPassportReader();
 			else mBiometricsManager.ePassportCloseCommand();
+		});
+
+		mReadICAOButton.setEnabled(false);
+		mReadICAOButton.setOnClickListener((View v) -> {
+			this.readICAODocument(mDateOfBirth, mDocumentNumber, mDateOfExpiry);
 		});
 	}
 
@@ -279,6 +322,7 @@ public class MRZActivity
 				 */
 				mIsEpassportOpen = false;
 
+				mReadICAOButton.setEnabled(false);
 				mOpenRFButton.setEnabled(true);
 				mOpenRFButton.setText(getString(R.string.open_epassport));
 				mStatusTextView.setText(getString(R.string.epassport_closed));
@@ -312,6 +356,9 @@ public class MRZActivity
 			return;
 		}
 
+		/* Disable button so user does not initialize another readICAO document API call. */
+		mReadICAOButton.setEnabled(false);
+
 		mBiometricsManager.readICAODocument(dateOfBirth, documentNumber, dateOfExpiry,
 				(Biometrics.ResultCode resultCode,
 				 ICAOReadIntermediateCode stage,
@@ -330,6 +377,14 @@ public class MRZActivity
 					/* If DG2 state was successful then display read face image to ImageView. */
 					if (ICAOReadIntermediateCode.DG2 == stage && OK == resultCode)
 						mICAOImageView.setImageBitmap(icaoDocumentData.dgTwo.faceImage);
+					/* If finished reading DG3 then re-enable read ICAO button since now C-Service
+					 * has finished reading ICAO document.
+					 */
+					else if (ICAOReadIntermediateCode.DG3 == stage) {
+						mReadICAOButton.setEnabled(mIsEpassportOpen
+								&& mHasMRZData
+								&& mIsDocPresentOnEPassport);
+					}
 				});
 	}
 }

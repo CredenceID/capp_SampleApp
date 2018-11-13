@@ -11,8 +11,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cid.sdk.models.DeviceFamily;
-import com.cid.sdk.models.DeviceType;
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.Biometrics.OnFingerprintGrabbedWSQListener;
 import com.credenceid.biometrics.BiometricsManager;
@@ -31,12 +29,6 @@ public class FingerprintActivity
 	/* CredenceSDK biometrics object, used to interface with APIs. */
 	@SuppressLint("StaticFieldLeak")
 	private static BiometricsManager mBiometricsManager;
-	/* Stores which Credence family of device's this app is running on. */
-	@SuppressWarnings({"FieldCanBeLocal", "unused"})
-	private static DeviceFamily mDeviceFamily = DeviceFamily.INVALID;
-	/* Stores which specific device this app is running on. */
-	@SuppressWarnings({"FieldCanBeLocal", "unused"})
-	private static DeviceType mDeviceType = DeviceType.INVALID;
 
 	/* List of different fingerprint scan types supported across all Credence devices. */
 	private final Biometrics.ScanType mScanTypes[] = {
@@ -132,8 +124,6 @@ public class FingerprintActivity
 		Log.d(TAG, "onCreate(Bundle)");
 
 		mBiometricsManager = MainActivity.getBiometricsManager();
-		mDeviceFamily = MainActivity.getDeviceFamily();
-		mDeviceType = MainActivity.getDeviceType();
 
 		this.initializeLayoutComponents();
 		this.configureLayoutComponents();
@@ -254,11 +244,13 @@ public class FingerprintActivity
 		this.setCaptureMatchButtonEnable(enable);
 
 		mOpenCloseButton.setEnabled(enable);
-
 		mFingerprintOneImageView.setEnabled(enable);
 		mFingerprintTwoImageView.setEnabled(enable);
 	}
 
+	/* Make CredenceSDK API calls to capture "first" fingerprint. This is fingerprint image on left
+	 * side of layout file.
+	 */
 	private void
 	captureFingerprintOne() {
 		mFingerprintOneFMDTemplate = null;
@@ -286,28 +278,22 @@ public class FingerprintActivity
 					mFingerprintOneImageView.setImageBitmap(bitmap);
 
 				/* This case may occur if "cancelCapture()" or "closeFingerprint()" are called while
-				 * in middle of capture.
+				 * in middle of capture OR if capture failed.
 				 */
-				if (resultCode == INTERMEDIATE && hint != null && hint.equals("Capture Stopped")) {
-					mOpenCloseButton.setEnabled(true);
-					mCaptureButton.setEnabled(true);
+				if ((INTERMEDIATE == resultCode && hint != null && hint.equals("Capture Stopped"))
+						|| FAIL == resultCode) {
+					setAllComponentEnable(true);
 				}
 
 				/* This ResultCode is returned once fingerprint has been fully captured. */
 				if (resultCode == OK) {
 					mStatusTextView.setText("WSQ File: " + wsqFilepath);
 					mInfoTextView.setText("Quality: " + nfiqScore);
-					mCaptureButton.setEnabled(true);
-					mOpenCloseButton.setEnabled(true);
 
 					/* Create template from fingerprint image. */
 					createFMDTemplate(bitmap);
-				}
 
-				/* This ResultCode is returned is fingerprint capture fails. */
-				if (resultCode == FAIL) {
-					mOpenCloseButton.setEnabled(true);
-					mCaptureButton.setEnabled(true);
+					setAllComponentEnable(true);
 				}
 			}
 
@@ -319,6 +305,9 @@ public class FingerprintActivity
 		});
 	}
 
+	/* Make CredenceSDK API calls to capture "second" fingerprint. This is fingerprint image on
+	 * right side of layout file.
+	 */
 	private void
 	captureFingerprintTwo() {
 		mFingerprintTwoFMDTemplate = null;
@@ -340,26 +329,20 @@ public class FingerprintActivity
 					mFingerprintTwoImageView.setImageBitmap(bitmap);
 
 				/* This case may occur if "cancelCapture()" or "closeFingerprint()" are called while
-				 * in middle of capture.
+				 * in middle of capture OR if capture failed.
 				 */
-				if (resultCode == INTERMEDIATE && hint != null && hint.equals("Capture Stopped")) {
-					mOpenCloseButton.setEnabled(true);
-					mCaptureButton.setEnabled(true);
+				if ((INTERMEDIATE == resultCode && hint != null && hint.equals("Capture Stopped"))
+						|| FAIL == resultCode) {
+					setAllComponentEnable(true);
 				}
 
 				/* This ResultCode is returned once fingerprint has been fully captured. */
 				if (resultCode == OK) {
-					mCaptureButton.setEnabled(true);
-					mOpenCloseButton.setEnabled(true);
-
 					/* Create template from fingerprint image. */
 					createFMDTemplate(bitmap);
-				}
 
-				/* This ResultCode is returned is fingerprint capture fails. */
-				if (resultCode == FAIL) {
-					mOpenCloseButton.setEnabled(true);
-					mCaptureButton.setEnabled(true);
+					setAllComponentEnable(true);
+
 				}
 			}
 

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.YuvImage;
@@ -50,35 +51,42 @@ import static com.cid.sdk.models.DeviceFamily.TRIDENT;
 import static com.cid.sdk.models.DeviceType.TRIDENT_1;
 import static com.cid.sdk.models.DeviceType.TRIDENT_2;
 
+//TODO: Fix/add comments.
 public class FaceActivity
 		extends Activity
 		implements SurfaceHolder.Callback {
 
 	private final static String TAG = FaceActivity.class.getSimpleName();
 
-	// To obtain high face detection rate we use lowest possible camera resolution for preview.
-	// For the actual picture size, we will use the largest available resolution so there is no
-	// loss in face image quality.
+	/* To obtain high face detection rate we use lowest possible camera resolution for preview.
+	 * For the actual picture size, we will use the largest available resolution so there is no
+	 * loss in face image quality.
+	 */
 	private final static int P_WIDTH = 320;
 	private final static int P_HEIGHT = 240;
-	// It is always good to have a global context in case non-activity classes require it. In this
-	// case "Beeper" class requires it so it may grab audio file from assets.
+
+	/* It is always good to have a global context in case non-activity classes require it. In this
+	 * case "Beeper" class requires it so it may grab audio file from assets.
+	 */
 	@SuppressLint("StaticFieldLeak")
 	private static Context mContext;
-	// --------------------------------------------------------------------------------------------
-	// CredenceSDK Biometrics objects.
-	// --------------------------------------------------------------------------------------------
+
+	/* CredenceSDK biometrics object, used to interface with APIs. */
 	@SuppressLint("StaticFieldLeak")
 	private static BiometricsManager mBiometricsManager;
-	private static DeviceFamily mDeviceFamily;
-	private static DeviceType mDeviceType;
+	/* Stores which Credence family of device's this app is running on. */
+	private static DeviceFamily mDeviceFamily = DeviceFamily.CID_PRODUCT;
+	/* Stores which specific device this app is running on. */
+	private static DeviceType mDeviceType = DeviceType.CID_PRODUCT;
+
 	private final File mFiveMPFile
 			= new File(Environment.getExternalStorageDirectory() + "/c-sdkapp_5mp.jpg");
 	private final File mEightMPFile
 			= new File(Environment.getExternalStorageDirectory() + "/c-sdkapp_8mp.jpg");
-	// --------------------------------------------------------------------------------------------
-	// Different components from layout file.
-	// --------------------------------------------------------------------------------------------
+
+	/*
+	 * Components in layout file.
+	 */
 	private PreviewFrameLayout mPreviewFrameLayout;
 	private DrawingView mDrawingView;
 	private SurfaceView mScannedImageView;
@@ -100,24 +108,21 @@ public class FaceActivity
 	/* This callback is invoked after camera finishes taking a picture. */
 	private Camera.PictureCallback mOnPictureTakenCallback = new Camera.PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera cam) {
-			// Now that picture has been taken, turn off flash.
-			setFlashMode(false);
-
-			// Produce "camera shutter" sound so user knows that picture was captured.
+			/* Produce "camera shutter" sound so user knows that picture was captured. */
 			Beeper.getInstance().click();
 
-			// Camera is no longer in preview.
+			/* Now that picture has been taken, turn off flash. */
+			setFlashMode(false);
+
+			/* Camera is no longer in preview. */
 			mInPreview = false;
 
-			// Remove previous status, "Starting capture, hold still..." since capture is complete.
+			/* Remove previous status since capture is complete. */
 			mStatusTextView.setText("");
-			// Change button to let user know they may take another picture.
+			/* Change button to let user know they may take another picture. */
 			mCaptureButton.setText(getString(R.string.recapture_label));
-			// Allow user to re-take an image.
+			/* Allow user to re-take an image. */
 			setCaptureButtonVisibility(true);
-
-			// Save image to external storage.
-			saveImage(data);
 		}
 	};
 
@@ -296,9 +301,13 @@ public class FaceActivity
 	}
 
 	/* Configured all layout file component objects. Assigns listeners, configurations, etc. */
+	@SuppressWarnings("deprecation")
 	private void
 	configureLayoutComponents() {
 		this.setFlashButtonVisibility(true);
+
+		if (mDeviceFamily != CTAB)
+			mEightMPCheckbox.setVisibility(View.GONE);
 
 		mPreviewFrameLayout.setVisibility(VISIBLE);
 		mDrawingView.setVisibility(VISIBLE);
@@ -306,7 +315,6 @@ public class FaceActivity
 
 		mSurfaceHolder = mScannedImageView.getHolder();
 		mSurfaceHolder.addCallback(this);
-		//noinspection deprecation
 		mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		mCaptureButton.setOnClickListener((View v) -> {
@@ -492,24 +500,24 @@ public class FaceActivity
 		Log.d(TAG, "doPreview()");
 
 		try {
-			// If camera was not already opened, open it.
+			/* If camera was not already opened, open it. */
 			if (mCamera == null) {
 				mCamera = Camera.open();
 
-				// Tells camera to give us preview frames in these dimensions.
+				/* Tells camera to give us preview frames in these dimensions. */
 				this.setPreviewSize(P_WIDTH, P_HEIGHT, (double) P_WIDTH / P_HEIGHT);
 			}
 
 			if (mCamera != null) {
 				Log.d(TAG, "Camera opened, setting preview buffers, surfaces, etc.");
 
-				// Tell camera where to draw frames to.
+				/* Tell camera where to draw frames to. */
 				mCamera.setPreviewDisplay(mSurfaceHolder);
-				// Tell camera to invoke this callback on each frame.
+				/* Tell camera to invoke this callback on each frame. */
 				mCamera.setPreviewCallback(mCameraPreviewCallback);
-				// Tell camera to rotate preview frames to proper orientation, based on DeviceType.
+				/* Rotate preview frames to proper orientation based on DeviceType. */
 				this.setCameraPreviewDisplayOrientation();
-				// Now we can tell camera to start preview frames.
+				/* Now we can tell camera to start preview frames. */
 				this.startPreview();
 			}
 		} catch (Exception e) {
@@ -526,16 +534,16 @@ public class FaceActivity
 	@SuppressLint("SetTextI18n")
 	private void
 	doCapture() {
-		//this.reset();
 		this.setCameraPictureOrientation();
 
 		if (mCamera != null) {
 			this.setCaptureButtonVisibility(false);
 			mStatusTextView.setText("Starting capture, hold still...");
 
-			// We are no longer going to be in preview. Set variable BEFORE telling camera to take
-			// picture. Camera takes time to take a picture so we do not want any preview event to
-			// take place while a picture is being captured.
+			/* We are no longer going to be in preview. Set variable BEFORE telling camera to take
+			 * picture. Camera takes time to take a picture so we do not want any preview event to
+			 * take place while a picture is being captured.
+			 */
 			mInPreview = false;
 			mCamera.takePicture(null, null, null, mOnPictureTakenCallback);
 		}
@@ -544,32 +552,27 @@ public class FaceActivity
 	private void
 	stopReleaseCamera() {
 		if (mCamera != null) {
-			// Tell camera to no longer invoke callback on each preview frame.
+			/* Tell camera to no longer invoke callback on each preview frame. */
 			mCamera.setPreviewCallback(null);
-			// Turn off flash.
+			/* Turn off flash. */
 			this.setFlashMode(false);
 
-			// Stop camera preview.
+			/* Stop camera preview. */
 			if (mInPreview)
 				mCamera.stopPreview();
 
-			// Release camera and nullify object.
+			/* Release camera and nullify object. */
 			mCamera.release();
 			mCamera = null;
-			// We are no longer in preview mode.
+			/* We are no longer in preview mode. */
 			mInPreview = false;
 		}
 
-		// Remove camera surfaces.
+		/* Remove camera surfaces. */
 		mSurfaceHolder.removeCallback(this);
 		this.surfaceDestroyed(mSurfaceHolder);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	//
-	// Methods related to UI control.
-	//
-	// --------------------------------------------------------------------------------------------
 	/* This method either hides or shows capture button allowing user to capture an image. This is
 	 * required because while camera is focusing user should not be allowed to press capture. Once
 	 * focusing finishes and a clear preview is available, only then should an image be allowed to
@@ -602,12 +605,13 @@ public class FaceActivity
 	 */
 	private void
 	setFlashMode(boolean useFlash) {
-		// If camera object was destroyed, there is nothing to do.
+		/* If camera object was destroyed, there is nothing to do. */
 		if (mCamera == null)
 			return;
 
-		// Camera flash parameters do not work on TAB/TRIDENT devices. In order to use flash on
-		// these devices you must use the Credence APIs.
+		/* Camera flash parameters do not work on TAB/TRIDENT devices. In order to use flash on
+		 * these devices you must use the Credence APIs.
+		 */
 		if (mDeviceFamily == CTAB || mDeviceFamily == TRIDENT)
 			mBiometricsManager.cameraFlashControl(useFlash);
 		else {
@@ -626,25 +630,20 @@ public class FaceActivity
 	reset() {
 		Log.d(TAG, "reset()");
 
-		// This method is called before we start a camera preview, so we update global variable.
+		/* This method is called before we start a camera preview, so we update global variable. */
 		mInPreview = true;
 
-		// Change capture button image to "Capture".
+		/* Change capture button image to "Capture". */
 		mCaptureButton.setText(getString(R.string.capture_label));
 
-		// Turn off flash since new preview.
+		/* Turn off flash since new preview. */
 		this.setFlashMode(false);
 
-		// Display all buttons in their proper states.
+		/* Display all buttons in their proper states. */
 		this.setCaptureButtonVisibility(true);
 		this.setFlashButtonVisibility(true);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	//
-	// Methods used for performing some type of operation/processing.
-	//
-	// --------------------------------------------------------------------------------------------
 	/* Attempts to perform tap-to-focus on camera with given focus region.
 	 *
 	 * @param touchRect Region to focus on.
@@ -660,21 +659,21 @@ public class FaceActivity
 
 		final int one = 2000, two = 1000;
 
-		// Here we properly bound our Rect for a better tap to focus region
+		/* Here we properly bound our Rect for a better tap to focus region */
 		final Rect targetFocusRect = new Rect(
 				touchRect.left * one / mDrawingView.getWidth() - two,
 				touchRect.top * one / mDrawingView.getHeight() - two,
 				touchRect.right * one / mDrawingView.getWidth() - two,
 				touchRect.bottom * one / mDrawingView.getHeight() - two);
 
-		// Since Camera parameters only accept a List of  areas to focus, create a
-		// list.
+		/* Since Camera parameters only accept a List of  areas to focus, create a list. */
 		final List<Camera.Area> focusList = new ArrayList<>();
-		// Convert Graphics.Rect to Camera.Rect for camera parameters to understand.
-		// Add custom focus Rect. region to focus list.
+		/* Convert Graphics.Rect to Camera.Rect for camera parameters to understand.
+		 * Add custom focus Rect. region to focus list.
+		 */
 		focusList.add(new Camera.Area(targetFocusRect, 1000));
 
-		// For certain device auto-focus parameters need to be explicitly setup.
+		/* For certain device auto-focus parameters need to be explicitly setup. */
 		if (mDeviceFamily == CONE) {
 			Camera.Parameters para = mCamera.getParameters();
 			para.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
@@ -683,11 +682,11 @@ public class FaceActivity
 			mCamera.setParameters(para);
 		}
 
-		// Call mCamera AutoFocus and pass callback to be called when auto focus finishes
+		/* Call mCamera AutoFocus and pass callback to be called when auto focus finishes */
 		mCamera.autoFocus(mAutoFocusCallback);
-		// Tell our drawing view we have a touch in the given Rect
+		/* Tell our drawing view we have a touch in the given Rect */
 		mDrawingView.setHasTouch(true, touchRect);
-		// Tell our drawing view to Update
+		/* Tell our drawing view to Update */
 		mDrawingView.invalidate();
 	}
 
@@ -698,54 +697,56 @@ public class FaceActivity
 	 */
 	private void
 	detectFace(byte[] bitmapBytes) {
-		// If camera was closed, immediately after a preview callback exit out, this is to prevent
-		// NULL pointer exceptions when using the camera object later on.
+		/* If camera was closed, immediately after a preview callback exit out, this is to prevent
+		 * NULL pointer exceptions when using the camera object later on.
+		 */
 		if (mCamera == null || bitmapBytes == null)
 			return;
 
 		Log.d(TAG, "detectFace");
 
-		// We need to stop camera preview callbacks from continuously being invoked while processing
-		// is going on. Otherwise we would have a backlog of frames needing to be processed. To fix
-		// this we remove preview callback, then re-enable it post-processing.
-		//
-		// - Preview callback invoked.
-		// -- Tell camera to sto preview callbacks.
-		// **** Meanwhile camera is still receiving frames, but continues to draw them. ****
-		// -- Process camera preview frame.
-		// -- Draw detected face Rect.
-		// -- Tell camera to invoke preview callback with next frame.
-		//
-		// Using this technique does not drop camera frame-rate, so camera does not look "laggy".
-		// Instead now we use every 5-th frame for face detection.
+		/* We need to stop camera preview callbacks from continuously being invoked while processing
+		 * is going on. Otherwise we would have a backlog of frames needing to be processed. To fix
+		 * this we remove preview callback, then re-enable it post-processing.
+		 *
+		 * - Preview callback invoked.
+		 * -- Tell camera to sto preview callbacks.
+		 * **** Meanwhile camera is still receiving frames, but continues to draw them. ****
+		 * -- Process camera preview frame.
+		 * -- Draw detected face Rect.
+		 * -- Tell camera to invoke preview callback with next frame.
+		 *
+		 * Using this technique does not drop camera frame-rate, so camera does not look "laggy".
+		 * Instead now we use every 5-th frame for face detection.
+		 */
 		mCamera.setPreviewCallback(null);
 
-		// Need to fix color format of raw camera preview frames.
+		/* Need to fix color format of raw camera preview frames. */
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		Rect rect = new Rect(0, 0, 320, 240);
 		YuvImage yuvimage = new YuvImage(bitmapBytes, ImageFormat.NV21, 320, 240, null);
 		yuvimage.compressToJpeg(rect, 100, outStream);
 
-		// Save fixed color image as final good Bitmap.
+		/* Save fixed color image as final good Bitmap. */
 		Bitmap bm = BitmapFactory.decodeByteArray(outStream.toByteArray(), 0, outStream.size());
 
-//		if (VIBEApplication.isDeviceOfType(CREDENCE_TWO_FAMILY)) {
-//			mFinalBitmap = ImageTools.Editor.Rotate(mFinalBitmap, 90);
-//		}
+		if (DeviceFamily.CTWO == mDeviceFamily)
+			bm = rotateBitmap(bm, 90);
 
-		// Detect face on finalized Bitmap image.
+		/* Detect face on finalized Bitmap image. */
 		mBiometricsManager.detectFace(bm, (Biometrics.ResultCode resultCode,
 										   RectF rectF) -> {
-			// If camera was closed or preview stopped, immediately exit out. This is done so that
-			// we do not continue to process invalid frames, or draw to NULL surfaces.
+			/* If camera was closed or preview stopped, immediately exit out. This is done so that
+			 * we do not continue to process invalid frames, or draw to NULL surfaces.
+			 */
 			if (mCamera == null || !mInPreview)
 				return;
 
-			// Tell camera to start preview callbacks again.
+			/* Tell camera to start preview callbacks again. */
 			mCamera.setPreviewCallback(mCameraPreviewCallback);
 
 			if (resultCode == Biometrics.ResultCode.OK) {
-				// Tell view that it will need to draw a detected face's Rect. region.
+				/* Tell view that it will need to draw a detected face's Rect. region. */
 				mDrawingView.setHasFace(true);
 
 				Log.d(TAG, "FaceRect: " + rectF.toString());
@@ -762,38 +763,19 @@ public class FaceActivity
 							rectF.bottom);
 				}
 			} else {
-				// Tell view to not draw face Rect. region on next "onDraw()" call.
+				/* Tell view to not draw face Rect. region on next "onDraw()" call. */
 				mDrawingView.setHasFace(false);
 			}
 
-			// Tell view to invoke an "onDraw()".
+			/* Tell view to invoke an "onDraw()". */
 			mDrawingView.invalidate();
 		});
 	}
 
-	@SuppressWarnings("ResultOfMethodCallIgnored")
-	private void
-	saveImage(byte[] rawData) {
-		if (rawData == null || rawData.length == 0)
-			return;
-
-		Bitmap bitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);
-		File imageFile = mFiveMPFile;
-
-		if (mEightMPCheckbox.isChecked()) {
-			imageFile = mEightMPFile;
-			bitmap = Bitmap.createScaledBitmap(bitmap, 3264, 2448, false);
-		}
-
-		if (imageFile.exists())
-			imageFile.delete();
-
-		try (OutputStream outputStream = new FileOutputStream(imageFile)) {
-			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-			outputStream.flush();
-		} catch (Exception e) {
-			Log.e(TAG, "Unable to save image.");
-			Toast.makeText(mContext, "Unable to save image, please retry...", LENGTH_SHORT).show();
-		}
+	private Bitmap
+	rotateBitmap(Bitmap source, float angle) {
+		Matrix matrix = new Matrix();
+		matrix.postRotate(angle);
+		return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
 	}
 }

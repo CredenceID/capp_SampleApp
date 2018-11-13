@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:layout_centerInParent="true"
+	android:layout_gravity="center"
 	android:background="@color/background"
-	tools:context=".MainActivity">
+	android:gravity="center"
+	android:orientation="vertical"
+	tools:context=".MainActivity"
+	tools:ignore="MissingDefaultResource">
 
 	<LinearLayout
 		android:id="@+id/device_info"
+		android:layout_marginTop="20dp"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_centerVertical="true"
-		android:layout_marginStart="100dp"
 		android:gravity="center"
 		android:orientation="vertical">
 
 		<!-- CID logo seen at top of page. -->
 		<ImageView
 			android:id="@+id/logo"
-			android:layout_width="200dp"
-			android:layout_height="200dp"
+			android:layout_width="150dp"
+			android:layout_height="150dp"
 			android:layout_gravity="center_horizontal"
 			android:src="@drawable/ic_launcher"
 			tools:ignore="ContentDescription" />
@@ -31,9 +35,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
-			android:layout_marginStart="10dp"
-			android:layout_marginTop="100dp"
-			android:layout_marginEnd="10dp"
+			android:layout_marginTop="20dp"
 			android:gravity="center"
 			android:orientation="vertical">
 
@@ -119,97 +121,81 @@
 	<!--#########################################################################################-->
 	<!-- Buttons to goto each biometric activity. -->
 	<!--#########################################################################################-->
-	<RelativeLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentEnd="true"
-		android:layout_margin="50dp"
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center"
+		android:gravity="center"
 		android:orientation="vertical">
 
-		<ImageButton
-			android:id="@+id/fingerprint_button"
-			android:layout_width="@dimen/main_button_size"
-			android:layout_height="@dimen/main_button_size"
-			android:background="@drawable/tab_btn_background"
-			android:src="@drawable/ic_fingerprint"
-			tools:ignore="ContentDescription" />
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
 
-		<ImageButton
-			android:id="@+id/cardreader_button"
-			android:layout_width="@dimen/main_button_size"
-			android:layout_height="@dimen/main_button_size"
-			android:layout_marginStart="@dimen/main_button_inter_margin"
-			android:layout_toEndOf="@id/fingerprint_button"
-			android:background="@drawable/tab_btn_background"
-			android:src="@drawable/ic_card_reader"
-			tools:ignore="ContentDescription" />
+			<ImageButton
+				android:id="@+id/fingerprint_button"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_fingerprint"
+				tools:ignore="ContentDescription" />
 
-		<!--<View-->
-		<!--android:layout_width="0dp"-->
-		<!--android:layout_height="0dp"-->
-		<!--android:layout_weight="1" />-->
+			<ImageButton
+				android:id="@+id/cardreader_button"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginStart="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_card_reader"
+				tools:ignore="ContentDescription" />
 
-		<!--<LinearLayout-->
-		<!--android:layout_width="wrap_content"-->
-		<!--android:layout_height="wrap_content"-->
-		<!--android:orientation="horizontal">-->
+		</LinearLayout>
 
-		<!--<View-->
-		<!--android:layout_width="0dp"-->
-		<!--android:layout_height="0dp"-->
-		<!--android:layout_weight="1" />-->
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
 
-		<ImageButton
-			android:id="@+id/face_button"
-			android:layout_width="@dimen/main_button_size"
-			android:layout_height="@dimen/main_button_size"
-			android:layout_below="@id/fingerprint_button"
-			android:layout_marginTop="@dimen/main_button_inter_margin"
-			android:background="@drawable/tab_btn_background"
-			android:src="@drawable/ic_camera"
-			tools:ignore="ContentDescription" />
+			<ImageButton
+				android:id="@+id/face_button"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginTop="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_camera"
+				tools:ignore="ContentDescription" />
 
-		<!--<View-->
-		<!--android:layout_width="0dp"-->
-		<!--android:layout_height="0dp"-->
-		<!--android:layout_weight="1" />-->
+			<ImageButton
+				android:id="@+id/mrz_button"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginStart="@dimen/main_button_inter_margin"
+				android:layout_marginTop="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_mrz"
+				tools:ignore="ContentDescription" />
 
-		<ImageButton
-			android:id="@+id/mrz_button"
-			android:layout_width="@dimen/main_button_size"
-			android:layout_height="@dimen/main_button_size"
-			android:layout_below="@id/cardreader_button"
-			android:layout_marginStart="@dimen/main_button_inter_margin"
-			android:layout_marginTop="@dimen/main_button_inter_margin"
-			android:layout_toEndOf="@id/face_button"
-			android:background="@drawable/tab_btn_background"
-			android:src="@drawable/ic_mrz"
-			tools:ignore="ContentDescription" />
+		</LinearLayout>
 
-		<!--<View-->
-		<!--android:layout_width="0dp"-->
-		<!--android:layout_height="0dp"-->
-		<!--android:layout_weight="1" />-->
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
 
-		<!--</LinearLayout>-->
+			<ImageButton
+				android:id="@+id/iris_button"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginStart="@dimen/main_button_inter_margin"
+				android:layout_marginTop="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_iris"
+				android:visibility="gone"
+				tools:ignore="ContentDescription" />
 
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1" />
+		</LinearLayout>
 
-	</RelativeLayout>
+	</LinearLayout>
 
-	<!-- Iris button, for landscape this is only here so code does not break. -->
-	<ImageButton
-		android:id="@+id/iris_button"
-		android:layout_width="0dp"
-		android:layout_height="75dp"
-		android:layout_marginStart="10dp"
-		android:layout_marginEnd="10dp"
-		android:background="@drawable/tab_btn_background"
-		android:src="@drawable/ic_iris"
-		android:visibility="gone"
-		tools:ignore="ContentDescription" />
-
-</RelativeLayout>
+</LinearLayout>

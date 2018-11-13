@@ -79,6 +79,16 @@
 			android:layout_weight="1" />
 
 		<Button
+			android:id="@+id/read_icao_button"
+			style="@style/MRZActivityButton"
+			android:text="@string/read_icao_button_label" />
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<Button
 			android:id="@+id/open_epassport_buton"
 			style="@style/MRZActivityButton"
 			android:text="@string/open_epassport" />

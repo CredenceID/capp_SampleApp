@@ -33,7 +33,7 @@
 		<activity
 			android:name=".CardReaderActivity"
 			android:screenOrientation="locked"
-			android:windowSoftInputMode="stateVisible|adjustResize" />
+			android:windowSoftInputMode="stateHidden|adjustResize" />
 
 		<activity
 			android:name=".FaceActivity"

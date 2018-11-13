@@ -30,6 +30,7 @@
 		<item>4K Data</item>
 	</string-array>
 
+	<string name="face_8mp_checkbox_label">8 Mepapixels</string>
 	<string name="opening_card_reader">Opening card reader, please wait…</string>
 	<string name="failed_open_card_reader">Failed to open card reader.</string>
 	<string name="card_reader_opened">Card reader opened.</string>
@@ -54,6 +55,7 @@
 	<string name="close_mrz">Close MRZ</string>
 	<string name="open_epassport">Open EPassport</string>
 	<string name="close_epassport">Close EPassport</string>
+	<string name="read_icao_button_label">Read ICAO</string>
 
 	<string name="mrz_opening">Opening MRZ reader…</string>
 	<string name="mrz_open_failed">Failed to open MRZ reader.</string>

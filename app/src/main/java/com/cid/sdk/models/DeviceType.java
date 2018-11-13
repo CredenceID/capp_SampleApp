@@ -2,7 +2,7 @@ package com.cid.sdk.models;
 
 @SuppressWarnings("SpellCheckingInspection")
 public enum DeviceType {
-	INVALID,
+	CID_PRODUCT,
 	TWIZZLER,
 	TRIDENT_1,
 	TRIDENT_2,

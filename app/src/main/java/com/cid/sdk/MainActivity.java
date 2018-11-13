@@ -24,6 +24,10 @@ import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.widget.Toast.LENGTH_LONG;
+import static com.cid.sdk.models.DeviceType.CTAB_V2;
+import static com.cid.sdk.models.DeviceType.CTAB_V3;
+import static com.cid.sdk.models.DeviceType.CTAB_V4;
+import static com.cid.sdk.models.DeviceType.CTWO_V2;
 
 public class MainActivity extends AppCompatActivity {
 	private static final String TAG = MainActivity.class.getSimpleName();
@@ -45,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
 	@SuppressLint("StaticFieldLeak")
 	private static BiometricsManager mBiometricsManager;
 	/* Stores which Credence family of device's this app is running on. */
-	private static DeviceFamily mDeviceFamily = DeviceFamily.INVALID;
+	private static DeviceFamily mDeviceFamily = DeviceFamily.CID_PRODUCT;
 	/* Stores which specific device this app is running on. */
-	private static DeviceType mDeviceType = DeviceType.INVALID;
+	private static DeviceType mDeviceType = DeviceType.CID_PRODUCT;
 
 	/*
 	 * Components in layout file.
@@ -114,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 			mDeviceType = DeviceType.CTWO_V1;
 			mDeviceFamily = DeviceFamily.CTWO;
 		} else if (productName.equals("Credence Two V2")) {
-			mDeviceType = DeviceType.CTWO_V2;
+			mDeviceType = CTWO_V2;
 			mDeviceFamily = DeviceFamily.CTWO;
 		} else if (productName.equals("Credence TAB V1")) {
 			mDeviceType = DeviceType.CTAB_V1;
@@ -126,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
 			mDeviceType = DeviceType.CTAB_V3;
 			mDeviceFamily = DeviceFamily.CTAB;
 		} else if (productName.equals("Credence TAB V4")) {
-			mDeviceType = DeviceType.CTAB_V4;
+			mDeviceType = CTAB_V4;
 			mDeviceFamily = DeviceFamily.CTAB;
 		}
 	}
@@ -140,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
 		this.initializeLayoutComponents();
 		this.configureLayoutComponents();
+		this.setBiometricButtonsVisibility(View.GONE);
 
 		/*  Create new biometrics object. */
 		mBiometricsManager = new BiometricsManager(this);
@@ -149,26 +154,30 @@ public class MainActivity extends AppCompatActivity {
 												 String sdk_version,
 												 String required_version) -> {
 
-			if (Biometrics.ResultCode.OK != resultCode)
-				Toast.makeText(this, "Biometric initialization FAILED.", LENGTH_LONG).show();
-			else {
-				Toast.makeText(this, "Biometrics initialized.", LENGTH_LONG).show();
-
-				/* Save DeviceType/DeviceFamily so other activities may more easily identify on
-				 * what devices they are running on. This is used for activities to set up their
-				 * layouts, etc.
-				 */
-				this.setDeviceType(mBiometricsManager.getProductName());
-
-				/* Populate text fields which display device/app information. */
-				mProductNameTextView.setText(mBiometricsManager.getProductName());
-				mDeviceIDTextView.setText(mBiometricsManager.getDeviceId());
-				mServiceVersionTextView.setText(mBiometricsManager.getSDKVersion());
-				mDeviceLibVersionTextView.setText(mBiometricsManager.getDeviceLibraryVersion());
-
-				/* Now display buttons which allow user to actually try out different biometrics. */
-				this.configureButtons();
+			if (Biometrics.ResultCode.OK != resultCode) {
+				Toast.makeText(this, "Biometric initialization FAILED. Exiting application.", LENGTH_LONG).show();
+				finish();
+				return;
 			}
+
+			Toast.makeText(this, "Biometrics initialized.", LENGTH_LONG).show();
+
+			/* Save DeviceType/DeviceFamily so other activities may more easily identify on
+			 * what devices they are running on. This is used for activities to set up their
+			 * layouts, etc.
+			 */
+			this.setDeviceType(mBiometricsManager.getProductName());
+
+			/* Populate text fields which display device/app information. */
+			mProductNameTextView.setText(mBiometricsManager.getProductName());
+			mDeviceIDTextView.setText(mBiometricsManager.getDeviceId());
+			mServiceVersionTextView.setText(mBiometricsManager.getSDKVersion());
+			mDeviceLibVersionTextView.setText(mBiometricsManager.getDeviceLibraryVersion());
+
+			/* Configure which buttons user is allowed to see to try out different biometrics based on
+			 * current device this application is running on.
+			 */
+			this.configureButtons(mDeviceFamily, mDeviceType);
 		});
 	}
 
@@ -191,11 +200,7 @@ public class MainActivity extends AppCompatActivity {
 	/* Configure all objects in layout file, set up listeners, views, etc. */
 	private void
 	configureLayoutComponents() {
-		// Display this apps version number.
 		mSDKAppVersionTextView.setText(this.getPackageVersion());
-
-		// Hide all buttons until Biometrics initializes.
-		this.setGlobalButtonVisibility(View.GONE);
 
 		mFingerprintButton.setOnClickListener((View v) ->
 				startActivity(new Intent(this, FingerprintActivity.class)));
@@ -213,41 +218,29 @@ public class MainActivity extends AppCompatActivity {
 				startActivity(new Intent(this, IrisActivity.class)));
 	}
 
-	/* Sets biometric buttons visibility, this is used since on start of app we want all buttons to
-	 * be hidden until biometrics initialized.
-	 *
-	 * @param visibility View.VISIBLE, View.INVISIBLE, View.GONE
-	 */
 	private void
-	setGlobalButtonVisibility(@SuppressWarnings("SameParameterValue") int visibility) {
+	configureButtons(@SuppressWarnings("unused") DeviceFamily deviceFamily,
+					 DeviceType deviceType) {
+
+		/* By default all Credence device's face a fingerprint sensor and camera. */
+		mFingerprintButton.setVisibility(View.VISIBLE);
+		mFaceButton.setVisibility(View.VISIBLE);
+
+		/* Only these devices contain a card reader. */
+		if (CTWO_V2 == deviceType || CTAB_V2 == deviceType || CTAB_V4 == deviceType)
+			mCardReaderButton.setVisibility(View.VISIBLE);
+
+		/* Only these devices contain a MRZ reader. */
+		if (CTAB_V3 == deviceType || CTAB_V4 == deviceType)
+			mMRZButton.setVisibility(View.VISIBLE);
+	}
+
+	private void
+	setBiometricButtonsVisibility(@SuppressWarnings("SameParameterValue") int visibility) {
 		mFingerprintButton.setVisibility(visibility);
 		mCardReaderButton.setVisibility(visibility);
 		mFaceButton.setVisibility(visibility);
 		mMRZButton.setVisibility(visibility);
-		mIrisButton.setVisibility(visibility);
-	}
-
-	/* For each button, either hides/shows based on DeviceType. This is because not all device's
-	 * support all biometrics.
-	 */
-	// TODO: Change all if comparisons so constant is on left hand.
-	private void
-	configureButtons() {
-		mFingerprintButton.setVisibility(View.VISIBLE);
-		mFaceButton.setVisibility(View.VISIBLE);
-
-		if (mDeviceType == DeviceType.TWIZZLER ||
-				mDeviceType == DeviceType.CONE_V2 || mDeviceType == DeviceType.CONE_V3 ||
-				mDeviceType == DeviceType.CTWO_V2 ||
-				mDeviceType == DeviceType.CTAB_V2 || mDeviceType == DeviceType.CTAB_V4)
-			mCardReaderButton.setVisibility(View.VISIBLE);
-
-		if (mDeviceType == DeviceType.CONE_V3 ||
-				mDeviceType == DeviceType.CTAB_V3 || mDeviceType == DeviceType.CTAB_V4)
-			mMRZButton.setVisibility(View.VISIBLE);
-
-		if (mDeviceFamily == DeviceFamily.TRIDENT)
-			mIrisButton.setVisibility(View.VISIBLE);
 	}
 
 	private void
