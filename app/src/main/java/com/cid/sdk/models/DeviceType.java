@@ -1,5 +1,6 @@
 package com.cid.sdk.models;
 
+/* Used to identify which specific Credence device this application is running on. */
 @SuppressWarnings("SpellCheckingInspection")
 public enum DeviceType {
 	CID_PRODUCT,

@@ -1,6 +1,8 @@
 package com.cid.sdk.android.camera;
 
 
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.util.Log;
 
@@ -15,11 +17,13 @@ public class Utils {
 	getBestPreviewSize(int width,
 					   int height,
 					   Camera.Parameters parameters) {
+
 		Camera.Size result = null;
 
 		for (Camera.Size size : parameters.getSupportedPreviewSizes()) {
 			if (size.width <= width && size.height <= height) {
-				if (result == null) result = size;
+				if (result == null)
+					result = size;
 				else {
 					int resultArea = result.width * result.height;
 					int newArea = size.width * size.height;
@@ -76,8 +80,10 @@ public class Utils {
 		Camera cam = null;
 		Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
 		cameraCount = Camera.getNumberOfCameras();
+
 		for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
 			Camera.getCameraInfo(camIdx, cameraInfo);
+
 			if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 				try {
 					cam = Camera.open(camIdx);
@@ -86,15 +92,10 @@ public class Utils {
 				}
 			}
 		}
-
-		if (cam != null) {
-			Log.d(TAG, "front camera1: " + cam.getParameters().getPreviewSize().width
-					+ " " + cam.getParameters().getPreviewSize().height);
-		}
-
 		return cam;
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	public static Camera.Size
 	getLargestPictureSize(Camera.Parameters parameters) {
 		List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
@@ -108,8 +109,28 @@ public class Utils {
 			}
 		}
 
-		//noinspection ConstantConditions
-		 parameters.setPictureSize(bestDimens.width, bestDimens.height);
+		parameters.setPictureSize(bestDimens.width, bestDimens.height);
 		return bestDimens;
+	}
+
+	/* Rotates a given bitmap by angle in degrees.
+	 *
+	 * @param source Bitmap to rotate.
+	 * @param angle Number of degrees by which to rotate image.
+	 * @return
+	 */
+	public static Bitmap
+	rotateBitmap(Bitmap source,
+				 @SuppressWarnings("SameParameterValue") float angle) {
+
+		Matrix matrix = new Matrix();
+		matrix.postRotate(angle);
+
+		return Bitmap.createBitmap(source,
+				0, 0,
+				source.getWidth(),
+				source.getHeight(),
+				matrix,
+				true);
 	}
 }

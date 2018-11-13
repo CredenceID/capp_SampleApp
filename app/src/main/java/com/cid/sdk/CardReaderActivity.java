@@ -313,6 +313,7 @@ public class CardReaderActivity
 										   Biometrics.CloseReasonCode closeReasonCode) {
 				mOpenCloseButton.setEnabled(true);
 
+				/* If card reader failed to close then UI should not allow user to re-open. */
 				if (FAIL == resultCode)
 					return;
 
@@ -369,12 +370,18 @@ public class CardReaderActivity
 					}
 
 					String dataToDisplay;
+
+					/* If data read was special data then convert each read byte into human understandable
+					 * text, ASCII chars.
+					 */
 					if (mREAD_SPECIAL_APDU_LEN == mReadAPDUCommand.length()) {
 						dataToDisplay = "";
 						/* Convert read data into human readable ASCII characters. */
 						for (byte aData : data)
 							dataToDisplay += (char) aData;
-					} else dataToDisplay = Hex.toString(data);
+					}
+					/* If non special data was read then simply convert to String format. */
+					else dataToDisplay = Hex.toString(data);
 
 					String str = String.format(Locale.ENGLISH,
 							"SW1: %s, SW2: %s\nLength of data read: %d\n\n %s",
@@ -414,12 +421,18 @@ public class CardReaderActivity
 			}
 
 			String dataToDisplay;
+
+			/* If data read was special data then convert each read byte into human understandable
+			 * text, ASCII chars.
+			 */
 			if (mREAD_SPECIAL_APDU_LEN == mReadAPDUCommand.length()) {
 				dataToDisplay = "";
 				/* Convert read data into human readable ASCII characters. */
 				for (int i = 0; i < response.data.length; ++i)
 					dataToDisplay += (char) response.data[i];
-			} else dataToDisplay = Hex.toString(response.data);
+			}
+			/* If non special data was read then simply convert to String format. */
+			else dataToDisplay = Hex.toString(response.data);
 
 			String str = String.format(Locale.ENGLISH,
 					"SW1: %s, SW2: %s\nLength of data read: %d\n\n %s",
@@ -556,7 +569,7 @@ public class CardReaderActivity
 	/* After writing "special" data to a card we also want to be able to read it back. This method
 	 * will update special APDU read command to read data that was last written to card.
 	 *
-	 * @param data
+	 * @param data Data that was written to card used for updating APDU.
 	 */
 	private void
 	updateReadSpecialAPDU(byte[] data) {
@@ -567,6 +580,7 @@ public class CardReaderActivity
 
 		mAPDUReadSpecialData += Hex.toString((byte) mSpecialData.length);
 
+		/* If user has selected special read APDU, then we need to update it also. */
 		if (mREAD_SPECIAL_APDU_LEN == mReadAPDUCommand.length())
 			mReadAPDUCommand = mAPDUReadSpecialData;
 

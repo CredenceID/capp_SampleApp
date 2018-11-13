@@ -12,12 +12,15 @@ import com.cid.sdk.FaceActivity;
 public class PreviewFrameLayout extends RelativeLayout {
 	private double mAspectRatio = 4.0 / 3.0;
 
-	public PreviewFrameLayout(Context context, AttributeSet attrs) {
+	public
+	PreviewFrameLayout(Context context,
+					   AttributeSet attrs) {
 		super(context, attrs);
 		setAspectRatio(4.0 / 3.0);
 	}
 
-	public void setAspectRatio(double ratio) {
+	public void
+	setAspectRatio(double ratio) {
 		if (ratio <= 0.0)
 			throw new IllegalArgumentException();
 
@@ -28,7 +31,9 @@ public class PreviewFrameLayout extends RelativeLayout {
 	}
 
 	@Override
-	protected void onMeasure(int widthSpec, int heightSpec) {
+	protected void
+	onMeasure(int widthSpec,
+			  int heightSpec) {
 		int previewWidth = MeasureSpec.getSize(widthSpec);
 		int previewHeight = MeasureSpec.getSize(heightSpec);
 
@@ -68,7 +73,8 @@ public class PreviewFrameLayout extends RelativeLayout {
 
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean
+	onTouchEvent(MotionEvent event) {
 		// If user touched SurfaceView.
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			// Grab touch coordinates

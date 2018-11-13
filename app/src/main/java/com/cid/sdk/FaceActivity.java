@@ -2,11 +2,13 @@ package com.cid.sdk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.YuvImage;
@@ -31,6 +33,9 @@ import com.cid.sdk.models.DeviceType;
 import com.cid.sdk.util.Beeper;
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.BiometricsManager;
+import com.credenceid.face.FaceEngine.Emotion;
+import com.credenceid.face.FaceEngine.Gender;
+import com.credenceid.face.FaceEngine.HeadPoseDirection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -50,6 +55,7 @@ import static com.cid.sdk.models.DeviceFamily.CTWO;
 import static com.cid.sdk.models.DeviceFamily.TRIDENT;
 import static com.cid.sdk.models.DeviceType.TRIDENT_1;
 import static com.cid.sdk.models.DeviceType.TRIDENT_2;
+import static com.credenceid.biometrics.Biometrics.ResultCode.FAIL;
 
 //TODO: Fix/add comments.
 public class FaceActivity
@@ -65,6 +71,11 @@ public class FaceActivity
 	private final static int P_WIDTH = 320;
 	private final static int P_HEIGHT = 240;
 
+	private static final int IMAGE_WIDTH_4_BY_3_8MP = 3264;
+	private static final int IMAGE_HEIGHT_4_BY_3_8MP = 2448;
+
+	private static final int COMPRESSION_QUALITY = 100;
+
 	/* It is always good to have a global context in case non-activity classes require it. In this
 	 * case "Beeper" class requires it so it may grab audio file from assets.
 	 */
@@ -79,6 +90,7 @@ public class FaceActivity
 	/* Stores which specific device this app is running on. */
 	private static DeviceType mDeviceType = DeviceType.CID_PRODUCT;
 
+	/* Absolute paths of where face images are stores on disk. */
 	private final File mFiveMPFile
 			= new File(Environment.getExternalStorageDirectory() + "/c-sdkapp_5mp.jpg");
 	private final File mEightMPFile
@@ -96,13 +108,14 @@ public class FaceActivity
 	private Button mFlashOffButton;
 	private Button mCaptureButton;
 	private CheckBox mEightMPCheckbox;
-	// --------------------------------------------------------------------------------------------
+
 	private Camera mCamera = null;
-	// --------------------------------------------------------------------------------------------
-	// If true then camera is in preview, if false it is not.
+
+	/* If true then camera is in preview, if false it is not. */
 	private boolean mInPreview = false;
-	// Has camera preview settings been initialized. If true yes, false otherwise. This is required
-	// so camera preview does not start without it first being configured.
+	/* Has camera preview settings been initialized. If true yes, false otherwise. This is required
+	 * so camera preview does not start without it first being configured.
+	 */
 	private boolean mIsCameraConfigured = false;
 
 	/* This callback is invoked after camera finishes taking a picture. */
@@ -123,26 +136,33 @@ public class FaceActivity
 			mCaptureButton.setText(getString(R.string.recapture_label));
 			/* Allow user to re-take an image. */
 			setCaptureButtonVisibility(true);
+
+			Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+			if (DeviceFamily.CTWO == mDeviceFamily)
+				bitmap = Utils.rotateBitmap(bitmap, 90);
+
+			saveImage(bitmap, mEightMPCheckbox.isChecked());
+			analyzeImage(bitmap);
 		}
 	};
 
 	/* This callback is invoked on each camera preview frame. In this callback will run call face
 	 * detection API and pass it preview frame.
 	 */
-	private Camera.PreviewCallback mCameraPreviewCallback =
-			(byte[] data, Camera camera) -> detectFace(data);
+	private Camera.PreviewCallback mCameraPreviewCallback
+			= (byte[] data, Camera camera) -> detectFace(data);
 
 	/* This callback is invoked each time camera finishes auto-focusing. */
 	private Camera.AutoFocusCallback mAutoFocusCallback = new Camera.AutoFocusCallback() {
 		public void onAutoFocus(boolean autoFocusSuccess, Camera arg1) {
-			// Remove previous status since auto-focus is now done.
+			/* Remove previous status since auto-focus is now done. */
 			mStatusTextView.setText("");
 
-			// Tell DrawingView to stop displaying auto-focus circle by giving it a region of 0.
+			/* Tell DrawingView to stop displaying auto-focus circle by giving it a region of 0. */
 			mDrawingView.setHasTouch(false, new Rect(0, 0, 0, 0));
 			mDrawingView.invalidate();
 
-			// Re-enable capture button.
+			/* Re-enable capture button. */
 			setCaptureButtonVisibility(true);
 		}
 	};
@@ -176,11 +196,10 @@ public class FaceActivity
 	protected void
 	onResume() {
 		super.onResume();
-		Log.d(TAG, "onResume()");
 
 		new Thread(() -> {
 			try {
-				// Add a slight delay to avoid "Application passed NULL surface" error.
+				/* Add a slight delay to avoid "Application passed NULL surface" error. */
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -193,29 +212,29 @@ public class FaceActivity
 		}).start();
 	}
 
+	/* This is required to stop camera every time back button is pressed.  */
 	@Override
 	public void
 	onBackPressed() {
 		super.onBackPressed();
-		Log.d(TAG, "onBackPressed()");
 
 		this.stopReleaseCamera();
 	}
 
+	/* This is required to stop camera preview every time activity loses focus. */
 	@Override
 	protected void
 	onPause() {
 		super.onPause();
-		Log.d(TAG, "onPause()");
 
 		this.stopReleaseCamera();
 	}
 
+	/* This is required to stop camera every time application is killed.  */
 	@Override
 	protected void
 	onStop() {
 		super.onStop();
-		Log.d(TAG, "onStop()");
 
 		this.stopReleaseCamera();
 	}
@@ -225,7 +244,6 @@ public class FaceActivity
 	onDestroy() {
 		super.onDestroy();
 
-		// Turn off flash control.
 		this.setFlashMode(false);
 
 		if (mCamera != null) {
@@ -237,31 +255,28 @@ public class FaceActivity
 			mInPreview = false;
 		}
 
-		// Can only remove surface's and callbacks AFTER camera has been told to stop preview and it
-		// has been released. If we did this first, then camera would try to write to an invalid
-		// surface.
+		/* Can only remove surface's and callbacks AFTER camera has been told to stop preview and it
+		 * has been released. If we did this first, then camera would try to write to an invalid
+		 * surface.
+		 */
 		mSurfaceHolder.removeCallback(this);
+
 		this.surfaceDestroyed(mSurfaceHolder);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	//
-	// Methods called by SurfaceHolder.Callback
-	//
-	// --------------------------------------------------------------------------------------------
 	@Override
 	public void
 	surfaceChanged(SurfaceHolder holder,
 				   int format,
 				   int width,
 				   int height) {
-		Log.d(TAG, "surfaceChanged(...)");
 
 		if (mCamera == null) {
 			Log.w(TAG, "Camera object is NULL, will not set up preview.");
 			return;
 		}
-		this.initPreview(width, height);
+
+		this.initPreview();
 		this.startPreview();
 	}
 
@@ -273,8 +288,6 @@ public class FaceActivity
 	@Override
 	public void
 	surfaceDestroyed(SurfaceHolder holder) {
-		Log.d(TAG, "surfaceDestroyed(SurfaceHolder)");
-
 		if (mCamera == null)
 			return;
 
@@ -306,6 +319,7 @@ public class FaceActivity
 	configureLayoutComponents() {
 		this.setFlashButtonVisibility(true);
 
+		/* Only CredenceTAB family of device's support 8MP back camera resolution.  */
 		if (mDeviceFamily != CTAB)
 			mEightMPCheckbox.setVisibility(View.GONE);
 
@@ -332,10 +346,7 @@ public class FaceActivity
 	}
 
 	private void
-	initPreview(int width,
-				int height) {
-		Log.d(TAG, "initPreview(int, int)");
-
+	initPreview() {
 		if (mCamera == null || mSurfaceHolder.getSurface() == null) {
 			Log.d(TAG, "Either camera or SurfaceHolder was null, skip initPreview()");
 			return;
@@ -346,79 +357,58 @@ public class FaceActivity
 		}
 
 		try {
-			// Tell camera object where to display preview frames.
+			/* Tell camera object where to display preview frames. */
 			mCamera.setPreviewDisplay(mSurfaceHolder);
-			// Initialize camera preview in proper orientation.
+			/* Initialize camera preview in proper orientation. */
 			this.setCameraPreviewDisplayOrientation();
 
-			// Get camera parameters. We will edit these, then write them back to camera.
+			/* Get camera parameters. We will edit these, then write them back to camera. */
 			Camera.Parameters parameters = mCamera.getParameters();
 
-			// Enable auto-focus if available.
+			/* Enable auto-focus if available. */
 			List<String> focusModes = parameters.getSupportedFocusModes();
 			if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO))
 				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 
-			Camera.Size size;
-			if (mDeviceFamily == CTAB)
-				size = Utils.getOptimalPreviewSize(width, height, parameters);
-			else size = Utils.getBestPreviewSize(width, height, parameters);
+			/* For FaceEngine we show a preview with 320x240, but the actual image is
+			 * captured with largest available picture size, this way we get a high
+			 * resolution in final image.
+			 */
+			Camera.Size picSize = Utils.getLargestPictureSize(parameters);
+			parameters.setPictureSize(picSize.width, picSize.height);
 
-			if (size == null) {
-				Log.w(TAG, "Unable to determine best preview size for camera.");
-				return;
+			/* Regardless of what size is returned we always use a 320x240 preview size for face
+			 * detection since it is extremely fast.
+			 *
+			 * This previewSize is used to set up dimensions of all camera views.
+			 */
+			Camera.Size previewSize = parameters.getPreviewSize();
+			previewSize.width = P_WIDTH;
+			previewSize.height = P_HEIGHT;
+
+			if (DeviceFamily.CTWO == mDeviceFamily) {
+				mPreviewFrameLayout.getLayoutParams().width = (int) (previewSize.height * 2.5);
+				mPreviewFrameLayout.getLayoutParams().height = (int) (previewSize.width * 2.5);
 			}
+			mPreviewFrameLayout.setAspectRatio((previewSize.width) / (double) (previewSize.height));
 
-			size.width = P_WIDTH;
-			size.height = P_HEIGHT;
+			ViewGroup.LayoutParams drawingViewLayoutParams= mDrawingView.getLayoutParams();
 
-			if (mDeviceFamily == TRIDENT) {
-				mPreviewFrameLayout.setAspectRatio((size.height) / (double) (size.width));
-				parameters.setZoom(0);
-				// TODO: Drawing view width and height.
-			} else if (mDeviceFamily == CTAB) {
-				Log.d(TAG, "Configuring for C-TAB.");
-				mPreviewFrameLayout.setAspectRatio((size.width) / (double) (size.height));
-
-				// For FaceEngine we show a preview with 320x240, but the actual image is
-				// captured with largest available picture size, this way we get a high
-				// resolution in final image.
-				Camera.Size picSize = Utils.getLargestPictureSize(parameters);
-				parameters.setPictureSize(picSize.width, picSize.height);
-
-				Log.w(TAG, "WIDTH, HEIGHT: " + picSize.width + ", " + picSize.height);
-
-				ViewGroup.LayoutParams params = mDrawingView.getLayoutParams();
-				params.width = (int) (size.width * 2.75);
-				params.height = (int) (size.height * 2.75);
-				mDrawingView.setLayoutParams(params);
-
-				// We need to set FaceEngine specific bitmap size so DrawingView knows
-				// where and how to draw face detection points. Otherwise it would
-				// assume the bitmap size is 0.
-				mDrawingView.setBitmapDimensions(size.width, size.height);
-			} else if (mDeviceFamily == CTWO) {
-				Log.d(TAG, "Configuring for C-TWO family");
-
-				mPreviewFrameLayout.getLayoutParams().width = (int) (size.height * 2.5); //4.25);
-				mPreviewFrameLayout.getLayoutParams().height = (int) (size.width * 2.5); //4.25);
-				mPreviewFrameLayout.setAspectRatio(size.width / (double) size.height);
-
+			if (DeviceFamily.CTAB == mDeviceFamily) {
+				drawingViewLayoutParams.width = (int) (previewSize.width * 2.75);
+				drawingViewLayoutParams.height = (int) (previewSize.height * 2.75);
+			} else {
 				ViewGroup.LayoutParams prevParams = mPreviewFrameLayout.getLayoutParams();
-				ViewGroup.LayoutParams params = mDrawingView.getLayoutParams();
-
-				params.width = prevParams.width;
-				params.height = prevParams.height;
-				mDrawingView.setLayoutParams(params);
-
-				// We need to set FaceEngine specific bitmap size so DrawingView knows
-				// where and how to draw face detection points. Otherwise it would
-				// assume the bitmap size is 0.
-				mDrawingView.setBitmapDimensions(P_WIDTH, P_HEIGHT);
-			} else if (mDeviceFamily == CONE) {
-				mPreviewFrameLayout.setAspectRatio(size.width / (double) size.height);
-				// TODO: Drawing view width and height.
+				drawingViewLayoutParams.width = prevParams.width;
+				drawingViewLayoutParams.height = prevParams.height;
 			}
+			mDrawingView.setLayoutParams(drawingViewLayoutParams);
+
+			/* Need to set FaceEngine specific bitmap size so DrawingView knows
+			 * where and how to draw face detection points. Otherwise it would
+			 * assume the bitmap size is 0.
+			 */
+			mDrawingView.setBitmapDimensions(P_WIDTH, P_HEIGHT);
 
 			mCamera.setParameters(parameters);
 			mIsCameraConfigured = true;
@@ -439,6 +429,7 @@ public class FaceActivity
 	setPreviewSize(int width,
 				   int height,
 				   double ratio) {
+
 		Camera.Parameters parameters = mCamera.getParameters();
 		parameters.setPreviewSize(width, height);
 		mPreviewFrameLayout.setAspectRatio(ratio);
@@ -469,8 +460,9 @@ public class FaceActivity
 	setCameraPreviewDisplayOrientation() {
 		int orientation = 90;
 
-		// For C-TAB, the BACK camera requires 0, but FRONT camera is 180. In this example FRONT
-		// camera is not used, so that case was not programed in.
+		/* For C-TAB, the BACK camera requires 0, but FRONT camera is 180. In this example FRONT
+		 * camera is not used, so that case was not programed in.
+		 */
 		if (mDeviceFamily == TRIDENT || mDeviceFamily == CTAB)
 			orientation = 0;
 
@@ -479,8 +471,6 @@ public class FaceActivity
 
 	private void
 	startPreview() {
-		Log.d(TAG, "startPreview()");
-
 		if (mIsCameraConfigured && mCamera != null) {
 			mStatusTextView.setText("");
 			mPreviewFrameLayout.setVisibility(VISIBLE);
@@ -497,8 +487,6 @@ public class FaceActivity
 
 	private void
 	doPreview() {
-		Log.d(TAG, "doPreview()");
-
 		try {
 			/* If camera was not already opened, open it. */
 			if (mCamera == null) {
@@ -509,8 +497,6 @@ public class FaceActivity
 			}
 
 			if (mCamera != null) {
-				Log.d(TAG, "Camera opened, setting preview buffers, surfaces, etc.");
-
 				/* Tell camera where to draw frames to. */
 				mCamera.setPreviewDisplay(mSurfaceHolder);
 				/* Tell camera to invoke this callback on each frame. */
@@ -538,7 +524,7 @@ public class FaceActivity
 
 		if (mCamera != null) {
 			this.setCaptureButtonVisibility(false);
-			mStatusTextView.setText("Starting capture, hold still...");
+			mStatusTextView.setText(getString(R.string.start_capture_hold_still));
 
 			/* We are no longer going to be in preview. Set variable BEFORE telling camera to take
 			 * picture. Camera takes time to take a picture so we do not want any preview event to
@@ -655,7 +641,7 @@ public class FaceActivity
 			return;
 
 		this.setCaptureButtonVisibility(false);
-		mStatusTextView.setText("Auto-focusing, please wait...");
+		mStatusTextView.setText(getString(R.string.autofocus_wait));
 
 		final int one = 2000, two = 1000;
 
@@ -703,8 +689,6 @@ public class FaceActivity
 		if (mCamera == null || bitmapBytes == null)
 			return;
 
-		Log.d(TAG, "detectFace");
-
 		/* We need to stop camera preview callbacks from continuously being invoked while processing
 		 * is going on. Otherwise we would have a backlog of frames needing to be processed. To fix
 		 * this we remove preview callback, then re-enable it post-processing.
@@ -730,8 +714,11 @@ public class FaceActivity
 		/* Save fixed color image as final good Bitmap. */
 		Bitmap bm = BitmapFactory.decodeByteArray(outStream.toByteArray(), 0, outStream.size());
 
+		/* On CredenceTWO device's captured image is rotated by 270 degrees. To fix this rotate
+		 * image by another 90 degrees to have it right-side-up.
+		 */
 		if (DeviceFamily.CTWO == mDeviceFamily)
-			bm = rotateBitmap(bm, 90);
+			bm = Utils.rotateBitmap(bm, 90);
 
 		/* Detect face on finalized Bitmap image. */
 		mBiometricsManager.detectFace(bm, (Biometrics.ResultCode resultCode,
@@ -749,11 +736,10 @@ public class FaceActivity
 				/* Tell view that it will need to draw a detected face's Rect. region. */
 				mDrawingView.setHasFace(true);
 
-				Log.d(TAG, "FaceRect: " + rectF.toString());
-
-				if (mDeviceFamily == CTWO) {
+				/* If a CredenceTWO device then bounding Rect needs to be scaled to properly fit. */
+				if (CTWO == mDeviceFamily) {
 					mDrawingView.setFaceRect(rectF.left + 40,
-							rectF.top - 50,
+							rectF.top - 25,
 							rectF.right + 40,
 							rectF.bottom - 50);
 				} else {
@@ -772,10 +758,121 @@ public class FaceActivity
 		});
 	}
 
-	private Bitmap
-	rotateBitmap(Bitmap source, float angle) {
-		Matrix matrix = new Matrix();
-		matrix.postRotate(angle);
-		return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+	/* Performs a full face analysis (via CredenceSDK) on given image.
+	 *
+	 * @param bitmap Image to run full face analysis on.
+	 */
+	@SuppressWarnings("StringConcatenationInLoop")
+	private void
+	analyzeImage(final Bitmap bitmap) {
+		if (null == bitmap)
+			return;
+
+		/* Start by displaying a popup to let user known a background operation is taking place. */
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setCancelable(false);
+		builder.setIcon(R.drawable.ic_launcher);
+		builder.setTitle(getString(R.string.face_engine_analytics_title));
+		builder.setMessage(getString(R.string.face_engine_analyzing_wait));
+
+		AlertDialog alertDialog = builder.create();
+		alertDialog.show();
+
+		/* Make API call to run full face analysis. */
+		mBiometricsManager.analyzeFaceImage(bitmap, (Biometrics.ResultCode resultCode,
+													 RectF rectF,
+													 ArrayList<PointF> arrayList,
+													 ArrayList<PointF> arrayList1,
+													 float[] floats,
+													 HeadPoseDirection[] poseDirections,
+													 Gender gender,
+													 int age,
+													 Emotion emotion,
+													 boolean glasses,
+													 int imageQuality) -> {
+
+			if (FAIL == resultCode)
+				builder.setMessage(getString(R.string.face_engine_fail));
+			else {
+
+				String displayData = "HeadPose: ";
+				for (HeadPoseDirection pose : poseDirections)
+					displayData += (pose.name() + " ");
+
+				displayData += ("\nGender: " + gender.name());
+				displayData += ("\nAge: " + age);
+				displayData += ("\nEmotion: " + emotion.name());
+				displayData += ("\nImage Quality: " + imageQuality);
+
+				builder.setMessage(displayData);
+			}
+
+			/* Remove popup, update its message with result from API call, and re-display. */
+			alertDialog.dismiss();
+			builder.setPositiveButton("OK", (DialogInterface dialog,
+											 int which) -> {
+			});
+			builder.create().show();
+		});
+	}
+
+	/* Saves a given image (in byte array format) to disk. If image is to be saved as 8MP then
+	 * image is scaled to match appropriate resolution.
+	 *
+	 * @param rawData Image in byte array format to be saved.
+	 * @param isEightMP If true image is saved with 8MP dimensions, else default dimensions.
+	 */
+	@SuppressWarnings("ResultOfMethodCallIgnored")
+	private void
+	saveImage(final Bitmap bitmap,
+			  boolean isEightMP) {
+
+		if (null == bitmap)
+			return;
+
+		new Thread(() -> {
+			Bitmap finalBitmap;
+			final File imagePath;
+
+			if (isEightMP) {
+				imagePath = mEightMPFile;
+				finalBitmap = Bitmap.createScaledBitmap(bitmap,
+						IMAGE_WIDTH_4_BY_3_8MP,
+						IMAGE_HEIGHT_4_BY_3_8MP,
+						false);
+			} else {
+				imagePath = mFiveMPFile;
+				finalBitmap = bitmap;
+			}
+
+			String toastMessage;
+			if (this.saveImage(finalBitmap, imagePath))
+				toastMessage = "Image Saved: " + imagePath.getAbsolutePath();
+			else toastMessage = "Unable to save image, please retry...";
+
+			runOnUiThread(() -> Toast.makeText(mContext, toastMessage, LENGTH_SHORT).show());
+		}).start();
+	}
+
+	@SuppressWarnings("ResultOfMethodCallIgnored")
+	private boolean
+	saveImage(Bitmap bitmap,
+			  File imagePath) {
+
+		if (null == bitmap || null == imagePath)
+			return false;
+
+		if (imagePath.exists())
+			imagePath.delete();
+
+		try (OutputStream outputStream = new FileOutputStream(imagePath)) {
+			bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY, outputStream);
+			outputStream.flush();
+
+			return true;
+		} catch (Exception e) {
+			Log.e(TAG, "Unable to save image.");
+			return false;
+		}
 	}
 }

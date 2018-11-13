@@ -155,12 +155,12 @@ public class MainActivity extends AppCompatActivity {
 												 String required_version) -> {
 
 			if (Biometrics.ResultCode.OK != resultCode) {
-				Toast.makeText(this, "Biometric initialization FAILED. Exiting application.", LENGTH_LONG).show();
+				Toast.makeText(this, getString(R.string.bio_init_failed), LENGTH_LONG).show();
 				finish();
 				return;
 			}
 
-			Toast.makeText(this, "Biometrics initialized.", LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.bio_init_pass), LENGTH_LONG).show();
 
 			/* Save DeviceType/DeviceFamily so other activities may more easily identify on
 			 * what devices they are running on. This is used for activities to set up their
@@ -174,8 +174,8 @@ public class MainActivity extends AppCompatActivity {
 			mServiceVersionTextView.setText(mBiometricsManager.getSDKVersion());
 			mDeviceLibVersionTextView.setText(mBiometricsManager.getDeviceLibraryVersion());
 
-			/* Configure which buttons user is allowed to see to try out different biometrics based on
-			 * current device this application is running on.
+			/* Configure which buttons user is allowed to see to based on current device this
+			 * application is running on.
 			 */
 			this.configureButtons(mDeviceFamily, mDeviceType);
 		});
@@ -218,6 +218,12 @@ public class MainActivity extends AppCompatActivity {
 				startActivity(new Intent(this, IrisActivity.class)));
 	}
 
+	/* Configures which biometrics buttons should be visible to user based on device type this
+	 * application is running on.
+	 *
+	 * @param deviceFamily Family of device's to check against.
+	 * @param deviceType Type of device to check against.
+	 */
 	private void
 	configureButtons(@SuppressWarnings("unused") DeviceFamily deviceFamily,
 					 DeviceType deviceType) {
@@ -235,6 +241,10 @@ public class MainActivity extends AppCompatActivity {
 			mMRZButton.setVisibility(View.VISIBLE);
 	}
 
+	/* Sets visibility for all biometrics buttons.
+	 *
+	 * @param visibility View.VISIBLE, View.INVISIBLE, View.GONE
+	 */
 	private void
 	setBiometricButtonsVisibility(@SuppressWarnings("SameParameterValue") int visibility) {
 		mFingerprintButton.setVisibility(visibility);
@@ -243,6 +253,7 @@ public class MainActivity extends AppCompatActivity {
 		mMRZButton.setVisibility(visibility);
 	}
 
+	/* Checks if permissions stated in manifest have been granted, if not it then requests them. */
 	private void
 	requestPermissions() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -262,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
 	getPackageVersion() {
 		Log.d(TAG, "getPackageVersion()");
 
-		String version = "???";
+		String version = "Unknown";
 		try {
 			PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
 			version = pInfo.versionName;

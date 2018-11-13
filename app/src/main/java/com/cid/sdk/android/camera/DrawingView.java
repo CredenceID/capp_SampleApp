@@ -14,30 +14,33 @@ public class DrawingView extends View {
 	@SuppressWarnings("unused")
 	private final static String TAG = DrawingView.class.getSimpleName();
 
-	// Purposely use two separate paints, one for TapToFocus and another for drawing face Rect.
-	// TapToFocus is drawn with white paint and face Rect. with green. We could use same object
-	// and change paint settings, but this reduces performance. In face detection we want processing
-	// and visualization to be very quick, so use two separate objects.
+	/* Purposely use two separate paints, one for TapToFocus and another for drawing face Rect.
+	 * TapToFocus is drawn with white paint and face Rect. with green. We could use same object
+	 * and change paint settings, but this reduces performance. In face detection we want processing
+	 * and visualization to be very quick, so use two separate objects.
+	 */
 	private Paint mTouchPaint;
 	private Paint mFacePaint;
 
-	// Tells us if user touched view
+	/* Tells us if user touched view. */
 	private boolean mHaveTouch;
-	// Rect to hold our user touched area
+	/* Rect to hold our user touched area. */
 	private Rect mTouchArea;
 
-	// Scaling used for displaying face Rect.
+	/* Scaling used for displaying face Rect. */
 	private float mBitmapScale;
-	// Rect. containing found face region.
+	/* Rect. containing found face region. */
 	private RectF mFaceRect;
-	// If true, View will draw "mFaceRect" to surface.
+	/* If true, View will draw "mFaceRect" to surface. */
 	private boolean mHasFace;
-	// Used for calculating "true" width of detected face Rect. We need to take into account the
-	// given Bitmap image width vs. DrawingView Layout width.
+	/* Used for calculating "true" width of detected face Rect. We need to take into account the
+	 * given Bitmap image width vs. DrawingView Layout width.
+	 */
 	private int mFaceImageWidth;
 
 	public DrawingView(Context context,
 					   AttributeSet attrs) {
+
 		super(context, attrs);
 
 		mTouchPaint = new Paint();
@@ -61,18 +64,18 @@ public class DrawingView extends View {
 	@Override
 	public void
 	onDraw(Canvas canvas) {
-		// If we detected a touch we will draw a green circle where user touched.
+		/* If we detected a touch we will draw a green circle where user touched. */
 		if (mHaveTouch) {
-			// Grab CENTER coordinates of touch rectangle.
+			/* Grab CENTER coordinates of touch rectangle. */
 			int x = (mTouchArea.left + mTouchArea.right) / 2;
 			int y = (mTouchArea.top + mTouchArea.bottom) / 2;
 
-			// Draw circle at x, y with radius 55 and paint Green.
+			/* Draw circle at x, y with radius 55 and paint Green. */
 			int mTapToFocusRadius = 75;
 			canvas.drawCircle(x, y, mTapToFocusRadius, mTouchPaint);
 		}
 
-		// If face was found, then draw face rect.
+		/* If face was found, then draw face rect. */
 		if (mHasFace)
 			canvas.drawRoundRect(mFaceRect, 10, 10, mFacePaint);
 	}
@@ -87,6 +90,7 @@ public class DrawingView extends View {
 	public void
 	setHasTouch(boolean hasTouch,
 				Rect rect) {
+
 		mHaveTouch = hasTouch;
 		mTouchArea = rect;
 	}
@@ -102,6 +106,7 @@ public class DrawingView extends View {
 	public void
 	setBitmapDimensions(int width,
 						int height) {
+
 		mBitmapScale = ((float) (getLayoutParams().height)) / height;
 		mFaceImageWidth = (int) (mBitmapScale * width);
 	}
@@ -124,6 +129,7 @@ public class DrawingView extends View {
 				float top,
 				float right,
 				float bottom) {
+
 		float shift = (getLayoutParams().width - mFaceImageWidth) * 0.5f;
 
 		mFaceRect.set(shift + left * mBitmapScale,
