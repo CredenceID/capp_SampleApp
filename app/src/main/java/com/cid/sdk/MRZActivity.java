@@ -32,9 +32,6 @@ public class MRZActivity
 	 * that appropriate data was read.
 	 */
 	private final int mMRZ_DATA_COUNT = 10;
-	/*
-	 *
-	 */
 	private final int mDATE_OF_BIRTH = 0;
 	private final int mDATE_OF_EXPIRY = 1;
 	private final int mISSUER = 2;
@@ -341,6 +338,8 @@ public class MRZActivity
 	readICAODocument(String dateOfBirth,
 					 String documentNumber,
 					 String dateOfExpiry) {
+
+		mICAOImageView.setImageBitmap(null);
 
 		/* If any one of three parameters is bad then do not proceed with document reading. */
 		if (null == dateOfBirth || dateOfBirth.isEmpty()) {

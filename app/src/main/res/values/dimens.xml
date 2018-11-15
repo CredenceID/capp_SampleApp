@@ -10,4 +10,6 @@
 
 	<dimen name="main_button_size">150dp</dimen>
 	<dimen name="main_button_inter_margin">10dp</dimen>
+
+	<dimen name="card_margintop">10dp</dimen>
 </resources>
