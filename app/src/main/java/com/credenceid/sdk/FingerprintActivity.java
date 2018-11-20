@@ -1,4 +1,4 @@
-package com.cid.sdk;
+package com.credenceid.sdk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -24,6 +24,7 @@ import static com.credenceid.biometrics.Biometrics.ResultCode.OK;
 
 public class FingerprintActivity
 		extends Activity {
+
 	private final static String TAG = FingerprintActivity.class.getSimpleName();
 
 	/* CredenceSDK biometrics object, used to interface with APIs. */
@@ -74,13 +75,6 @@ public class FingerprintActivity
 					if (hint != null && !hint.isEmpty())
 						mStatusTextView.setText(hint);
 
-					/* This code is returned while sensor is in middle of opening.
-					 * Allow user to open sensor if it failed to open.
-					 * Allow user to close sensor if it successfully opened.
-					 */
-					if (resultCode != INTERMEDIATE)
-						mOpenCloseButton.setEnabled(true);
-
 					if (resultCode == Biometrics.ResultCode.OK) {
 						/* Now that sensor is open, if user presses "mOpenCloseButton" fingerprint
 						 * sensor should now close. To achieve this we change flag which controls
@@ -92,6 +86,14 @@ public class FingerprintActivity
 						mCaptureButton.setEnabled(true);
 						/* If fingerprint opened then we change button to say "Close". */
 						mOpenCloseButton.setText(getString(R.string.close));
+
+						/* Allow user to close sensor if it successfully opened. */
+						mOpenCloseButton.setEnabled(true);
+					} else if (resultCode == INTERMEDIATE) {
+						/* This code is returned while sensor is in middle of opening. */
+					} else if (resultCode == FAIL) {
+						/* Allow user to open sensor if it failed to open. */
+						mOpenCloseButton.setEnabled(true);
 					}
 				}
 
@@ -99,8 +101,9 @@ public class FingerprintActivity
 				@Override
 				public void onCloseFingerprintReader(Biometrics.ResultCode resultCode,
 													 Biometrics.CloseReasonCode closeReasonCode) {
-					if (resultCode == Biometrics.ResultCode.OK)
+					if (resultCode == Biometrics.ResultCode.OK) {
 						mStatusTextView.setText("Fingerprint Closed: " + closeReasonCode.name());
+					}
 
 					/* Now that sensor is closed, if user presses "mOpenCloseButton" fingerprint
 					 * sensor should now open. To achieve this we change flag which controls
@@ -147,11 +150,6 @@ public class FingerprintActivity
 		mBiometricsManager.cancelCapture();
 		/* Close all open peripherals. */
 		mBiometricsManager.closeFingerprintReader();
-
-		/* If user presses back button then they are exiting application. If this is the case then
-		 * tell C-Service to unbind from this application.
-		 */
-		mBiometricsManager.finalizeBiometrics(false);
 	}
 
 	/* Initializes all objects inside layout file. */
@@ -211,7 +209,7 @@ public class FingerprintActivity
 			this.setAllComponentEnable(false);
 			mInfoTextView.setText("");
 
-			/* Based on which ImageView was selected, capture appropriate fingerprint. */
+			/* Based on which fingerprint ImageView was selected, capture respective fingerprint. */
 			if (mCaptureFingerprintOne)
 				this.captureFingerprintOne();
 			else this.captureFingerprintTwo();
@@ -255,9 +253,9 @@ public class FingerprintActivity
 	captureFingerprintOne() {
 		mFingerprintOneFMDTemplate = null;
 
-		/* OnFingerprintGrabbedWSQListener: This listener is to be used if you wish to obtain a WSQ
-		 * template, fingerprint quality score, along with captured fingerprint image. This saves
-		 * from having to make separate API calls.
+		/* OnFingerprintGrabbedWSQListener: This listener is to be used if you wish to obtain a
+		 * captured fingerprint image, WSQ compressed image, and fingerprint quality score. This
+		 * prevents having to make multiple separate API calls, but takes slightly longer.
 		 */
 		mBiometricsManager.grabFingerprint(mScanTypes[0], new OnFingerprintGrabbedWSQListener() {
 			@SuppressLint("SetTextI18n")
@@ -269,6 +267,7 @@ public class FingerprintActivity
 											 String wsqFilepath,
 											 String hint,
 											 int nfiqScore) {
+
 				/* If a valid hint was given then display it for user to see. */
 				if (hint != null && !hint.isEmpty())
 					mStatusTextView.setText(hint);

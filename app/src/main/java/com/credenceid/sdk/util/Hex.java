@@ -1,4 +1,4 @@
-package com.cid.sdk.util;
+package com.credenceid.sdk.util;
 
 /* This is a helper class used for converting bytes into human readable Hex strings. */
 @SuppressWarnings("WeakerAccess")

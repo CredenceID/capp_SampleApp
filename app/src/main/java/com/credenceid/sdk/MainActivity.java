@@ -1,4 +1,4 @@
-package com.cid.sdk;
+package com.credenceid.sdk;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -12,10 +12,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cid.sdk.models.DeviceFamily;
-import com.cid.sdk.models.DeviceType;
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.BiometricsManager;
+import com.credenceid.biometrics.DeviceFamily;
+import com.credenceid.biometrics.DeviceType;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_CONTACTS;
@@ -24,11 +24,15 @@ import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.widget.Toast.LENGTH_LONG;
-import static com.cid.sdk.models.DeviceType.CTAB_V2;
-import static com.cid.sdk.models.DeviceType.CTAB_V3;
-import static com.cid.sdk.models.DeviceType.CTAB_V4;
-import static com.cid.sdk.models.DeviceType.CTWO_V2;
+import static com.credenceid.biometrics.Biometrics.ResultCode.FAIL;
+import static com.credenceid.biometrics.Biometrics.ResultCode.INTERMEDIATE;
+import static com.credenceid.biometrics.Biometrics.ResultCode.OK;
+import static com.credenceid.biometrics.DeviceType.CredenceTabV2_FC;
+import static com.credenceid.biometrics.DeviceType.CredenceTabV3_FM;
+import static com.credenceid.biometrics.DeviceType.CredenceTabV4_FCM;
+import static com.credenceid.biometrics.DeviceType.CredenceTwoV2_FC;
 
+@SuppressWarnings("StatementWithEmptyBody")
 public class MainActivity extends AppCompatActivity {
 	private static final String TAG = MainActivity.class.getSimpleName();
 	/* When requested for permissions you must specify a number which sort of links the permissions
@@ -49,9 +53,9 @@ public class MainActivity extends AppCompatActivity {
 	@SuppressLint("StaticFieldLeak")
 	private static BiometricsManager mBiometricsManager;
 	/* Stores which Credence family of device's this app is running on. */
-	private static DeviceFamily mDeviceFamily = DeviceFamily.CID_PRODUCT;
+	private static DeviceFamily mDeviceFamily = DeviceFamily.InvalidDevice;
 	/* Stores which specific device this app is running on. */
-	private static DeviceType mDeviceType = DeviceType.CID_PRODUCT;
+	private static DeviceType mDeviceType = DeviceType.InvalidDevice;
 
 	/*
 	 * Components in layout file.
@@ -82,61 +86,9 @@ public class MainActivity extends AppCompatActivity {
 		return mDeviceType;
 	}
 
-	/* Based on given product name, defines DeviceType and DeviceFamily.
-	 *
-	 * @param productName Product name returned via BiometricsManager.getProductName()
-	 */
-	@SuppressWarnings({"IfCanBeSwitch", "SpellCheckingInspection"})
-	private void
-	setDeviceType(String productName) {
-		Log.d(TAG, "setDeviceType(" + productName + ")");
-
-		if (productName == null || productName.length() == 0) {
-			Log.e(TAG, "Invalid product name!");
-			return;
-		}
-
-		if (productName.equals("Twizzler")) {
-			mDeviceType = DeviceType.TWIZZLER;
-			mDeviceFamily = DeviceFamily.TWIZZLER;
-		} else if (productName.equals("Trident-1")) {
-			mDeviceType = DeviceType.TRIDENT_1;
-			mDeviceFamily = DeviceFamily.TRIDENT;
-		} else if (productName.equals("Trident-2")) {
-			mDeviceType = DeviceType.TRIDENT_2;
-			mDeviceFamily = DeviceFamily.TRIDENT;
-		} else if (productName.equals("Credence One V1")) {
-			mDeviceType = DeviceType.CONE_V1;
-			mDeviceFamily = DeviceFamily.CONE;
-		} else if (productName.equals("Credence One V2")) {
-			mDeviceType = DeviceType.CONE_V2;
-			mDeviceFamily = DeviceFamily.CONE;
-		} else if (productName.equals("Credence One V3")) {
-			mDeviceType = DeviceType.CONE_V3;
-			mDeviceFamily = DeviceFamily.CONE;
-		} else if (productName.equals("Credence Two V1")) {
-			mDeviceType = DeviceType.CTWO_V1;
-			mDeviceFamily = DeviceFamily.CTWO;
-		} else if (productName.equals("Credence Two V2")) {
-			mDeviceType = CTWO_V2;
-			mDeviceFamily = DeviceFamily.CTWO;
-		} else if (productName.equals("Credence TAB V1")) {
-			mDeviceType = DeviceType.CTAB_V1;
-			mDeviceFamily = DeviceFamily.CTAB;
-		} else if (productName.equals("Credence TAB V2")) {
-			mDeviceType = DeviceType.CTAB_V2;
-			mDeviceFamily = DeviceFamily.CTAB;
-		} else if (productName.equals("Credence TAB V3")) {
-			mDeviceType = DeviceType.CTAB_V3;
-			mDeviceFamily = DeviceFamily.CTAB;
-		} else if (productName.equals("Credence TAB V4")) {
-			mDeviceType = CTAB_V4;
-			mDeviceFamily = DeviceFamily.CTAB;
-		}
-	}
-
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void
+	onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
@@ -154,30 +106,32 @@ public class MainActivity extends AppCompatActivity {
 												 String sdk_version,
 												 String required_version) -> {
 
-			if (Biometrics.ResultCode.OK != resultCode) {
+			if (OK == resultCode) {
+				Toast.makeText(this, getString(R.string.bio_init_pass), LENGTH_LONG).show();
+
+				mDeviceFamily = mBiometricsManager.getDeviceFamily();
+				mDeviceType = mBiometricsManager.getDeviceType();
+
+				/* Populate text fields which display device/app information. */
+				mProductNameTextView.setText(mBiometricsManager.getProductName());
+				mDeviceIDTextView.setText(mBiometricsManager.getDeviceId());
+				mServiceVersionTextView.setText(mBiometricsManager.getSDKVersion());
+				mDeviceLibVersionTextView.setText(mBiometricsManager.getDeviceLibraryVersion());
+
+				/* Configure which buttons user is allowed to see to based on current device this
+				 * application is running on.
+				 */
+				this.configureButtons(mDeviceFamily, mDeviceType);
+			} else if (INTERMEDIATE == resultCode) {
+				/* This ResultCode is never returned for this API. */
+			} else if (FAIL == resultCode) {
 				Toast.makeText(this, getString(R.string.bio_init_failed), LENGTH_LONG).show();
+
+				/* If biometrics failed to initialize then all API calls with return FAIL.
+				 * Application should not proceed, but rather close itself.
+				 */
 				finish();
-				return;
 			}
-
-			Toast.makeText(this, getString(R.string.bio_init_pass), LENGTH_LONG).show();
-
-			/* Save DeviceType/DeviceFamily so other activities may more easily identify on
-			 * what devices they are running on. This is used for activities to set up their
-			 * layouts, etc.
-			 */
-			this.setDeviceType(mBiometricsManager.getProductName());
-
-			/* Populate text fields which display device/app information. */
-			mProductNameTextView.setText(mBiometricsManager.getProductName());
-			mDeviceIDTextView.setText(mBiometricsManager.getDeviceId());
-			mServiceVersionTextView.setText(mBiometricsManager.getSDKVersion());
-			mDeviceLibVersionTextView.setText(mBiometricsManager.getDeviceLibraryVersion());
-
-			/* Configure which buttons user is allowed to see to based on current device this
-			 * application is running on.
-			 */
-			this.configureButtons(mDeviceFamily, mDeviceType);
 		});
 	}
 
@@ -233,11 +187,15 @@ public class MainActivity extends AppCompatActivity {
 		mFaceButton.setVisibility(View.VISIBLE);
 
 		/* Only these devices contain a card reader. */
-		if (CTWO_V2 == deviceType || CTAB_V2 == deviceType || CTAB_V4 == deviceType)
+		if (CredenceTwoV2_FC == deviceType ||
+				CredenceTabV2_FC == deviceType ||
+				CredenceTabV4_FCM == deviceType) {
+
 			mCardReaderButton.setVisibility(View.VISIBLE);
+		}
 
 		/* Only these devices contain a MRZ reader. */
-		if (CTAB_V3 == deviceType || CTAB_V4 == deviceType)
+		if (CredenceTabV3_FM == deviceType || CredenceTabV4_FCM == deviceType)
 			mMRZButton.setVisibility(View.VISIBLE);
 	}
 

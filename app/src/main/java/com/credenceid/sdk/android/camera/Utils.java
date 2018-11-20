@@ -1,4 +1,4 @@
-package com.cid.sdk.android.camera;
+package com.credenceid.sdk.android.camera;
 
 
 import android.graphics.Bitmap;

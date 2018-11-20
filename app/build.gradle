@@ -5,11 +5,11 @@ android {
 	compileSdkVersion 28
 
 	defaultConfig {
-		applicationId "com.cid.sdk"
+		applicationId "com.credenceid.sdk"
 		minSdkVersion 19
 		targetSdkVersion 28
 		versionCode 1
-		versionName "1.20.0003"
+		versionName "1.20.0004"
 		archivesBaseName = "C-SDKApp"
 	}
 

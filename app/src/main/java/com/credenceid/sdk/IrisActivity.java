@@ -1,4 +1,4 @@
-package com.cid.sdk;
+package com.credenceid.sdk;
 
 import android.app.Activity;
 

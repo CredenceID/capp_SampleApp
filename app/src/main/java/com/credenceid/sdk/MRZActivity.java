@@ -1,4 +1,4 @@
-package com.cid.sdk;
+package com.credenceid.sdk;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -187,11 +187,6 @@ public class MRZActivity
 		/* If user presses back button then close all open peripherals. */
 		mBiometricsManager.ePassportCloseCommand();
 		mBiometricsManager.closeMRZ();
-
-		/* If user presses back button then they are exiting application. If this is the case then
-		 * tell C-Service to unbind from this application.
-		 */
-		mBiometricsManager.finalizeBiometrics(false);
 	}
 
 	/* Initializes all objects inside layout file. */
@@ -376,6 +371,7 @@ public class MRZActivity
 					/* If DG2 state was successful then display read face image to ImageView. */
 					if (ICAOReadIntermediateCode.DG2 == stage && OK == resultCode)
 						mICAOImageView.setImageBitmap(icaoDocumentData.dgTwo.faceImage);
+
 					/* If finished reading DG3 then re-enable read ICAO button since now C-Service
 					 * has finished reading ICAO document.
 					 */
