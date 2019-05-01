@@ -9,7 +9,6 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
-
 public class DrawingView extends View {
 	@SuppressWarnings("unused")
 	private final static String TAG = DrawingView.class.getSimpleName();

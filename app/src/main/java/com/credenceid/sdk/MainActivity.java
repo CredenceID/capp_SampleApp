@@ -23,6 +23,7 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static android.view.View.INVISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static com.credenceid.biometrics.Biometrics.ResultCode.FAIL;
 import static com.credenceid.biometrics.Biometrics.ResultCode.INTERMEDIATE;
@@ -33,8 +34,9 @@ import static com.credenceid.biometrics.DeviceType.CredenceTabV4_FCM;
 import static com.credenceid.biometrics.DeviceType.CredenceTwoV2_FC;
 
 @SuppressWarnings("StatementWithEmptyBody")
-public class MainActivity extends AppCompatActivity {
-	private static final String TAG = MainActivity.class.getSimpleName();
+public class MainActivity
+		extends AppCompatActivity {
+
 	/* When requested for permissions you must specify a number which sort of links the permissions
 	 * request to a "key". This way when you get back a permissions event you can tell from where
 	 * that permission was requested from.
@@ -49,16 +51,11 @@ public class MainActivity extends AppCompatActivity {
 			READ_PHONE_STATE
 	};
 
-	/* CredenceSDK biometrics object, used to interface with APIs. */
-	@SuppressLint("StaticFieldLeak")
-	private static BiometricsManager mBiometricsManager;
-	/* Stores which Credence family of device's this app is running on. */
-	private static DeviceFamily mDeviceFamily = DeviceFamily.InvalidDevice;
-	/* Stores which specific device this app is running on. */
-	private static DeviceType mDeviceType = DeviceType.InvalidDevice;
-
-	/*
+	/* --------------------------------------------------------------------------------------------
+	 *
 	 * Components in layout file.
+	 *
+	 * --------------------------------------------------------------------------------------------
 	 */
 	private TextView mProductNameTextView;
 	private TextView mDeviceIDTextView;
@@ -71,24 +68,17 @@ public class MainActivity extends AppCompatActivity {
 	private ImageButton mMRZButton;
 	private ImageButton mIrisButton;
 
-	public static BiometricsManager
-	getBiometricsManager() {
-		return mBiometricsManager;
-	}
-
-	public static DeviceFamily
-	getDeviceFamily() {
-		return mDeviceFamily;
-	}
-
-	public static DeviceType
-	getDeviceType() {
-		return mDeviceType;
-	}
+	/* --------------------------------------------------------------------------------------------
+	 *
+	 * Android activity lifecycle event methods.
+	 *
+	 * --------------------------------------------------------------------------------------------
+	 */
 
 	@Override
 	protected void
 	onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
@@ -96,48 +86,14 @@ public class MainActivity extends AppCompatActivity {
 
 		this.initializeLayoutComponents();
 		this.configureLayoutComponents();
-		this.setBiometricButtonsVisibility(View.GONE);
 
-		/*  Create new biometrics object. */
-		mBiometricsManager = new BiometricsManager(this);
-
-		/* Initialize object, meaning tell CredenceService to bind to this application. */
-		mBiometricsManager.initializeBiometrics((Biometrics.ResultCode resultCode,
-												 String sdk_version,
-												 String required_version) -> {
-
-			if (OK == resultCode) {
-				Toast.makeText(this, getString(R.string.bio_init_pass), LENGTH_LONG).show();
-
-				mDeviceFamily = mBiometricsManager.getDeviceFamily();
-				mDeviceType = mBiometricsManager.getDeviceType();
-
-				/* Populate text fields which display device/app information. */
-				mProductNameTextView.setText(mBiometricsManager.getProductName());
-				mDeviceIDTextView.setText(mBiometricsManager.getDeviceId());
-				mServiceVersionTextView.setText(mBiometricsManager.getSDKVersion());
-				mDeviceLibVersionTextView.setText(mBiometricsManager.getDeviceLibraryVersion());
-
-				/* Configure which buttons user is allowed to see to based on current device this
-				 * application is running on.
-				 */
-				this.configureButtons(mDeviceFamily, mDeviceType);
-			} else if (INTERMEDIATE == resultCode) {
-				/* This ResultCode is never returned for this API. */
-			} else if (FAIL == resultCode) {
-				Toast.makeText(this, getString(R.string.bio_init_failed), LENGTH_LONG).show();
-
-				/* If biometrics failed to initialize then all API calls with return FAIL.
-				 * Application should not proceed, but rather close itself.
-				 */
-				finish();
-			}
-		});
+		this.initializeBiometrics();
 	}
 
 	/* Initializes all objects inside layout file. */
 	private void
 	initializeLayoutComponents() {
+
 		mProductNameTextView = findViewById(R.id.textview_product_name);
 		mDeviceIDTextView = findViewById(R.id.textview_device_id);
 		mServiceVersionTextView = findViewById(R.id.textview_cid_service_version);
@@ -154,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 	/* Configure all objects in layout file, set up listeners, views, etc. */
 	private void
 	configureLayoutComponents() {
+
 		mSDKAppVersionTextView.setText(this.getPackageVersion());
 
 		mFingerprintButton.setOnClickListener((View v) ->
@@ -170,6 +127,58 @@ public class MainActivity extends AppCompatActivity {
 
 		mIrisButton.setOnClickListener((View v) ->
 				startActivity(new Intent(this, IrisActivity.class)));
+
+		this.setBiometricButtonsVisibility(View.GONE);
+	}
+
+	/* --------------------------------------------------------------------------------------------
+	 *
+	 * Private helpers.
+	 *
+	 * --------------------------------------------------------------------------------------------
+	 */
+
+	/* Initializes CredenceSDK biometrics object. */
+	private void
+	initializeBiometrics() {
+
+		/*  Create new biometrics object. */
+		App.BioManager= new BiometricsManager(this);
+
+		/* Initialize object, meaning tell CredenceService to bind to this application. */
+		App.BioManager.initializeBiometrics((Biometrics.ResultCode resultCode,
+												 String sdk_version,
+												 String required_version) -> {
+
+			if (OK == resultCode) {
+				Toast.makeText(this, getString(R.string.bio_init_pass), LENGTH_LONG).show();
+
+				App.DevFamily = App.BioManager.getDeviceFamily();
+				App.DevType = App.BioManager.getDeviceType();
+
+				/* Populate text fields which display device/App information. */
+				mProductNameTextView.setText(App.BioManager.getProductName());
+				mDeviceIDTextView.setText(App.BioManager.getDeviceID());
+				mServiceVersionTextView.setText(App.BioManager.getServiceVersion());
+				mDeviceLibVersionTextView.setText(App.BioManager.getSDKJarVersion());
+
+				/* Configure which buttons user is allowed to see to based on current device this
+				 * application is running on.
+				 */
+				this.configureButtons(App.DevFamily, App.DevType);
+
+			} else if (INTERMEDIATE == resultCode) {
+				/* This ResultCode is never returned for this API. */
+
+			} else if (FAIL == resultCode) {
+				Toast.makeText(this, getString(R.string.bio_init_failed), LENGTH_LONG).show();
+
+				/* If biometrics failed to initialize then all API calls will return FAIL.
+				 * Application should not proceed & close itself.
+				 */
+				finish();
+			}
+		});
 	}
 
 	/* Configures which biometrics buttons should be visible to user based on device type this
@@ -205,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
 	 */
 	private void
 	setBiometricButtonsVisibility(@SuppressWarnings("SameParameterValue") int visibility) {
+
 		mFingerprintButton.setVisibility(visibility);
 		mCardReaderButton.setVisibility(visibility);
 		mFaceButton.setVisibility(visibility);
@@ -214,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
 	/* Checks if permissions stated in manifest have been granted, if not it then requests them. */
 	private void
 	requestPermissions() {
+
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (checkSelfPermission(WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED
 					|| checkSelfPermission(READ_EXTERNAL_STORAGE) != PERMISSION_GRANTED
@@ -229,14 +240,12 @@ public class MainActivity extends AppCompatActivity {
 	/* Get this application's version number through manifest file. */
 	private String
 	getPackageVersion() {
-		Log.d(TAG, "getPackageVersion()");
 
 		String version = "Unknown";
 		try {
 			PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
 			version = pInfo.versionName;
-		} catch (Exception e) {
-			Log.w(TAG, e.getMessage());
+		} catch (Exception ignore) {
 		}
 		return version;
 	}

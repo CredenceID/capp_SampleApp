@@ -1,6 +1,5 @@
 package com.credenceid.sdk.android.camera;
 
-
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.hardware.Camera;
