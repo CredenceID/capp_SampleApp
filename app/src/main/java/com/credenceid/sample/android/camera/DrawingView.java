@@ -1,4 +1,4 @@
-package com.credenceid.sdk.android.camera;
+package com.credenceid.sample.android.camera;
 
 import android.content.Context;
 import android.graphics.Canvas;

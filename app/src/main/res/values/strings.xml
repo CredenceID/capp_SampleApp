@@ -1,5 +1,5 @@
 <resources>
-	<string name="app_name">C-SDKApp</string>
+	<string name="app_name">C-SampleApp</string>
 
 	<string name="bio_init_failed">Biometric initialization FAILED. Exiting application.</string>
 	<string name="bio_init_pass">Biometrics initialized.</string>
@@ -8,7 +8,7 @@
 	<string name="device_id">Device ID: </string>
 	<string name="cid_service_version_label">C-Service Version: </string>
 	<string name="device_lib_version_label">DeviceLib Version: </string>
-	<string name="app_version">SDKApp Version: </string>
+	<string name="app_version">App Version: </string>
 
 	<string name="open">Open</string>
 	<string name="close">Close</string>

@@ -1,4 +1,4 @@
-package com.credenceid.sdk;
+package com.credenceid.sample;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -34,10 +34,10 @@ import com.credenceid.face.FaceEngine;
 import com.credenceid.face.FaceEngine.Emotion;
 import com.credenceid.face.FaceEngine.Gender;
 import com.credenceid.face.FaceEngine.HeadPoseDirection;
-import com.credenceid.sdk.android.camera.DrawingView;
-import com.credenceid.sdk.android.camera.PreviewFrameLayout;
-import com.credenceid.sdk.android.camera.Utils;
-import com.credenceid.sdk.util.Beeper;
+import com.credenceid.sample.android.camera.DrawingView;
+import com.credenceid.sample.android.camera.PreviewFrameLayout;
+import com.credenceid.sample.android.camera.Utils;
+import com.credenceid.sample.util.Beeper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -89,9 +89,9 @@ public class FaceActivity
 
     /* Absolute paths of where face images are stores on disk. */
     private final File mFiveMPFile
-            = new File(Environment.getExternalStorageDirectory() + "/c-sdkapp_5mp.jpg");
+            = new File(Environment.getExternalStorageDirectory() + "/c-sampleapp_5mp.jpg");
     private final File mEightMPFile
-            = new File(Environment.getExternalStorageDirectory() + "/c-sdkapp_8mp.jpg");
+            = new File(Environment.getExternalStorageDirectory() + "/c-sampleapp_8mp.jpg");
 
     /* --------------------------------------------------------------------------------------------
      *

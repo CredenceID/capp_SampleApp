@@ -1,4 +1,4 @@
-package com.credenceid.sdk.util;
+package com.credenceid.sample.util;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
