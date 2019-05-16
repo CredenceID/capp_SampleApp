@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.Biometrics.CloseReasonCode;
@@ -431,17 +432,28 @@ public class MRZActivity
 					 String documentNumber,
 					 String dateOfExpiry) {
 
+		mICAOImageView.setImageBitmap(null);
+
 		/* If any one of three parameters is bad then do not proceed with document reading. */
 		if (null == dateOfBirth || dateOfBirth.isEmpty()) {
 			Log.w(TAG, "DateOfBirth parameter INVALID, will not read ICAO document.");
+			Toast.makeText(this,
+					"DateOfBirth parameter INVALID, will not read ICAO document.",
+					Toast.LENGTH_LONG).show();
 			return;
 		}
 		if (null == documentNumber || documentNumber.isEmpty()) {
 			Log.w(TAG, "DocumentNumber parameter INVALID, will not read ICAO document.");
+			Toast.makeText(this,
+					"DocumentNumber parameter INVALID, will not read ICAO document.",
+					Toast.LENGTH_LONG).show();
 			return;
 		}
 		if (null == dateOfExpiry || dateOfExpiry.isEmpty()) {
 			Log.w(TAG, "DateOfExpiry parameter INVALID, will not read ICAO document.");
+			Toast.makeText(this,
+					"DateOfExpiry parameter INVALID, will not read ICAO document.",
+					Toast.LENGTH_LONG).show();
 			return;
 		}
 
