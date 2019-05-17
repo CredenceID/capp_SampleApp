@@ -1,4 +1,4 @@
-package com.credenceid.sample;
+package com.credenceid.sdkapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

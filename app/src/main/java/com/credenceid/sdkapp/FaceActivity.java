@@ -1,4 +1,4 @@
-package com.credenceid.sample;
+package com.credenceid.sdkapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -34,10 +34,10 @@ import com.credenceid.face.FaceEngine;
 import com.credenceid.face.FaceEngine.Emotion;
 import com.credenceid.face.FaceEngine.Gender;
 import com.credenceid.face.FaceEngine.HeadPoseDirection;
-import com.credenceid.sample.android.camera.DrawingView;
-import com.credenceid.sample.android.camera.PreviewFrameLayout;
-import com.credenceid.sample.android.camera.Utils;
-import com.credenceid.sample.util.Beeper;
+import com.credenceid.sdkapp.android.camera.DrawingView;
+import com.credenceid.sdkapp.android.camera.PreviewFrameLayout;
+import com.credenceid.sdkapp.android.camera.Utils;
+import com.credenceid.sdkapp.util.Beeper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

@@ -1,4 +1,4 @@
-package com.credenceid.sample;
+package com.credenceid.sdkapp;
 
 import android.app.Activity;
 

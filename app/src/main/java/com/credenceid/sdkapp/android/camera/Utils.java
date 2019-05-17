@@ -1,4 +1,4 @@
-package com.credenceid.sample.android.camera;
+package com.credenceid.sdkapp.android.camera;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;

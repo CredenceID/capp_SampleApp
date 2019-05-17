@@ -1,4 +1,4 @@
-package com.credenceid.sample;
+package com.credenceid.sdkapp;
 
 
 import android.annotation.SuppressLint;
@@ -13,7 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.credenceid.HexUtils;
-import com.credenceid.biometrics.APDUCommand;
+import com.credenceid.biometrics.ApduCommand;
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.ResultCode;
@@ -399,7 +399,7 @@ public class CardReaderActivity
 	readCardAsync(String APDUCommand) {
 		mCardReaderStatusTextView.setText(getString(R.string.reading_card_wait));
 
-		App.BioManager.cardCommand(new APDUCommand(APDUCommand), false, (ResultCode resultCode,
+		App.BioManager.cardCommand(new ApduCommand(APDUCommand), false, (ResultCode resultCode,
 																		 byte sw1,
 																		 byte sw2,
 																		 byte[] data) -> {
@@ -454,7 +454,7 @@ public class CardReaderActivity
 
 		new Thread(() -> {
 			CardCommandResponse response
-					= App.BioManager.cardCommandSync(new APDUCommand(APDUCommand), false, 4000);
+					= App.BioManager.cardCommandSync(new ApduCommand(APDUCommand), false, 4000);
 
 			/* If APDU failed then response will be NULL. */
 			if (null == response) {
@@ -516,7 +516,7 @@ public class CardReaderActivity
 		new Thread(() -> {
 			String apdu = createWriteAPDUCommand((byte) 0x01, dataToWrite);
 			CardCommandResponse response
-					= App.BioManager.cardCommandSync(new APDUCommand(apdu), false, 4000);
+					= App.BioManager.cardCommandSync(new ApduCommand(apdu), false, 4000);
 
 			/* If APDU failed then response will be NULL. */
 			if (null == response) {
@@ -555,7 +555,7 @@ public class CardReaderActivity
 
 		String apdu = createWriteAPDUCommand((byte) 0x01, dataToWrite);
 
-		App.BioManager.cardCommand(new APDUCommand(apdu), false, (ResultCode resultCode,
+		App.BioManager.cardCommand(new ApduCommand(apdu), false, (ResultCode resultCode,
 																  byte sw1,
 																  byte sw2,
 																  byte[] data) -> {

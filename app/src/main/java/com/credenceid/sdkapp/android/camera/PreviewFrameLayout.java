@@ -1,4 +1,4 @@
-package com.credenceid.sample.android.camera;
+package com.credenceid.sdkapp.android.camera;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
-import com.credenceid.sample.FaceActivity;
+import com.credenceid.sdkapp.FaceActivity;
 
 public class PreviewFrameLayout extends RelativeLayout {
     private double mAspectRatio = 4.0 / 3.0;
