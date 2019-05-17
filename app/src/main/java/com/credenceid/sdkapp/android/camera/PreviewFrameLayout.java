@@ -9,7 +9,9 @@ import android.widget.RelativeLayout;
 
 import com.credenceid.sdkapp.FaceActivity;
 
-public class PreviewFrameLayout extends RelativeLayout {
+public class PreviewFrameLayout
+        extends RelativeLayout {
+
     private double mAspectRatio = 4.0 / 3.0;
 
     public PreviewFrameLayout(Context context,
