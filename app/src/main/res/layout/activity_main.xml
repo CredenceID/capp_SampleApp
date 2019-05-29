@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_centerInParent="true"
+	android:layout_gravity="center"
+	android:background="@color/background"
+	android:gravity="center"
+	android:orientation="vertical"
+	tools:context=".MainActivity"
+	tools:ignore="MissingDefaultResource">
+
+	<LinearLayout
+		android:id="@+id/device_info"
+		android:layout_marginTop="20dp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:orientation="vertical">
+
+		<!-- CID logo seen at top of page. -->
+		<ImageView
+			android:id="@+id/logo"
+			android:layout_width="150dp"
+			android:layout_height="150dp"
+			android:layout_gravity="center_horizontal"
+			android:src="@drawable/ic_launcher"
+			tools:ignore="ContentDescription" />
+
+		<!--#########################################################################################-->
+		<!-- ProductName, DeviceID, C-ServiceVersion, DeviceLibVersion, SDKAppVersion. -->
+		<!--#########################################################################################-->
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:layout_marginTop="20dp"
+			android:gravity="center"
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+				<TextView
+					style="@style/TextLabel"
+					android:text="@string/product_name" />
+
+				<TextView
+					android:id="@+id/textview_product_name"
+					style="@style/TextInfo"
+					android:layout_marginStart="5dp" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+				<TextView
+					style="@style/TextLabel"
+					android:text="@string/device_id" />
+
+				<TextView
+					android:id="@+id/textview_device_id"
+					style="@style/TextInfo"
+					android:layout_marginStart="5dp" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+				<TextView
+					style="@style/TextLabel"
+					android:text="@string/cid_service_version_label" />
+
+				<TextView
+					android:id="@+id/textview_cid_service_version"
+					style="@style/TextInfo"
+					android:layout_marginStart="5dp" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+				<TextView
+					style="@style/TextLabel"
+					android:text="@string/device_lib_version_label" />
+
+				<TextView
+					android:id="@+id/textview_device_lib_version"
+					style="@style/TextInfo"
+					android:layout_marginStart="5dp" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+				<TextView
+					style="@style/TextLabel"
+					android:text="@string/app_version" />
+
+				<TextView
+					android:id="@+id/textview_app_version"
+					style="@style/TextInfo"
+					android:layout_marginStart="5dp" />
+			</LinearLayout>
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+	<!--#########################################################################################-->
+	<!-- Buttons to goto each biometric activity. -->
+	<!--#########################################################################################-->
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center"
+		android:gravity="center"
+		android:orientation="vertical">
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<ImageButton
+				android:id="@+id/fingerprint_button"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_fingerprint"
+				tools:ignore="ContentDescription" />
+
+			<ImageButton
+				android:id="@+id/cardreader_button"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginStart="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_card_reader"
+				tools:ignore="ContentDescription" />
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<ImageButton
+				android:id="@+id/face_button"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginTop="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_camera"
+				tools:ignore="ContentDescription" />
+
+			<ImageButton
+				android:id="@+id/mrz_button"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginStart="@dimen/main_button_inter_margin"
+				android:layout_marginTop="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_mrz"
+				tools:ignore="ContentDescription" />
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<ImageButton
+				android:id="@+id/iris_button"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginStart="@dimen/main_button_inter_margin"
+				android:layout_marginTop="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_iris"
+				android:visibility="gone"
+				tools:ignore="ContentDescription" />
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+</LinearLayout>
