@@ -1,44 +1,52 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion '24.0.3'
+	buildToolsVersion '28.0.3'
+	compileSdkVersion 28
 
-    defaultConfig {
-        applicationId "com.credenceid.sdkapp"
-        minSdkVersion 15
-        targetSdkVersion 18
-        versionName '1.18.10'
-        archivesBaseName = "C-SdkApp"
-    }
+	defaultConfig {
+		applicationId "com.credenceid.sdkapp"
+		minSdkVersion 19
+		targetSdkVersion 28
+		versionCode 1
+		versionName "2.0.0000"
+		archivesBaseName = "C-SampleApp"
+	}
 
-    signingConfigs {
-        debug {
-        }
-        release {
-            keyAlias 'platform'
-            keyPassword 'credenceid'
-            storeFile file('../../CredenceKeys/platform.jks')
-            storePassword 'credenceid'
-        }
-    }
-    buildTypes {
-        debug {
-            minifyEnabled false
-        }
-        release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            debuggable false
-            jniDebuggable false
-            renderscriptDebuggable false
-            zipAlignEnabled true
-        }
-    }
+	signingConfigs {
+		debug {
+		}
+		release {
+			keyAlias 'platform'
+			keyPassword 'credenceid'
+			storeFile file('../../CredenceKeys/platform.jks')
+			storePassword 'credenceid'
+		}
+	}
+
+	buildTypes {
+		debug {
+			minifyEnabled false
+		}
+		release {
+			signingConfig signingConfigs.release
+			minifyEnabled false
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+			debuggable false
+			jniDebuggable false
+			renderscriptDebuggable false
+			zipAlignEnabled true
+		}
+	}
+
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:18.0.0'
+	implementation fileTree(include: ['*.jar'], dir: 'libs')
+	implementation 'com.android.support:appcompat-v7:28.0.0'
+	implementation 'com.android.support:design:28.0.0'
 }
