@@ -40,7 +40,7 @@
 
 		</com.credenceid.sdkapp.android.camera.PreviewFrameLayout>
 
-		<com.credenceid.sample.android.camera.DrawingView
+		<com.credenceid.sdkapp.android.camera.DrawingView
 			android:id="@+id/drawing_view"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
