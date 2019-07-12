@@ -12,12 +12,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.credenceid.HexUtils;
 import com.credenceid.biometrics.ApduCommand;
 import com.credenceid.biometrics.Biometrics;
 import com.credenceid.biometrics.Biometrics.CloseReasonCode;
 import com.credenceid.biometrics.Biometrics.ResultCode;
 import com.credenceid.biometrics.CardCommandResponse;
+import com.credenceid.util.HexUtils;
 
 import java.util.Locale;
 
