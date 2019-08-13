@@ -196,7 +196,7 @@ public class MRZActivity
 	onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_mrz);
+		setContentView(R.layout.act_mrz);
 
 		this.initializeLayoutComponents();
 		this.configureLayoutComponents();

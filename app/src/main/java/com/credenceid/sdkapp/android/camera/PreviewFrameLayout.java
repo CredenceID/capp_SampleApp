@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
-import com.credenceid.sdkapp.FaceActivity;
+import com.credenceid.sdkapp.CameraActivity;
 
 public class PreviewFrameLayout
         extends RelativeLayout {
@@ -91,7 +91,7 @@ public class PreviewFrameLayout
                     (int) (x + touchMajor / 2),
                     (int) (y + touchMinor / 2));
 
-            ((FaceActivity) getContext()).performTapToFocus(touchRect);
+            ((CameraActivity) getContext()).performTapToFocus(touchRect);
         }
         return true;
     }

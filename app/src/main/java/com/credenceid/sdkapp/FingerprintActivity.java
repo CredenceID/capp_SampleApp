@@ -152,7 +152,7 @@ public class FingerprintActivity
     onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fingerprint);
+        setContentView(R.layout.act_fp);
 
         this.initializeLayoutComponents();
         this.configureLayoutComponents();

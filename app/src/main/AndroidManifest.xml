@@ -36,9 +36,12 @@
 			android:windowSoftInputMode="stateHidden|adjustResize" />
 
 		<activity
+			android:name=".CameraActivity"
+			android:screenOrientation="locked" />
+		<activity
 			android:name=".FaceActivity"
 			android:screenOrientation="locked" />
-
+		
 		<activity
 			android:name=".MRZActivity"
 			android:screenOrientation="locked" />

@@ -78,6 +78,9 @@
 	<string name="face_engine_analytics_title">Face Engine Analytics</string>
 	<string name="face_engine_analyzing_wait">Analyzing image, please wait…</string>
 	<string name="face_engine_fail">Failed to run face analysis. Please re-capture image.</string>
+	<string name="retry">Retry</string>
+	<string name="error">Error</string>
+	<string name="err_cant_get_image">Unable to obtain image from camera, please retry.</string>
 
 	<!-- ******************************************************************************************
 	*

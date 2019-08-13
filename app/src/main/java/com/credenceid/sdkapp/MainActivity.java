@@ -77,7 +77,7 @@ public class MainActivity
     onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.act_main);
 
         this.requestPermissions();
 
@@ -117,7 +117,7 @@ public class MainActivity
                 startActivity(new Intent(this, CardReaderActivity.class)));
 
         mFaceButton.setOnClickListener((View v) ->
-                startActivity(new Intent(this, FaceActivity.class)));
+                startActivity(new Intent(this, CameraActivity.class)));
 
         mMRZButton.setOnClickListener((View v) ->
                 startActivity(new Intent(this, MRZActivity.class)));
