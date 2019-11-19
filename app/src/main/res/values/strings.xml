@@ -1,38 +1,21 @@
 <resources>
 	<string name="app_name">C-SampleApp</string>
-
-	<string name="bio_init_failed">Biometric initialization FAILED. Exiting application.</string>
-	<string name="bio_init_pass">Biometrics initialized.</string>
-
+	<string name="bio_init_fail">Biometric initialization FAILED. Exiting application.</string>
+	<string name="bio_init">Biometrics initialized.</string>
 	<string name="product_name">Product Name:</string>
 	<string name="device_id">Device ID: </string>
 	<string name="cid_service_version_label">C-Service Version: </string>
 	<string name="device_lib_version_label">DeviceLib Version: </string>
 	<string name="app_version">App Version: </string>
-
 	<string name="open">Open</string>
 	<string name="close">Close</string>
 	<string name="capture">Capture</string>
 	<string name="match">Match</string>
-
-	<!-- ******************************************************************************************
-	*
-	* Finger
-	*
-	* ***************************************************************************************** -->
-
 	<string name="fingerprint_selection_label">
 		Click on a box to select that fingerprint for capture.
 	</string>
 	<string name="fingerprint_one_imageview_label">Fingerprint One</string>>
 	<string name="fingerprint_two_imageview_label">Fingerprint Two</string>
-
-	<!-- ******************************************************************************************
-	*
-	* Card
-	*
-	* ***************************************************************************************** -->
-
 	<string name="open_card">Open CardReader</string>
 	<string name="close_card_reader">Close CardReader</string>
 	<string name="write_data">Write To Card</string>
@@ -45,7 +28,6 @@
 		<item>2K Data</item>
 		<item>4K Data</item>
 	</string-array>
-
 	<string name="opening_card_reader">Opening card reader, please wait…</string>
 	<string name="failed_open_card_reader">Failed to open card reader.</string>
 	<string name="card_reader_opened">Card reader opened.</string>
@@ -58,16 +40,11 @@
 	<string name="no_card_present_read_from">No card present to read from.</string>
 	<string name="done_reading_from_card">Done reading data from card.</string>
 	<string name="reading_card_wait">Reading data from card, please wait…</string>
-
 	<string name="card_reader_fail_close">Card reader failed to close.</string>
 	<string name="card_reader_closed">Card reader closed: </string>
-
-	<!-- ******************************************************************************************
-	*
-	* Face
-	*
-	* ***************************************************************************************** -->
-
+	<string name="no_image_found_to_process">No image found to process.</string>
+	<string name="camera_image">camera_image</string>
+	<string name="processing">Processing…</string>
 	<string name="flash_on_label">Flash On</string>
 	<string name="flash_off_label">Flash Off</string>
 	<string name="capture_label">Capture</string>
@@ -81,34 +58,23 @@
 	<string name="retry">Retry</string>
 	<string name="error">Error</string>
 	<string name="err_cant_get_image">Unable to obtain image from camera, please retry.</string>
-
-	<!-- ******************************************************************************************
-	*
-	* MRZ/EPassport/ICAO
-	*
-	* ***************************************************************************************** -->
-
 	<string name="reading">Reading…</string>
 	<string name="bac_failed">Failed to read document, BAC error.</string>
 	<string name="icao_done">Finished reading document.</string>
-
 	<string name="open_mrz">Open MRZ</string>
 	<string name="close_mrz">Close MRZ</string>
 	<string name="open_epassport">Open EPassport</string>
 	<string name="close_epassport">Close EPassport</string>
 	<string name="read_icao_button_label">Read ICAO</string>
-
 	<string name="mrz_opening">Opening MRZ sensor…</string>
 	<string name="mrz_open_failed">Failed to open MRZ sensor.</string>
 	<string name="mrz_opened">MRZ sensor is open.</string>
 	<string name="mrz_closed">MRZ sensor is closed.</string>
 	<string name="mrz_failed_close">MRZ sensor failed to close.</string>
-
 	<string name="epassport_opening">Opening EPassport reader…</string>
 	<string name="epassport_open_failed">Failed to open EPassport reader.</string>
 	<string name="epassport_opened">EPassport reader is open.</string>
 	<string name="epassport_closed">EPassport Reader is closed.</string>
-
 	<string name="mrz_failed_reswipe">Failed to read MRZ, please re-swipe document.</string>
 	<string name="mrz_reading_wait">Reading MRZ, please wait…</string>
 	<string name="mrz_read_success">MRZ successfully read.</string>

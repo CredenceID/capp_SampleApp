@@ -3,9 +3,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:layout_gravity="center"
-	android:background="@color/background"
-	android:gravity="center"
+	android:background="#FFFFFF"
 	android:orientation="vertical">
 
 	<TextView
@@ -22,7 +20,7 @@
 	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="50dp"
+		android:layout_marginTop="20dp"
 		android:orientation="horizontal">
 
 		<View
@@ -38,7 +36,7 @@
 			android:layout_height="wrap_content">
 
 			<ImageView
-				android:id="@+id/finger_one_imageview"
+				android:id="@+id/fingerOneImageView"
 				android:layout_width="@dimen/fingerprint_width"
 				android:layout_height="@dimen/fingerprint_height"
 				android:background="@drawable/image_border_on"
@@ -50,13 +48,14 @@
 				android:id="@+id/fingerprint_one_label"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_below="@id/finger_one_imageview"
+				android:layout_below="@id/fingerOneImageView"
 				android:layout_centerInParent="true"
 				android:layout_marginTop="5dp"
 				android:text="@string/fingerprint_one_imageview_label"
 				android:textColor="@color/black"
 				android:textSize="16sp" />
 		</RelativeLayout>
+
 
 		<View
 			android:layout_width="0dp"
@@ -71,7 +70,7 @@
 			android:layout_height="wrap_content">
 
 			<ImageView
-				android:id="@+id/finger_two_imageview"
+				android:id="@+id/fingerTwoImageView"
 				android:layout_width="@dimen/fingerprint_width"
 				android:layout_height="@dimen/fingerprint_height"
 				android:background="@drawable/image_border_off"
@@ -82,7 +81,7 @@
 			<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_below="@id/finger_two_imageview"
+				android:layout_below="@id/fingerTwoImageView"
 				android:layout_centerInParent="true"
 				android:layout_marginTop="5dp"
 				android:text="@string/fingerprint_two_imageview_label"
@@ -104,14 +103,17 @@
 	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginStart="20dp"
-		android:layout_marginTop="50dp"
-		android:layout_marginEnd="20dp"
+		android:layout_marginTop="25dp"
 		android:orientation="horizontal">
 
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
 		<Button
-			android:id="@+id/open_close_button"
-			style="@style/FingerprintActivityButton"
+			android:id="@+id/openCloseBtn"
+			style="@style/PageButton"
 			android:text="@string/open" />
 
 		<View
@@ -120,8 +122,8 @@
 			android:layout_weight="1" />
 
 		<Button
-			android:id="@+id/capture_button"
-			style="@style/FingerprintActivityButton"
+			android:id="@+id/captureBtn"
+			style="@style/PageButton"
 			android:text="@string/capture" />
 
 		<View
@@ -130,14 +132,19 @@
 			android:layout_weight="1" />
 
 		<Button
-			android:id="@+id/match_button"
-			style="@style/FingerprintActivityButton"
+			android:id="@+id/matchBtn"
+			style="@style/PageButton"
 			android:text="@string/match" />
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
 
 	</LinearLayout>
 
 	<TextView
-		android:id="@+id/status_textview"
+		android:id="@+id/fpStatusTextView"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="20dp"
@@ -146,7 +153,7 @@
 		android:textSize="18sp" />
 
 	<TextView
-		android:id="@+id/fingeprint_info_textview"
+		android:id="@+id/infoTextView"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="20dp"

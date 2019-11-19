@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
@@ -8,17 +9,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/status_textview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:singleLine="true"
-        android:textColor="@color/red"
-        android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/cardstatus_textview"
+        android:id="@+id/cardReaderStatusTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -28,22 +19,33 @@
         android:textSize="18sp" />
 
     <TextView
-        android:id="@+id/data_textview"
+        android:id="@+id/cardStatusTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textColor="@color/red"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/dataTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
         android:gravity="center"
         android:maxLines="20"
         android:singleLine="false"
         android:textColor="@color/black"
-        android:textSize="12sp" />
+        android:textSize="14sp" />
 
     <View
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_weight="0.1" />
+
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -54,46 +56,47 @@
         android:orientation="vertical">
 
         <CheckBox
-            android:id="@+id/sync_checkbox"
+            android:id="@+id/syncCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/card_sync_checkbox_label"
             android:textSize="20sp" />
 
         <Button
-            android:id="@+id/open_close_button"
+            android:id="@+id/openCloseBtn"
             style="@style/CardReaderActivityButton"
-            android:layout_marginTop="@dimen/card_margintop"
+            android:layout_marginTop="15dp"
             android:text="@string/open_card" />
 
         <EditText
-            android:id="@+id/write_edittext"
+            android:id="@+id/writeEditText"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/card_margintop"
+            android:layout_marginTop="15dp"
             android:focusable="true"
             android:hint="@string/card_edtitext_hint"
             android:inputType="text"
             android:maxLength="20"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            tools:ignore="Autofill" />
 
         <Button
-            android:id="@+id/write_data_button"
+            android:id="@+id/writeDataBtn"
             style="@style/CardReaderActivityButton"
-            android:layout_marginTop="@dimen/card_margintop"
+            android:layout_marginTop="15dp"
             android:text="@string/write_data" />
 
         <Spinner
-            android:id="@+id/read_apdu_selector_spinner"
+            android:id="@+id/readAPDUSelector"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/card_margintop"
+            android:layout_marginTop="15dp"
             android:entries="@array/card_spinner_items" />
 
         <Button
-            android:id="@+id/read_data_button"
+            android:id="@+id/readDataBtn"
             style="@style/CardReaderActivityButton"
-            android:layout_marginTop="@dimen/card_margintop"
+            android:layout_marginTop="15dp"
             android:text="@string/read_data" />
 
 
