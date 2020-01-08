@@ -32,7 +32,7 @@
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity
-            android:name=".CameraActivity"
+            android:name=".android.camera.CameraActivity"
             android:screenOrientation="locked" />
         <activity
             android:name=".FaceActivity"
