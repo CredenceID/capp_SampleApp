@@ -78,4 +78,11 @@
 	<string name="mrz_failed_reswipe">Failed to read MRZ, please re-swipe document.</string>
 	<string name="mrz_reading_wait">Reading MRZ, please wait…</string>
 	<string name="mrz_read_success">MRZ successfully read.</string>
+
+	<string name="gender_colon_arg">Gender:\u0020</string>
+	<string name="age_colon_arg">Age:\u0020</string>
+	<string name="glasses_colon_arg">Glasses:\u0020</string>
+	<string name="emotiona_colon_arg">Emotion:\u0020</string>
+	<string name="imagequal_colon_arg">Quality:\u0020</string>
+	<string name="headposedir_colon_arg">Looking:\u0020</string>
 </resources>

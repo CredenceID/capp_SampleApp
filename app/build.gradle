@@ -10,7 +10,7 @@ android {
 		applicationId "com.credenceid.sdkapp"
 		minSdkVersion 19
 		//noinspection OldTargetApi
-		targetSdkVersion 28
+		targetSdkVersion 29
 		versionCode 1
 		versionName "3.1"
 		archivesBaseName = "C-SampleApp"
@@ -20,7 +20,7 @@ android {
 		defaultKey {
 			keyAlias 'CredenceIDPublicKey'
 			keyPassword 'CredenceID'
-			storeFile file('../../CredencePublicKeys/PublicKey.jks')
+			storeFile file('/home/mika/credence_id/credenceid_key/CredencePublicKeys/PublicKey.jks')
 			storePassword 'CredenceID'
 		}
 	}
