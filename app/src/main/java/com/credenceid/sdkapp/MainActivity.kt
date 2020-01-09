@@ -11,7 +11,6 @@ import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.ResultCode
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.biometrics.BiometricsManager
-import com.credenceid.sdkapp.android.camera.CameraActivity
 import kotlinx.android.synthetic.main.act_main.*
 
 /**
