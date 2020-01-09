@@ -65,7 +65,7 @@ class FaceActivity : Activity() {
 
     private fun configureLayoutComponents() {
 
-        recapBtn.setOnClickListener { onBackPressed() }
+        finishBtn.setOnClickListener { this.finish() }
     }
 
     @SuppressLint("SetTextI18n")

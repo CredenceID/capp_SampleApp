@@ -1,4 +1,4 @@
-package com.credenceid.sdkapp.android.camera
+package com.credenceid.sdkapp
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -20,9 +20,7 @@ import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.biometrics.DeviceFamily.*
 import com.credenceid.face.FaceEngine
 import com.credenceid.face.FaceEngine.*
-import com.credenceid.sdkapp.App
-import com.credenceid.sdkapp.FaceActivity
-import com.credenceid.sdkapp.R
+import com.credenceid.sdkapp.android.camera.Utils
 import com.credenceid.sdkapp.util.Beeper
 import kotlinx.android.synthetic.main.act_camera.*
 import java.io.ByteArrayOutputStream
@@ -77,9 +75,9 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         try {
             val intent = Intent(this, FaceActivity::class.java)
             intent.putExtra(getString(R.string.camera_image), data)
-
-            finish()
+            stopReleaseCamera()
             startActivity(intent)
+            finish()
         } catch (e: Exception) {
             e.printStackTrace()
 
@@ -109,17 +107,11 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        Log.d(App.TAG, "onCreate()")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.act_camera)
 
         context = this
-        camera = null
-
-        this.configureLayoutComponents()
-
-        this.reset()
-        this.doPreview()
     }
 
     /**
@@ -131,6 +123,18 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         super.onBackPressed()
         this.stopReleaseCamera()
         this.finish()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(App.TAG, "onStart()")
+
+        context = this
+        camera = null
+
+        this.configureLayoutComponents()
+        this.reset()
+        this.doPreview()
     }
 
     /**
@@ -150,13 +154,14 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
         Log.d(App.TAG, "onDestroy()")
         super.onDestroy()
-        this.stopReleaseCamera()
     }
 
     override fun surfaceChanged(holder: SurfaceHolder,
                                 format: Int,
                                 width: Int,
                                 height: Int) {
+
+        Log.d(App.TAG, "surfaceChanged()")
 
         if (null == camera) {
             Log.w(TAG, "Camera object is null, will not set up preview.")
@@ -173,6 +178,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
     override fun surfaceCreated(holder: SurfaceHolder) {
 
+        Log.d(App.TAG, "surfaceCreated()")
         surfaceHolder = holder
     }
 
@@ -181,12 +187,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         if (null == camera)
             return
 
-        if (inPreview)
-            camera!!.stopPreview()
-
-        camera!!.release()
-        camera = null
-        inPreview = false
+        stopReleaseCamera()
     }
 
     /**
@@ -224,6 +225,8 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
     private fun initPreview() {
 
+        Log.d(App.TAG, "initPreview()")
+
         if (null == camera || null == surfaceHolder!!.surface) {
             Log.d(TAG, "Either camera or SurfaceHolder was null, skip initPreview().")
             return
@@ -232,11 +235,11 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
             Log.d(TAG, "camera is already configured, no need to iniPreview().")
             return
         }
-
         try {
             Log.d(App.TAG, "Executing: camera.setPreviewDisplay(surfaceHolder)")
             camera!!.setPreviewDisplay(surfaceHolder)
         } catch (ignore: IOException) {
+            Log.d(App.TAG, "Executing: camera.setPreviewDisplay(surfaceHolder) Error : " + ignore.toString())
             return
         }
 
@@ -246,10 +249,14 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         /* Get camera parameters. We will edit these, then write them back to camera. */
         val parameters = camera!!.parameters
 
-        /* Enable auto-focus if available. */
-        val focusModes = parameters.supportedFocusModes
-        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO))
+        Log.d(App.TAG, "Camera Parameters = " + parameters.flatten())
+
+        // Enable auto-focus if available.
+       val focusModes = parameters.supportedFocusModes
+        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+            Log.d(App.TAG, "Set FOCUS_MODE_AUTO camera parameters")
             parameters.focusMode = Camera.Parameters.FOCUS_MODE_AUTO
+        }
 
         /* For FaceEngine we show a preview with 320x240, but the actual image is
          * captured with largest available picture size, this way we get a high
@@ -501,6 +508,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
             Log.d(App.TAG, "Executing: camera.release().")
             /* Release camera and nullify object. */
             camera!!.release()
+            mIsCameraConfigured = false;
             camera = null
             /* We are no longer in preview mode. */
             inPreview = false
