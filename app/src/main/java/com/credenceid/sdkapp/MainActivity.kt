@@ -6,6 +6,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.ResultCode
@@ -70,6 +71,7 @@ class MainActivity : AppCompatActivity() {
                 OK -> {
                     Toast.makeText(this, getString(R.string.bio_init), Toast.LENGTH_LONG).show()
 
+
                     App.DevFamily = App.BioManager!!.deviceFamily
                     App.DevType = App.BioManager!!.deviceType
 
@@ -78,6 +80,8 @@ class MainActivity : AppCompatActivity() {
                     deviceIDTextView.text = App.BioManager!!.deviceID
                     serviceVersionTextView.text = App.BioManager!!.serviceVersion
                     jarVersionTextView.text = App.BioManager!!.sdkJarVersion
+
+
 
                     /* Configure which buttons user is allowed to see to based on current device this
                      * application is running on.
@@ -113,6 +117,10 @@ class MainActivity : AppCompatActivity() {
 
         if (App.BioManager!!.hasMRZReader())
             mrzBtn.visibility = View.VISIBLE
+
+
+        Toast.makeText(this, "Card Reader="+App.BioManager!!.hasCardReader(), Toast.LENGTH_LONG).show()
+
     }
 
     /**

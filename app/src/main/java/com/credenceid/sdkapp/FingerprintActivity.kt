@@ -11,6 +11,9 @@ import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_fp.*
 import kotlinx.android.synthetic.main.act_mrz.*
+import java.lang.System.currentTimeMillis
+import java.security.Timestamp
+import java.util.*
 
 private const val SYNC_API_TIMEOUT_MS = 3000
 
@@ -40,6 +43,10 @@ class FingerprintActivity : Activity() {
      */
     private var mFingerprintOneFMDTemplate: ByteArray? = null
     private var mFingerprintTwoFMDTemplate: ByteArray? = null
+
+    private var mFingerprintFrame1: Long =0
+    private var mFingerprintFrame2: Long =0
+
 
     /**
      * Callback invoked every time fingerprint sensor on device opens or closes.
@@ -189,8 +196,12 @@ class FingerprintActivity : Activity() {
             infoTextView.text = ""
 
             /* Based on which ImageView was selected, capture appropriate fingerprint. */
-            if (mCaptureFingerprintOne)
+            if (mCaptureFingerprintOne) {
+                mFingerprintFrame1 = currentTimeMillis();
+
                 this.captureFingerprintOne()
+            }
+
             else
                 this.captureFingerprintTwo()
         }
@@ -254,19 +265,36 @@ class FingerprintActivity : Activity() {
                 when (resultCode) {
                     /* This code is returned once sensor captures fingerprint image. */
                     OK -> {
-                        if (null != bitmap)
+                        if (null != bitmap) {
                             fingerOneImageView.setImageBitmap(bitmap)
 
-                        fpStatusTextView.text = "WSQ File: $wsqFilepath"
-                        infoTextView.text = "Quality: $nfiqScore"
+                            fpStatusTextView.text = "WSQ File: $wsqFilepath"
+                            infoTextView.text = "Quality: $nfiqScore"
 
-                        /* Create template from fingerprint image. */
-                        createFMDTemplate(bitmap)
+                            //get fingerprint   quality
+
+                            /* Create template from fingerprint image. */
+
+                            //createFMDTemplate(bitmap)
+                            getFingerprintQuality(bitmap)
+                        }
+
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
-                        if (null != bitmap)
+                        if (null != bitmap) {
+
+                            mFingerprintFrame2= currentTimeMillis();
+                             var delay: Long? =0
+
+                          delay = mFingerprintFrame2-mFingerprintFrame1;
+                            infoTextView.text="Frame Delay Millis="+delay
+                            mFingerprintFrame1= currentTimeMillis();
+                            delay=0;
                             fingerOneImageView.setImageBitmap(bitmap)
+
+                        }
+
 
                         /* This hint is returned if cancelCapture()" or "closeFingerprint()" are
                          * called while in middle of capture.
@@ -277,6 +305,7 @@ class FingerprintActivity : Activity() {
                     /* This code is returned if sensor fails to capture image. */
                     FAIL -> {
                         setAllComponentEnable(true)
+                        infoTextView.text="Result Code FAIL Returned!"
                     }
                 }
             }
@@ -314,7 +343,8 @@ class FingerprintActivity : Activity() {
                             fingerTwoImageView.setImageBitmap(bitmap)
 
                         /* Create template from fingerprint image. */
-                        createFMDTemplate(bitmap)
+                       // createFMDTemplate(bitmap)
+                        getFingerprintQuality(bitmap)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -343,6 +373,42 @@ class FingerprintActivity : Activity() {
     }
 
     /**
+     * Attempts to get NFIQ scope from given Bitmap image. If successful it saves FMD to
+     * respective fingerprint template array.
+     *
+     * @param bitmap
+     */
+    @SuppressLint("SetTextI18n")
+    private fun getFingerprintQuality(bitmap: Bitmap?) {
+
+        /* Keep a track of how long it takes for FMD creation. */
+        val startTime = SystemClock.elapsedRealtime()
+
+        App.BioManager!!.getFingerQuality(bitmap ){ resultCode: ResultCode,
+                                                                  fingerprintQuality: Int->
+
+            when (resultCode) {
+                OK -> {
+                    /* Display how long it took for FMD template to be created. */
+                    val durationInSeconds = (SystemClock.elapsedRealtime() - startTime) / 1000.0
+                    infoTextView.text = "fingerprint quality: $fingerprintQuality"
+
+                }
+                INTERMEDIATE -> {
+                    /* This code is never returned for this API. */
+                }
+                FAIL -> {
+                    fpStatusTextView.text = "Failed to get FP quality."
+                }
+            }
+            setAllComponentEnable(true)
+        }
+    }
+
+
+
+
+    /**
      * Attempts to create a FMD template from given Bitmap image. If successful it saves FMD to
      * respective fingerprint template array.
      *
@@ -363,10 +429,12 @@ class FingerprintActivity : Activity() {
                     val durationInSeconds = (SystemClock.elapsedRealtime() - startTime) / 1000.0
                     infoTextView.text = "Created FMD template in: $durationInSeconds seconds."
 
-                    if (mCaptureFingerprintOne)
-                        mFingerprintOneFMDTemplate = bytes.copyOf(bytes.size)
-                    else
-                        mFingerprintTwoFMDTemplate = bytes.copyOf(bytes.size)
+                    if(bytes!=null) {
+                        if (mCaptureFingerprintOne)
+                            mFingerprintOneFMDTemplate = bytes.copyOf(bytes.size)
+                        else
+                            mFingerprintTwoFMDTemplate = bytes.copyOf(bytes.size)
+                    }
 
                     /* If both templates have been created then enable Match button. */
                     if (mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null)
@@ -509,13 +577,18 @@ class FingerprintActivity : Activity() {
                         when (resultCode) {
                             /* This code is returned once sensor captures fingerprint image. */
                             OK -> {
-                                if (null != bitmap)
+                                if (null != bitmap) {
                                     fingerOneImageView.setImageBitmap(bitmap)
 
-                                fpStatusTextView.text = "File: $filePath"
+                                    fpStatusTextView.text = "File: $filePath"
 
-                                /* Create template from fingerprint image. */
-                                createFMDTemplate(bitmap)
+                                    /* Create template from fingerprint image. */
+                                   // createFMDTemplate(bitmap)
+                                    getFingerprintQuality(bitmap)
+                                }
+                                else
+                                    fpStatusTextView.text = "Received NULL Image"
+
                             }
                             /* This code is returned on every new frame/image from sensor. */
                             INTERMEDIATE -> {

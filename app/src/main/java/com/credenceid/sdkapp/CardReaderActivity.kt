@@ -112,7 +112,16 @@ class CardReaderActivity : Activity() {
          */
         else {
             isCardPresent = true
-            cardStatusTextView.text = getString(R.string.card_present)
+
+             var cardConnectStatus = true;
+
+
+            cardConnectStatus=App.BioManager!!.cardConnectSync(5000);
+
+
+            cardStatusTextView.text = getString(R.string.card_present)+"Card Connect="+cardConnectStatus;
+
+
         }
     }
 
