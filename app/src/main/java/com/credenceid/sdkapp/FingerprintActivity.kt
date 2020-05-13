@@ -5,6 +5,7 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.*
 import com.credenceid.biometrics.Biometrics.ResultCode.*
@@ -248,15 +249,15 @@ class FingerprintActivity : Activity() {
          * template, fingerprint quality score, along with captured fingerprint image. This saves
          * from having to make separate API calls.
          */
-        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedWSQListener {
+        App.BioManager!!.grabFingerprint(mScanTypes[0], false, object : OnFingerprintGrabbedListener {
             @SuppressLint("SetTextI18n")
+
             override fun onFingerprintGrabbed(resultCode: ResultCode,
                                               bitmap: Bitmap?,
                                               bytes: ByteArray?,
                                               filepath: String?,
-                                              wsqFilepath: String?,
-                                              hint: String?,
-                                              nfiqScore: Int) {
+                                              hint: String?
+                                              ) {
 
                 /* If a valid hint was given then display it for user to see. */
                 if (hint != null && hint.isNotEmpty())
@@ -268,14 +269,15 @@ class FingerprintActivity : Activity() {
                         if (null != bitmap) {
                             fingerOneImageView.setImageBitmap(bitmap)
 
-                            fpStatusTextView.text = "WSQ File: $wsqFilepath"
-                            infoTextView.text = "Quality: $nfiqScore"
+                            //fpStatusTextView.text = "WSQ File: $wsqFilepath"
+                            //infoTextView.text = "Quality: $nfiqScore"
 
                             //get fingerprint   quality
 
                             /* Create template from fingerprint image. */
+                            Log.w("Credence-YASH", "Final Image Width:"+bitmap.width+". Height:"+bitmap.width)
 
-                            //createFMDTemplate(bitmap)
+                            createFMDTemplate(bitmap)
                             getFingerprintQuality(bitmap)
                         }
 
@@ -310,6 +312,8 @@ class FingerprintActivity : Activity() {
                 }
             }
 
+
+
             override fun onCloseFingerprintReader(resultCode: ResultCode,
                                                   closeReasonCode: CloseReasonCode) {
 
@@ -326,7 +330,7 @@ class FingerprintActivity : Activity() {
 
         mFingerprintTwoFMDTemplate = null
 
-        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedListener {
+        App.BioManager!!.grabFingerprint(mScanTypes[0], false, object : OnFingerprintGrabbedListener {
             override fun onFingerprintGrabbed(resultCode: ResultCode,
                                               bitmap: Bitmap?,
                                               bytes: ByteArray?,
@@ -339,12 +343,15 @@ class FingerprintActivity : Activity() {
 
                 when (resultCode) {
                     OK -> {
-                        if (null != bitmap)
+                        if (null != bitmap) {
                             fingerTwoImageView.setImageBitmap(bitmap)
 
-                        /* Create template from fingerprint image. */
-                       // createFMDTemplate(bitmap)
-                        getFingerprintQuality(bitmap)
+                            getFingerprintQuality(bitmap)
+
+                            /* Create template from fingerprint image. */
+                            Log.w("YASH", "Final Image Width:"+bitmap.width+". Height:"+bitmap.width)
+                            createFMDTemplate(bitmap)
+                        }
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -421,7 +428,7 @@ class FingerprintActivity : Activity() {
         val startTime = SystemClock.elapsedRealtime()
 
         App.BioManager!!.convertToFMD(bitmap, ISO_19794_2_2005) { resultCode: ResultCode,
-                                                                  bytes: ByteArray ->
+                                                                  bytes: ByteArray?  ->
 
             when (resultCode) {
                 OK -> {
@@ -583,8 +590,11 @@ class FingerprintActivity : Activity() {
                                     fpStatusTextView.text = "File: $filePath"
 
                                     /* Create template from fingerprint image. */
-                                   // createFMDTemplate(bitmap)
                                     getFingerprintQuality(bitmap)
+
+                                    Log.w("Credence-YASH", "Final Image Width:"+bitmap.width+". Height:"+bitmap.width)
+
+                                    createFMDTemplate(bitmap)
                                 }
                                 else
                                     fpStatusTextView.text = "Received NULL Image"
