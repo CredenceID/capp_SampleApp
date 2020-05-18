@@ -595,6 +595,7 @@ class FingerprintActivity : Activity() {
                                     Log.w("Credence-YASH", "Final Image Width:"+bitmap.width+". Height:"+bitmap.width)
 
                                     createFMDTemplate(bitmap)
+                                    convertFMDToWSQ(filePath)
                                 }
                                 else
                                     fpStatusTextView.text = "Received NULL Image"
@@ -641,6 +642,21 @@ class FingerprintActivity : Activity() {
                 }
                 FAIL == resultCode -> fpStatusTextView.text = "WSQ Decompression: FAIL"
             }
+        }
+    }
+
+    private fun convertFMDToWSQ(filePath: String){
+        App.BioManager?.compressToWSQ(filePath, 1.0f){ resultCode, s ->
+            when{
+                OK == resultCode -> {
+                    fpStatusTextView.text = "WSQ compression: SUCCESS $s"
+                }
+                INTERMEDIATE == resultCode ->{
+                    /* This code is never returned for this API. */
+                }
+                FAIL == resultCode -> fpStatusTextView.text = "WSQ compression: FAIL"
+            }
+
         }
     }
 }
