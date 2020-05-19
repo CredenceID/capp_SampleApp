@@ -10,6 +10,7 @@ import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.*
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.util.HexUtils
+import com.util.Logger
 import kotlinx.android.synthetic.main.act_fp.*
 import kotlinx.android.synthetic.main.act_mrz.*
 import java.lang.System.currentTimeMillis
@@ -249,7 +250,7 @@ class FingerprintActivity : Activity() {
          * template, fingerprint quality score, along with captured fingerprint image. This saves
          * from having to make separate API calls.
          */
-        App.BioManager!!.grabFingerprint(mScanTypes[0], false, object : OnFingerprintGrabbedListener {
+        App.BioManager!!.grabFingerprint(mScanTypes[0], true, object : OnFingerprintGrabbedListener {
             @SuppressLint("SetTextI18n")
 
             override fun onFingerprintGrabbed(resultCode: ResultCode,
@@ -279,6 +280,8 @@ class FingerprintActivity : Activity() {
 
                             createFMDTemplate(bitmap)
                             getFingerprintQuality(bitmap)
+                            convertFMDToWSQ(filepath!!)
+
                         }
 
                     }
@@ -595,7 +598,7 @@ class FingerprintActivity : Activity() {
                                     Log.w("Credence-YASH", "Final Image Width:"+bitmap.width+". Height:"+bitmap.width)
 
                                     createFMDTemplate(bitmap)
-                                    convertFMDToWSQ(filePath)
+
                                 }
                                 else
                                     fpStatusTextView.text = "Received NULL Image"
@@ -646,10 +649,12 @@ class FingerprintActivity : Activity() {
     }
 
     private fun convertFMDToWSQ(filePath: String){
-        App.BioManager?.compressToWSQ(filePath, 1.0f){ resultCode, s ->
+        Logger.d("FingerprintActivity","in convertFMDToWSQ : $filePath")
+        App.BioManager?.compressToWSQ(filePath, 0.5f){ resultCode, s ->
             when{
                 OK == resultCode -> {
                     fpStatusTextView.text = "WSQ compression: SUCCESS $s"
+                    Logger.d("FingerprintActivity","in convertFMDToWSQ OK : $s")
                 }
                 INTERMEDIATE == resultCode ->{
                     /* This code is never returned for this API. */
