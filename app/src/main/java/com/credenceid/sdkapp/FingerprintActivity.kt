@@ -403,7 +403,7 @@ class FingerprintActivity : Activity() {
                 OK -> {
                     var matchDecision = "No Match"
                     /* This is how to properly determine a match or not. */
-                    if (score < Integer.MAX_VALUE / 1000000)
+                    if (score == 100f)//if (score < Integer.MAX_VALUE / 1000000)
                         matchDecision = "Match"
 
                     fpStatusTextView.text = "Matching complete."
