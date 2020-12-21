@@ -49,7 +49,14 @@ class MainActivity : AppCompatActivity() {
         fpBtn.setOnClickListener { startActivity(Intent(this, FingerprintActivity::class.java)) }
         cardBtn.setOnClickListener { startActivity(Intent(this, CardReaderActivity::class.java)) }
         mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
+        mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
+        faceBtn.setOnClickListener {
+            val launchIntent = packageManager.getLaunchIntentForPackage("com.credenceid.capp_credencecamera")
+            launchIntent.flags = 0
+            launchIntent?.let { startActivityForResult(it, 100) }
+        }
         setBiometricButtonsVisibility(View.GONE)
+
     }
 
 
@@ -106,7 +113,7 @@ class MainActivity : AppCompatActivity() {
 
         /* By default all Credence device's face a fingerprint sensor and camera. */
         fpBtn.visibility = View.VISIBLE
-        faceBtn.visibility = View.GONE
+        faceBtn.visibility = View.VISIBLE
 
         if (App.BioManager!!.hasCardReader())
             cardBtn.visibility = View.VISIBLE
@@ -157,4 +164,14 @@ class MainActivity : AppCompatActivity() {
             }
             return version
         }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode==100){
+            //            if(resultCode == 1)
+            //            {
+            Toast.makeText(this,"Get Result",Toast.LENGTH_SHORT).show();
+            //            }
+        }
+    }
 }
