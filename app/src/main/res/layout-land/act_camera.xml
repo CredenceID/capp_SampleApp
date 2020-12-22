@@ -13,97 +13,34 @@
 		android:layout_height="wrap_content"
 		android:gravity="center"
 		android:textColor="#FF0000"
-		android:textSize="20sp" />
-
-	<!-- Responsible for camera preview and drawing surfaces. -->
-	<RelativeLayout
-		android:id="@+id/camera_surface_layout"
-		android:layout_width="1280dp"
-		android:layout_height="640dp"
-		android:layout_gravity="center"
-		android:layout_marginTop="10dp"
-		android:gravity="center">
-
-		<com.credenceid.sdkapp.android.camera.PreviewFrameLayout
-			android:id="@+id/preview_frame_layout"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_centerHorizontal="true">
-
-			<SurfaceView
-				android:id="@+id/scanned_imageview"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:layout_alignParentTop="true"
-				android:layout_centerHorizontal="true"
-				android:background="@null" />
-
-		</com.credenceid.sdkapp.android.camera.PreviewFrameLayout>
-
-		<com.credenceid.sdkapp.android.camera.DrawingView
-			android:id="@+id/drawing_view"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_centerHorizontal="true" />
-
-	</RelativeLayout>
+		android:textSize="20sp"
+		android:text="@string/capp_camera_action" />
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_margin="20dp"
 		android:orientation="horizontal">
 
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1" />
+		<Button
+			android:id="@+id/liveness_neurotech_btn"
+			style="@style/FaceActivityButton"
+			android:text="@string/liveness_neurotech_label"
+			android:textSize="20sp" />
 
 		<Button
-			android:id="@+id/flash_on_button"
+			android:id="@+id/liveness_innovatrics_btn"
 			style="@style/FaceActivityButton"
 			android:layout_marginStart="10dp"
-			android:text="@string/flash_on_label"
+			android:text="@string/liveness_innovatrics_label"
 			android:textSize="20sp" />
-
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1" />
 
 		<Button
-			android:id="@+id/capture_button"
+			android:id="@+id/barcode_cid_btn"
 			style="@style/FaceActivityButton"
-			android:text="@string/capture_label"
+			android:layout_marginStart="10dp"
+			android:text="@string/barcode_cid_label"
 			android:textSize="20sp" />
-
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1" />
-
-		<CheckBox
-			android:id="@+id/eight_mp_checkbox"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/face_8mp_checkbox_label"
-			android:textSize="20sp" />
-
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1" />
-
-		<Button
-			android:id="@+id/flash_off_button"
-			style="@style/FaceActivityButton"
-			android:layout_marginEnd="10dp"
-			android:text="@string/flash_off_label"
-			android:textSize="20sp" />
-
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1" />
 
 	</LinearLayout>
 

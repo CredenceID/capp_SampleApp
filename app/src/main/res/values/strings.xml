@@ -78,4 +78,8 @@
 	<string name="mrz_failed_reswipe">Failed to read MRZ, please re-swipe document.</string>
 	<string name="mrz_reading_wait">Reading MRZ, please wait…</string>
 	<string name="mrz_read_success">MRZ successfully read.</string>
+	<string name="capp_camera_action">Select action to perform</string>
+	<string name="liveness_neurotech_label">Liveness with Neurotech</string>
+	<string name="liveness_innovatrics_label">Liveness with Innovatrics</string>
+	<string name="barcode_cid_label">Barcode with CID</string>
 </resources>

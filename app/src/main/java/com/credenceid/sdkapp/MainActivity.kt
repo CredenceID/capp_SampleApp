@@ -1,11 +1,11 @@
 package com.credenceid.sdkapp
 
 import android.Manifest.permission
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.ResultCode
@@ -29,7 +29,7 @@ private val PERMISSIONS = arrayOf(
         permission.READ_CONTACTS,
         permission.READ_PHONE_STATE)
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,12 +49,7 @@ class MainActivity : AppCompatActivity() {
         fpBtn.setOnClickListener { startActivity(Intent(this, FingerprintActivity::class.java)) }
         cardBtn.setOnClickListener { startActivity(Intent(this, CardReaderActivity::class.java)) }
         mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
-        mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
-        faceBtn.setOnClickListener {
-            val launchIntent = packageManager.getLaunchIntentForPackage("com.credenceid.capp_credencecamera")
-            launchIntent.flags = 0
-            launchIntent?.let { startActivityForResult(it, 100) }
-        }
+        faceBtn.setOnClickListener { startActivity(Intent(this, CameraActivity::class.java)) }
         setBiometricButtonsVisibility(View.GONE)
 
     }
