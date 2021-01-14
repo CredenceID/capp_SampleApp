@@ -60,44 +60,46 @@ class MainActivity : Activity() {
      */
     private fun initializeBiometrics() {
 
+
         /*  Create new biometrics object. */
         App.BioManager = BiometricsManager(this)
+        configureButtons()
 
-        /* Initialize object, meaning tell CredenceService to bind to this application. */
-        App.BioManager!!.initializeBiometrics { rc: ResultCode,
-                                                _: String?,
-                                                _: String? ->
-
-            when (rc) {
-                OK -> {
-                    Toast.makeText(this, getString(R.string.bio_init), Toast.LENGTH_LONG).show()
-
-                    App.DevFamily = App.BioManager!!.deviceFamily
-                    App.DevType = App.BioManager!!.deviceType
-
-                    /* Populate text fields which display device/App information. */
-                    productNameTextView.text = App.BioManager!!.productName
-                    deviceIDTextView.text = App.BioManager!!.deviceID
-                    serviceVersionTextView.text = App.BioManager!!.serviceVersion
-                    jarVersionTextView.text = App.BioManager!!.sdkJarVersion
-
-                    /* Configure which buttons user is allowed to see to based on current device this
-                     * application is running on.
-                     */
-                    configureButtons()
-                }
-                INTERMEDIATE -> {
-                    /* This ResultCode is never returned for this API. */
-                }
-                FAIL -> {
-                    Toast.makeText(this, getString(R.string.bio_init_fail), Toast.LENGTH_LONG).show()
-                    /* If biometrics failed to initialize then all API calls will return FAIL.
-                     * Application should not proceed & close itself.
-                     */
-                    finish()
-                }
-            }
-        }
+//        /* Initialize object, meaning tell CredenceService to bind to this application. */
+//        App.BioManager!!.initializeBiometrics { rc: ResultCode,
+//                                                _: String?,
+//                                                _: String? ->
+//
+//            when (rc) {
+//                OK -> {
+//                    Toast.makeText(this, getString(R.string.bio_init), Toast.LENGTH_LONG).show()
+//
+//                    App.DevFamily = App.BioManager!!.deviceFamily
+//                    App.DevType = App.BioManager!!.deviceType
+//
+//                    /* Populate text fields which display device/App information. */
+//                    productNameTextView.text = App.BioManager!!.productName
+//                    deviceIDTextView.text = App.BioManager!!.deviceID
+//                    serviceVersionTextView.text = App.BioManager!!.serviceVersion
+//                    jarVersionTextView.text = App.BioManager!!.sdkJarVersion
+//
+//                    /* Configure which buttons user is allowed to see to based on current device this
+//                     * application is running on.
+//                     */
+//                    configureButtons()
+//                }
+//                INTERMEDIATE -> {
+//                    /* This ResultCode is never returned for this API. */
+//                }
+//                FAIL -> {
+//                    Toast.makeText(this, getString(R.string.bio_init_fail), Toast.LENGTH_LONG).show()
+//                    /* If biometrics failed to initialize then all API calls will return FAIL.
+//                     * Application should not proceed & close itself.
+//                     */
+//                    finish()
+//                }
+//            }
+//        }
     }
 
     /**

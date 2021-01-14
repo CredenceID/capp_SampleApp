@@ -19,11 +19,22 @@ public class credenceCamera_Constant {
     public static final int PROVIDER_CID = 10;
     public static final int PROVIDER_NEUROTECH = 11;
     public static final int PROVIDER_INNOVATRICS = 12;
+    public static final int PROVIDER_NFV = 13;
     //...
+
+    public static final String CAMERA_DEVICE = "CAMERA_DEVICE";
+    public static final int CAMERA_FRONT = 1;
+    public static final int CAMERA_BACK = 0;
 
 
     public static final String LIVENESS_THREASHOLD = "LIVENESS_THREASHOLD";
     public static final String LIVENESS_MODE = "LIVENESS_MODE";
+
+    public static final int LIVENESS_MODE_PASSIVE = 0;
+    public static final int LIVENESS_MODE_ACTIVE = 1;
+
+    public static final int RESULT_OK = 1;
+    public static final int RESULT_FAILED = 0;
 
 
 }

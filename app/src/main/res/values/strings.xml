@@ -79,7 +79,14 @@
 	<string name="mrz_reading_wait">Reading MRZ, please wait…</string>
 	<string name="mrz_read_success">MRZ successfully read.</string>
 	<string name="capp_camera_action">Select action to perform</string>
-	<string name="liveness_neurotech_label">Liveness with Neurotech</string>
-	<string name="liveness_innovatrics_label">Liveness with Innovatrics</string>
+	<string name="active_liveness_neurotech_label">Liveness with Neurotech (Active)</string>
+	<string name="active_liveness_innovatrics_label">Liveness with Innovatrics (Active)</string>
 	<string name="barcode_cid_label">Barcode with CID</string>
+	<string name="front_camera_liveness_neurotech_label">Liveness - Neurotech (Front)</string>
+	<string name="back_camera_liveness_neurotech_label">Liveness - Neurotech (Back)</string>
+	<string name="front_camera_liveness_innovatrics_label">Liveness - Innovatrics (Front)</string>
+	<string name="back_camera_liveness_innovatrics_label">Liveness - Innovatrics (Back)</string>
+	<string name="front_camera_liveness_nfv_label">Liveness - Nfv (Front)</string>
+	<string name="back_camera_liveness_nfv_label">Liveness - Nfv (Back)</string>
+	<string name="mrz_cid_label">MRZ with CID</string>
 </resources>
