@@ -7,13 +7,11 @@
 	android:gravity="center"
 	android:orientation="vertical">
 
-
-	<ImageView
-		android:id="@+id/faceResultImageView"
+	<ImageButton
+		android:id="@+id/btn_browse"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:padding="@dimen/padding"
-		android:scaleType="fitXY" />
+		android:background="@drawable/baseline_folder_black_36dp" />
 
 	<TextView
 		android:id="@+id/status_textview"
@@ -47,67 +45,17 @@
 
 <!--	</LinearLayout>-->
 	<LinearLayout
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_margin="20dp"
 		android:orientation="horizontal">
 
 		<Button
-			android:id="@+id/front_liveness_neurotech_btn"
+			android:id="@+id/liveness_neurotech_btn"
 			style="@style/FaceActivityButton"
-			android:text="@string/front_camera_liveness_neurotech_label"
+			android:text="@string/liveness_neurotech_label"
 			android:textSize="20sp" />
 
-		<Button
-			android:id="@+id/back_liveness_neurotech_btn"
-			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/back_camera_liveness_neurotech_label"
-			android:textSize="20sp" />
-
-		<Button
-			android:id="@+id/front_liveness_innovatrics_btn"
-			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/front_camera_liveness_innovatrics_label"
-			android:textSize="20sp" />
-
-
-		<Button
-			android:id="@+id/back_liveness_innovatrics_btn"
-			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/back_camera_liveness_innovatrics_label"
-			android:textSize="20sp" />
-
-
-		<Button
-			android:id="@+id/front_liveness_nfv_btn"
-			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/front_camera_liveness_nfv_label"
-			android:textSize="20sp" />
-
-		<Button
-			android:id="@+id/back_liveness_nfv_btn"
-			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/back_camera_liveness_nfv_label"
-			android:textSize="20sp" />
-
-		<Button
-			android:id="@+id/barcode_cid_btn"
-			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/barcode_cid_label"
-			android:textSize="20sp" />
-
-		<Button
-			android:id="@+id/mrz_btn"
-			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/mrz_cid_label"
-			android:textSize="20sp" />
 
 
 	</LinearLayout>

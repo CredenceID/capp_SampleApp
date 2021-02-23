@@ -83,6 +83,7 @@
 	<string name="active_liveness_innovatrics_label">Liveness with Innovatrics (Active)</string>
 	<string name="barcode_cid_label">Barcode with CID</string>
 	<string name="front_camera_liveness_neurotech_label">Liveness - Neurotech (Front)</string>
+	<string name="liveness_neurotech_label">Liveness - Neurotech</string>
 	<string name="back_camera_liveness_neurotech_label">Liveness - Neurotech (Back)</string>
 	<string name="front_camera_liveness_innovatrics_label">Liveness - Innovatrics (Front)</string>
 	<string name="back_camera_liveness_innovatrics_label">Liveness - Innovatrics (Back)</string>
