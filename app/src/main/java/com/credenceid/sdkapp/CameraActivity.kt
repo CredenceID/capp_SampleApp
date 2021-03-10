@@ -81,35 +81,45 @@ class CameraActivity : ComponentActivity() {
         liveness_neurotech_btn?.isEnabled = true
         liveness_neurotech_btn?.setOnClickListener {
 
-            Log.d(TAG, "SampleApp => Starting liveness verification" )
+//            for (i in 0..10){
+
+
+                Log.d(TAG, "SampleApp => Starting liveness verification")
 
             sStartTime = System.currentTimeMillis()
 
+
             App.BioManager!!.verifyFaceLiveness(videoUri, object : FaceEngine.OnVerifyFaceLiveness {
-                override fun onVerifyFaceLiveness(resultCode: Biometrics.ResultCode?, status: String?, sdkResult: String? , score: Int, progress: Int, blinkResult: Boolean) {
-                    var displayedResult = "Verifcation completed: "+ "\n"
+                override fun onVerifyFaceLiveness(resultCode: Biometrics.ResultCode?, status: String?, sdkResult: String?, score: Int, progress: Int, blinkResult: Boolean) {
+                    var displayedResult = "Verifcation completed: " + "\n"
+                    //Log.d("FacelivenessActivity" , "verifyFaceliveness : $i");
+
                     when {
                         Biometrics.ResultCode.OK == resultCode -> {
-                            displayedResult =  displayedResult + "Status = " + status+ "\n"
-                            displayedResult =  displayedResult + "SDK result = " + sdkResult + "\n"
-                            displayedResult =  displayedResult + "Liveness score = " + score + "\n"
-                            displayedResult =  displayedResult + "Subject Blink detection = " + blinkResult + "\n"
-                            displayedResult =  displayedResult + "Performing time  = " + (System.currentTimeMillis() - sStartTime)
+                            displayedResult = displayedResult + "Status = " + status + "\n"
+                            displayedResult = displayedResult + "SDK result = " + sdkResult + "\n"
+                            displayedResult = displayedResult + "Liveness score = " + score + "\n"
+                            displayedResult = displayedResult + "Subject Blink detection = " + blinkResult + "\n"
+                            displayedResult = displayedResult + "Performing time  = " + (System.currentTimeMillis() - sStartTime)
 
                         }
                         Biometrics.ResultCode.INTERMEDIATE == resultCode -> {
-                            displayedResult = "Performing verification: "+ "\n" + status + " (" + progress + "%)"
+                            displayedResult = "Performing verification: " + "\n" + status + " (" + progress + "%)"
                         }
                         Biometrics.ResultCode.FAIL == resultCode -> {
-                            displayedResult =  displayedResult + "Status = " + status+ "\n"
-                            displayedResult =  displayedResult + "SDK result = " + sdkResult + "\n"
-                            displayedResult =  displayedResult + "Liveness score = " + score + "\n"
-                            displayedResult =  displayedResult + "Subject Blink detection = " + blinkResult + "\n"
+                            displayedResult = displayedResult + "Status = " + status + "\n"
+                            displayedResult = displayedResult + "SDK result = " + sdkResult + "\n"
+                            displayedResult = displayedResult + "Liveness score = " + score + "\n"
+                            displayedResult = displayedResult + "Subject Blink detection = " + blinkResult + "\n"
                         }
+
                     }
                     status_textview.text = displayedResult
                 }
             })
+                //Log.d("FacelivenessActivity" , "verifyFaceliveness : $i");
+
+//        }
         }
 
 
