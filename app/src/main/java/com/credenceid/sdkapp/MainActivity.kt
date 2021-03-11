@@ -1,10 +1,18 @@
 package com.credenceid.sdkapp
 
 import android.Manifest.permission
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
@@ -12,6 +20,7 @@ import com.credenceid.biometrics.Biometrics.ResultCode
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.biometrics.BiometricsManager
 import kotlinx.android.synthetic.main.act_main.*
+
 
 /**
  * When requested for permissions you must specify a number which sort of links the permissions
@@ -31,6 +40,9 @@ private val PERMISSIONS = arrayOf(
 
 class MainActivity : AppCompatActivity() {
 
+    val CREDENCE_SERVICE = "com.credenceid.service.SERVICE"
+    val CREDENCE_PACKAGE = "com.credenceid.service"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.act_main)
@@ -38,6 +50,15 @@ class MainActivity : AppCompatActivity() {
         this.requestPermissions()
         this.configureLayoutComponents()
         this.initializeBiometrics()
+
+       /* val serviceIntent = Intent()
+
+        serviceIntent.component = ComponentName(CREDENCE_PACKAGE,"com.credenceid.service.CredenceService")
+        serviceIntent.action = CREDENCE_SERVICE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            startForegroundService(serviceIntent)
+        else
+            startService(serviceIntent)*/
     }
 
     /**

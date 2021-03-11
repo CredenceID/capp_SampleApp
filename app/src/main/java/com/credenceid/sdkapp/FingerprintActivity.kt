@@ -262,8 +262,9 @@ class FingerprintActivity : Activity() {
                 when (resultCode) {
                     /* This code is returned once sensor captures fingerprint image. */
                     OK -> {
-                        if (null != bitmap)
+                        if (null != bitmap) {
                             fingerOneImageView.setImageBitmap(bitmap)
+                        }
 
                         fpStatusTextView.text = "WSQ File: $wsqFilepath"
                         infoTextView.text = "Quality: $nfiqScore"
@@ -273,9 +274,9 @@ class FingerprintActivity : Activity() {
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
-                        if (null != bitmap)
+                        if (null != bitmap) {
                             fingerOneImageView.setImageBitmap(bitmap)
-
+                        }
                         /* This hint is returned if cancelCapture()" or "closeFingerprint()" are
                          * called while in middle of capture.
                          */
@@ -363,7 +364,7 @@ class FingerprintActivity : Activity() {
         val startTime = SystemClock.elapsedRealtime()
 
         App.BioManager!!.convertToFMD(bitmap, ISO_19794_2_2005) { resultCode: ResultCode,
-                                                                  bytes: ByteArray ->
+                                                                  bytes: ByteArray? ->
 
             when (resultCode) {
                 OK -> {
@@ -372,9 +373,9 @@ class FingerprintActivity : Activity() {
                     infoTextView.text = "Created FMD template in: $durationInSeconds seconds."
 
                     if (mCaptureFingerprintOne)
-                        mFingerprintOneFMDTemplate = bytes.copyOf(bytes.size)
+                        mFingerprintOneFMDTemplate = bytes?.copyOf(bytes.size)
                     else
-                        mFingerprintTwoFMDTemplate = bytes.copyOf(bytes.size)
+                        mFingerprintTwoFMDTemplate = bytes?.copyOf(bytes.size)
 
                     /* If both templates have been created then enable Match button. */
                     if (mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null)
