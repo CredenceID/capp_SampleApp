@@ -27,6 +27,7 @@
 		<item>1K Data</item>
 		<item>2K Data</item>
 		<item>4K Data</item>
+		<item>Get challenge</item>
 	</string-array>
 	<string name="opening_card_reader">Opening card reader, please wait…</string>
 	<string name="failed_open_card_reader">Failed to open card reader.</string>
