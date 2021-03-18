@@ -10,7 +10,7 @@ android {
 		applicationId "com.credenceid.sdkapp"
 		minSdkVersion 19
 		//noinspection OldTargetApi
-		targetSdkVersion 30
+		targetSdkVersion 28
 		versionCode 1
 		versionName "4.2"
 		archivesBaseName = "C-SampleApp"
