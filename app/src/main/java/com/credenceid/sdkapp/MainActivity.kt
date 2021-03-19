@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 
         /* By default all Credence device's face a fingerprint sensor and camera. */
         fpBtn.visibility = View.VISIBLE
-        faceBtn.visibility = View.GONE
+        faceBtn.visibility = View.VISIBLE
 
         if (App.BioManager!!.hasCardReader())
             cardBtn.visibility = View.VISIBLE
