@@ -23,8 +23,10 @@ import com.credenceid.face.FaceEngine
 import com.credenceid.face.FaceEngine.*
 import com.credenceid.sdkapp.android.camera.Utils
 import com.credenceid.sdkapp.util.Beeper
+import com.credenceid.sdkapp.util.BitmapUtils
 import kotlinx.android.synthetic.main.act_camera.*
-import java.io.*
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.util.*
 
 
@@ -75,14 +77,23 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
         try {
             val intent = Intent(this, FaceActivity::class.java)
-            intent.putExtra(getString(R.string.camera_image), data)
+            if(data.size > 999000){
+                var originalImage = BitmapUtils.decode(data)
+                originalImage = Utils.rotateBitmap(originalImage!!, 270f)
+                val nh = (originalImage!!.height * (512.0 / originalImage!!.width)).toInt()
+                val scaled = Bitmap.createScaledBitmap(originalImage, 512, nh, true)
+                intent.putExtra(getString(R.string.camera_image), BitmapUtils.toBytes(scaled))
+            } else {
+                intent.putExtra(getString(R.string.camera_image), data)
+            }
             stopReleaseCamera()
             startActivity(intent)
             finish()
         } catch (e: Exception) {
+            Log.d(TAG, "mOnPictureTakenCallback ERROR : " + e.toString());
             e.printStackTrace()
 
-            Toast.makeText(this, "Unable to run face analysis, retry.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "ERROR:" + e.toString(), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -393,10 +404,10 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
         if (App.DevFamily == TridentOne)
             parameters.setRotation(270)
-        else if (App.DevFamily == TridentTwo)
+        else if ((App.DevFamily == TridentTwo)||(App.DevFamily == CredenceECO))
             parameters.setRotation(180)
         else if (App.DevFamily == CredenceECO)
-            parameters.setRotation(0)
+            parameters.setRotation(90)
         else if (App.DevFamily == CredenceOne || App.DevFamily == CredenceTAB)
             parameters.setRotation(0)
 

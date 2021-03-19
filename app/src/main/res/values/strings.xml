@@ -50,6 +50,8 @@
 	<string name="flash_off_label">Flash Off</string>
 	<string name="capture_label">Capture</string>
 	<string name="finish_label">Finish</string>
+	<string name="select_label">Select</string>
+	<string name="create_template_label">Create template</string>
 	<string name="start_capture_hold_still">Starting capture, hold still…</string>
 	<string name="autofocus_wait">Auto-focusing, please wait…</string>
 	<string name="face_8mp_checkbox_label">8 Mepapixels</string>

@@ -5,75 +5,101 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <ImageView
-        android:id="@+id/faceImageView"
-        android:layout_width="640dp"
-        android:layout_height="480dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        tools:ignore="ContentDescription" />
+    <LinearLayout
+        android:id="@+id/faceViewLinearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/faceImageView"
-        android:layout_margin="20dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_margin="2dp">
 
-        <TextView
-            android:id="@+id/genderTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:textColor="@color/black"
-            android:textSize="20sp" />
+        <ImageView
+            android:id="@+id/faceImgView1"
+            android:layout_width="150dp"
+            android:layout_height="240dp"
+            android:layout_centerHorizontal="true"
+            tools:ignore="ContentDescription" />
 
-        <TextView
-            android:id="@+id/ageTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:fontFamily="sans-serif"
-            android:textColor="@color/black"
-            android:textSize="20sp" />
+        <Button
+            android:id="@+id/selectImg1Btn"
+            style="@style/FaceActivityButton"
+            android:layout_width="150dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:text="@string/select_label" />
 
-        <TextView
-            android:id="@+id/glassesTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:fontFamily="sans-serif"
-            android:textColor="@color/black"
-            android:textSize="20sp" />
 
-        <TextView
-            android:id="@+id/poseDirTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:fontFamily="sans-serif"
-            android:textColor="@color/black"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/emotionTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:fontFamily="sans-serif"
-            android:textColor="@color/black"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/qualityTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:fontFamily="sans-serif"
-            android:textColor="@color/black"
-            android:textSize="20sp" />
+        <Button
+            android:id="@+id/createTemplateImg1Btn"
+            style="@style/FaceActivityButton"
+            android:layout_width="150dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:text="@string/create_template_label" />
 
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="2dp">
+
+        <ImageView
+            android:id="@+id/faceImgView2"
+            android:layout_width="150dp"
+            android:layout_height="240dp"
+            android:layout_centerHorizontal="true"
+            tools:ignore="ContentDescription" />
+
+        <Button
+            android:id="@+id/selectImg2Btn"
+            style="@style/FaceActivityButton"
+            android:layout_width="150dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:text="@string/select_label" />
+
+        <Button
+            android:id="@+id/createTemplateImg2Btn"
+            style="@style/FaceActivityButton"
+            android:layout_width="150dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:text="@string/create_template_label" />
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/matchBtn"
+        style="@style/FaceActivityButton"
+        android:layout_below="@+id/faceViewLinearLayout"
+        android:layout_width="200dp"
+        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:text="@string/match" />
+
+
+    <TextView
+        android:id="@+id/statusTextView"
+        android:layout_below="@+id/matchBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/finishBtn"

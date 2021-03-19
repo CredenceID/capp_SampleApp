@@ -13,7 +13,7 @@
 		android:layout_height="wrap_content"
 		android:gravity="center"
 		android:textColor="#FF0000"
-		android:layout_marginTop="20dp"
+		android:layout_marginTop="5dp"
 		android:textSize="20sp" />
 
 	<!-- Responsible for camera preview and drawing surfaces. -->
@@ -22,7 +22,7 @@
 		android:layout_width="1280dp"
 		android:layout_height="640dp"
 		android:layout_gravity="center"
-		android:layout_marginTop="50dp"
+		android:layout_marginTop="10dp"
 		android:gravity="center">
 
 		<com.credenceid.sdkapp.android.camera.PreviewFrameLayout
