@@ -20,17 +20,17 @@ android {
 		defaultKey {
 			keyAlias 'CredenceIDPublicKey'
 			keyPassword 'CredenceID'
-			storeFile file('/home/mika/credence_id/credenceid_key/CredencePublicKeys/PublicKey.jks')
+			storeFile file('../../CredencePublicKeys/PublicKey.jks')
 			storePassword 'CredenceID'
 		}
 	}
 
 	buildTypes {
 		debug {
-			//signingConfig signingConfigs.defaultKey
+			signingConfig signingConfigs.defaultKey
 		}
 		release {
-			//signingConfig signingConfigs.defaultKey
+			signingConfig signingConfigs.defaultKey
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 		}
 	}
