@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:layout_gravity="center"
@@ -8,11 +8,12 @@
 	android:orientation="vertical">
 
 	<TextView
-		android:id="@+id/status_textview"
+		android:id="@+id/statusTextView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center"
 		android:textColor="#FF0000"
+		android:layout_marginTop="20dp"
 		android:textSize="20sp" />
 
 	<!-- Responsible for camera preview and drawing surfaces. -->
@@ -21,17 +22,17 @@
 		android:layout_width="1280dp"
 		android:layout_height="640dp"
 		android:layout_gravity="center"
-		android:layout_marginTop="10dp"
+		android:layout_marginTop="50dp"
 		android:gravity="center">
 
 		<com.credenceid.sdkapp.android.camera.PreviewFrameLayout
-			android:id="@+id/preview_frame_layout"
+			android:id="@+id/previewFrameLayout"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_centerHorizontal="true">
 
 			<SurfaceView
-				android:id="@+id/scanned_imageview"
+				android:id="@+id/scanImageView"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:layout_alignParentTop="true"
@@ -41,7 +42,7 @@
 		</com.credenceid.sdkapp.android.camera.PreviewFrameLayout>
 
 		<com.credenceid.sdkapp.android.camera.DrawingView
-			android:id="@+id/drawing_view"
+			android:id="@+id/drawingView"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_centerHorizontal="true" />
@@ -51,38 +52,64 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="20dp"
+		android:layout_alignParentBottom="true"
+		android:layout_marginBottom="15dp"
 		android:orientation="horizontal">
 
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
 		<Button
-			android:id="@+id/flash_on_button"
+			android:id="@+id/flashOnBtn"
 			style="@style/FaceActivityButton"
+			android:layout_marginStart="10dp"
 			android:text="@string/flash_on_label"
 			android:textSize="20sp" />
 
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
 		<Button
-			android:id="@+id/capture_button"
+			android:id="@+id/captureBtn"
 			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:singleLine="true"
 			android:text="@string/capture_label"
 			android:textSize="20sp" />
 
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
 		<CheckBox
-			android:id="@+id/eight_mp_checkbox"
+			android:id="@+id/eightMPCheckBox"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/face_8mp_checkbox_label"
 			android:textSize="20sp"
 			android:visibility="gone" />
 
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:visibility="gone" />
+
 		<Button
-			android:id="@+id/flash_off_button"
+			android:id="@+id/flashOffBtn"
 			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
+			android:layout_marginEnd="10dp"
 			android:text="@string/flash_off_label"
 			android:textSize="20sp" />
 
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
 	</LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

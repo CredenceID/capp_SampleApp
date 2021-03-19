@@ -10,7 +10,7 @@ android {
 		applicationId "com.credenceid.sdkapp"
 		minSdkVersion 19
 		//noinspection OldTargetApi
-		targetSdkVersion 28
+		targetSdkVersion 29
 		versionCode 1
 		versionName "4.2"
 		archivesBaseName = "C-SampleApp"
@@ -20,17 +20,17 @@ android {
 		defaultKey {
 			keyAlias 'CredenceIDPublicKey'
 			keyPassword 'CredenceID'
-			storeFile file('../../CredencePublicKeys/PublicKey.jks')
+			storeFile file('/home/mika/credence_id/credenceid_key/CredencePublicKeys/PublicKey.jks')
 			storePassword 'CredenceID'
 		}
 	}
 
 	buildTypes {
 		debug {
-			signingConfig signingConfigs.defaultKey
+			//signingConfig signingConfigs.defaultKey
 		}
 		release {
-			signingConfig signingConfigs.defaultKey
+			//signingConfig signingConfigs.defaultKey
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 		}
 	}
