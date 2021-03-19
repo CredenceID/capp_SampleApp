@@ -9,6 +9,7 @@ import android.hardware.Camera
 import android.hardware.Camera.Parameters.FLASH_MODE_OFF
 import android.hardware.Camera.Parameters.FLASH_MODE_TORCH
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.View
@@ -23,11 +24,11 @@ import com.credenceid.face.FaceEngine.*
 import com.credenceid.sdkapp.android.camera.Utils
 import com.credenceid.sdkapp.util.Beeper
 import kotlinx.android.synthetic.main.act_camera.*
-import java.io.ByteArrayOutputStream
-import java.io.IOException
+import java.io.*
 import java.util.*
 
-private val TAG = CameraActivity::class.java.simpleName
+
+private val TAG = "CID_Sample"
 
 /**
  * To obtain high face detection rate we use lowest possible camera resolution for preview.
@@ -274,7 +275,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         previewSize.width = P_WIDTH
         previewSize.height = P_HEIGHT
 
-        if (CredenceTwo == App.DevFamily) {
+        if ((CredenceTwo == App.DevFamily)||(CredenceECO == App.DevFamily)) {
             previewFrameLayout.layoutParams.width = (previewSize.height * 2.5).toInt()
             previewFrameLayout.layoutParams.height = (previewSize.width * 2.5).toInt()
         }
@@ -394,6 +395,8 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
             parameters.setRotation(270)
         else if (App.DevFamily == TridentTwo)
             parameters.setRotation(180)
+        else if (App.DevFamily == CredenceECO)
+            parameters.setRotation(0)
         else if (App.DevFamily == CredenceOne || App.DevFamily == CredenceTAB)
             parameters.setRotation(0)
 
@@ -640,8 +643,10 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         /* On CredenceTWO device's captured image is rotated by 270 degrees. To fix this rotate
          * image by another 90 degrees to have it right-side-up.
          */
-        if (CredenceTwo == App.DevFamily)
+        if ((CredenceTwo == App.DevFamily)|| (CredenceECO == App.DevFamily))
             bm = Utils.rotateBitmap(bm, 90f)
+
+        val externalStorageVolumes = ContextCompat.getExternalFilesDirs(applicationContext, null)
 
         /* Detect face on finalized Bitmap image. */
         App.BioManager!!.detectFace(bm) { rc: Biometrics.ResultCode,
@@ -663,13 +668,17 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                         drawingView.setHasFace(true)
 
                         /* If CredenceTWO then bounding Rect needs to be scaled to properly fit. */
-                        if (CredenceTwo == App.DevFamily) {
+                        if (CredenceECO == App.DevFamily) {
+                            drawingView.setFaceRect(rectF!!.left + 40, rectF.top ,
+                                    rectF.right + 40, rectF.bottom -40 )
+                        } else if (CredenceTwo == App.DevFamily) {
                             drawingView.setFaceRect(rectF!!.left + 40, rectF.top - 25,
                                     rectF.right + 40, rectF.bottom - 50)
                         } else {
                             drawingView.setFaceRect(rectF!!.left, rectF.top,
                                     rectF.right, rectF.bottom)
                         }
+                        Log.d(TAG, "Sample Face Rect = " + (rectF!!.right - rectF!!.left) + " x " + (rectF!!.bottom- rectF!!.top) )
                     }
                 }
                 INTERMEDIATE -> {
