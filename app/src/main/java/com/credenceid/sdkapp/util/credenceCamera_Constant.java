@@ -20,6 +20,7 @@ public class credenceCamera_Constant {
     public static final int PROVIDER_NEUROTECH = 11;
     public static final int PROVIDER_INNOVATRICS = 12;
     public static final int PROVIDER_NFV = 13;
+    public static final int PROVIDER_LUNA = 14;
     //...
 
     public static final String CAMERA_DEVICE = "CAMERA_DEVICE";

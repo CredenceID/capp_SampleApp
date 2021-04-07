@@ -49,19 +49,9 @@ class CameraActivity : ComponentActivity() {
             startLiveness(PROVIDER_NEUROTECH, CAMERA_BACK);
         }
 
-        front_liveness_neurotech_btn?.isEnabled = true
-        front_liveness_neurotech_btn?.setOnClickListener {
-            startLiveness(PROVIDER_NEUROTECH, CAMERA_FRONT);
-        }
-
         back_liveness_innovatrics_btn?.isEnabled = true
         back_liveness_innovatrics_btn?.setOnClickListener {
             startLiveness(PROVIDER_INNOVATRICS, CAMERA_BACK);
-        }
-
-        front_liveness_innovatrics_btn?.isEnabled = true
-        front_liveness_innovatrics_btn?.setOnClickListener {
-            startLiveness(PROVIDER_INNOVATRICS, CAMERA_FRONT);
         }
 
         back_liveness_nfv_btn?.isEnabled = true
@@ -69,40 +59,12 @@ class CameraActivity : ComponentActivity() {
             startLiveness(PROVIDER_NFV, CAMERA_BACK);
         }
 
-        front_liveness_nfv_btn?.isEnabled = true
-        front_liveness_nfv_btn?.setOnClickListener {
+        back_liveness_luna_btn.isEnabled = true
+        back_liveness_luna_btn?.setOnClickListener {
 
-            startLiveness(PROVIDER_NFV, CAMERA_FRONT);
+            startLiveness(PROVIDER_LUNA, CAMERA_BACK);
         }
 
-        barcode_cid_btn?.isEnabled = true
-        barcode_cid_btn?.setOnClickListener {
-            val startCredenceCameraApp = registerForActivityResult(CallCredenceCameraApp(
-                    FEATURE_BARCODE,
-                    PROVIDER_CID,
-                    LIVENESS_MODE_PASSIVE,
-                    CAMERA_BACK)){ result: CredenceCameraAppLivenessResult? ->
-                // Handle the return
-                if (result != null) {
-                    if(result.sdkResult == 1) {
-                        status_textview.text = "Result = OK " +
-                                "\nMessage = " + result.sdkResultMessage
-                        displayImage(result.faceImageUri)
-                    }else {
-                        status_textview.text = "Result = FAILED"
-                    }
-                } else {
-                    Log.e(TAG, "Fail to get Live Subject template.");
-                }
-            }
-            startCredenceCameraApp.launch(0)
-        }
-
-        mrz_btn?.isEnabled = true
-        mrz_btn?.setOnClickListener {
-
-            Toast.makeText(applicationContext, "Not implemented", Toast.LENGTH_SHORT)
-        }
 
     }
 

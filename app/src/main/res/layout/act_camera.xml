@@ -45,33 +45,18 @@
 
 
 
-<!--	</LinearLayout>-->
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_margin="20dp"
 		android:orientation="horizontal">
 
-		<Button
-			android:id="@+id/front_liveness_neurotech_btn"
-			style="@style/FaceActivityButton"
-			android:text="@string/front_camera_liveness_neurotech_label"
-			android:textSize="20sp" />
 
 		<Button
-			android:id="@+id/back_liveness_neurotech_btn"
+			android:id="@+id/back_liveness_nfv_btn"
 			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/back_camera_liveness_neurotech_label"
+			android:text="@string/back_camera_liveness_nfv_label"
 			android:textSize="20sp" />
-
-		<Button
-			android:id="@+id/front_liveness_innovatrics_btn"
-			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/front_camera_liveness_innovatrics_label"
-			android:textSize="20sp" />
-
 
 		<Button
 			android:id="@+id/back_liveness_innovatrics_btn"
@@ -80,41 +65,19 @@
 			android:text="@string/back_camera_liveness_innovatrics_label"
 			android:textSize="20sp" />
 
-	</LinearLayout>
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_margin="20dp"
-		android:orientation="horizontal">
-
 
 		<Button
-			android:id="@+id/front_liveness_nfv_btn"
+			android:id="@+id/back_liveness_luna_btn"
 			style="@style/FaceActivityButton"
-			android:text="@string/front_camera_liveness_nfv_label"
+			android:layout_marginStart="10dp"
+			android:text="@string/back_camera_liveness_luna_label"
 			android:textSize="20sp" />
 
 		<Button
-			android:id="@+id/back_liveness_nfv_btn"
+			android:id="@+id/back_liveness_neurotech_btn"
 			style="@style/FaceActivityButton"
 			android:layout_marginStart="10dp"
-			android:text="@string/back_camera_liveness_nfv_label"
-			android:textSize="20sp" />
-
-
-		<Button
-			android:id="@+id/barcode_cid_btn"
-			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/barcode_cid_label"
-			android:textSize="20sp" />
-
-		<Button
-			android:id="@+id/mrz_btn"
-			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
-			android:text="@string/mrz_cid_label"
+			android:text="@string/back_camera_liveness_neurotech_label"
 			android:textSize="20sp" />
 
 

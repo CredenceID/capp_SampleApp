@@ -82,11 +82,9 @@
 	<string name="active_liveness_neurotech_label">Liveness with Neurotech (Active)</string>
 	<string name="active_liveness_innovatrics_label">Liveness with Innovatrics (Active)</string>
 	<string name="barcode_cid_label">Barcode with CID</string>
-	<string name="front_camera_liveness_neurotech_label">Liveness - Neurotech (Front)</string>
-	<string name="back_camera_liveness_neurotech_label">Liveness - Neurotech (Back)</string>
-	<string name="front_camera_liveness_innovatrics_label">Liveness - Innovatrics (Front)</string>
-	<string name="back_camera_liveness_innovatrics_label">Liveness - Innovatrics (Back)</string>
-	<string name="front_camera_liveness_nfv_label">Liveness - Nfv (Front)</string>
-	<string name="back_camera_liveness_nfv_label">Liveness - Nfv (Back)</string>
+	<string name="back_camera_liveness_neurotech_label">Neurotech</string>
+	<string name="back_camera_liveness_innovatrics_label">Innovatrics</string>
+	<string name="back_camera_liveness_nfv_label">Nfv</string>
+	<string name="back_camera_liveness_luna_label">Luna</string>
 	<string name="mrz_cid_label">MRZ with CID</string>
 </resources>
