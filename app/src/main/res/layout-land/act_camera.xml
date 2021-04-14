@@ -10,10 +10,12 @@
 
 	<ImageView
 		android:id="@+id/faceResultImageView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:padding="@dimen/padding"
-		android:scaleType="fitXY" />
+		android:layout_width="200dp"
+		android:layout_height="200dp"
+		android:scaleType="centerCrop"
+		android:layout_marginTop="20dp"
+		android:layout_margin="5dp"
+		android:elevation="10dp"/>
 
 	<TextView
 		android:id="@+id/status_textview"
@@ -107,8 +109,23 @@
 			style="@style/FaceActivityButton"
 			android:layout_marginStart="10dp"
 			android:text="@string/mrz_cid_label"
+			android:visibility="gone"
+			android:textSize="20sp" />
+		<Button
+			android:id="@+id/front_liveness_luna_btn"
+			style="@style/FaceActivityButton"
+			android:layout_marginStart="10dp"
+			android:text="Liveness-Luna(Front)"
+			android:visibility="visible"
 			android:textSize="20sp" />
 
+		<Button
+			android:id="@+id/back_liveness_luna_btn"
+			style="@style/FaceActivityButton"
+			android:layout_marginStart="10dp"
+			android:text="Liveness-Luna(Back)"
+			android:visibility="visible"
+			android:textSize="20sp" />
 
 	</LinearLayout>
 

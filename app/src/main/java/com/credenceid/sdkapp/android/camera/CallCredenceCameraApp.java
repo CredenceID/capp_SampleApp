@@ -63,9 +63,11 @@ public class CallCredenceCameraApp extends ActivityResultContract<Integer, Crede
         int livenessScore = result.getIntExtra("LIVENESS_SCORE", 0);
         String sdkResultMessage = result.getStringExtra("SDK_RESULT_MESSAGE");
         Uri faceImageUri = null;
-        if(result.hasExtra("IMAGE_URI")) {
+//        if (result.getStringExtra("IMAGE_URI") != null) {
+            Log.d("IMAGE_URI", result.getStringExtra("IMAGE_URI"));
             faceImageUri = Uri.parse(result.getStringExtra("IMAGE_URI"));
-        }
+
+//        }
 
         Log.d("CID", "SDK_RESULT = " + sdkResult);
         Log.d("CID", "LIVENESS_SCORE = " + livenessScore);

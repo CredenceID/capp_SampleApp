@@ -20,7 +20,7 @@ android {
 		defaultKey {
 			keyAlias 'CredenceIDPublicKey'
 			keyPassword 'CredenceID'
-			storeFile file('../../CredencePublicKeys/PublicKey.jks')
+			storeFile file('C:\\Users\\91967\\CredencePublicKeys\\PublicKey.jks')
 			storePassword 'CredenceID'
 		}
 	}
