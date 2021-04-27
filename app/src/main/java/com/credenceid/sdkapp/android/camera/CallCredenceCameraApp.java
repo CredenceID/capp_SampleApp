@@ -31,13 +31,11 @@ public class CallCredenceCameraApp extends ActivityResultContract<Integer, Crede
 
     private int mFeature;
     private int mProvider;
-    private int mLivenessMode;
     private int mCameraDevice;
 
-    public CallCredenceCameraApp(int feature, int provider, int livenessMode, int cameraDevice){
+    public CallCredenceCameraApp(int feature, int provider, int cameraDevice){
         mFeature = feature;
         mProvider = provider;
-        mLivenessMode = livenessMode;
         mCameraDevice = cameraDevice;
     }
 
@@ -48,7 +46,6 @@ public class CallCredenceCameraApp extends ActivityResultContract<Integer, Crede
         Intent intent = new Intent(Intent.ACTION_RUN);
         intent.putExtra(FEATURE, mFeature );
         intent.putExtra(PROVIDER, mProvider );
-        intent.putExtra(LIVENESS_MODE, mLivenessMode );
         intent.putExtra(CAMERA_DEVICE, mCameraDevice);
         return intent;
     }
@@ -63,9 +60,11 @@ public class CallCredenceCameraApp extends ActivityResultContract<Integer, Crede
         int livenessScore = result.getIntExtra("LIVENESS_SCORE", 0);
         String sdkResultMessage = result.getStringExtra("SDK_RESULT_MESSAGE");
         Uri faceImageUri = null;
-        if(result.hasExtra("IMAGE_URI")) {
+//        if (result.getStringExtra("IMAGE_URI") != null) {
+            Log.d("IMAGE_URI", result.getStringExtra("IMAGE_URI"));
             faceImageUri = Uri.parse(result.getStringExtra("IMAGE_URI"));
-        }
+
+//        }
 
         Log.d("CID", "SDK_RESULT = " + sdkResult);
         Log.d("CID", "LIVENESS_SCORE = " + livenessScore);

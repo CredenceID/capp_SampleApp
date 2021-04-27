@@ -10,10 +10,12 @@
 
 	<ImageView
 		android:id="@+id/faceResultImageView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:padding="@dimen/padding"
-		android:scaleType="fitXY" />
+		android:layout_width="200dp"
+		android:layout_height="200dp"
+		android:scaleType="centerCrop"
+		android:layout_marginTop="20dp"
+		android:layout_margin="5dp"
+		android:elevation="10dp"/>
 
 	<TextView
 		android:id="@+id/status_textview"
@@ -56,14 +58,14 @@
 			android:id="@+id/back_liveness_nfv_btn"
 			style="@style/FaceActivityButton"
 			android:text="@string/back_camera_liveness_nfv_label"
-			android:textSize="20sp" />
+			android:textSize="16sp" />
 
 		<Button
 			android:id="@+id/back_liveness_innovatrics_btn"
 			style="@style/FaceActivityButton"
 			android:layout_marginStart="10dp"
 			android:text="@string/back_camera_liveness_innovatrics_label"
-			android:textSize="20sp" />
+			android:textSize="16sp" />
 
 
 		<Button
@@ -71,14 +73,38 @@
 			style="@style/FaceActivityButton"
 			android:layout_marginStart="10dp"
 			android:text="@string/back_camera_liveness_luna_label"
-			android:textSize="20sp" />
+			android:textSize="16sp" />
+
 
 		<Button
-			android:id="@+id/back_liveness_neurotech_btn"
+			android:id="@+id/front_liveness_nfv_btn"
 			style="@style/FaceActivityButton"
 			android:layout_marginStart="10dp"
-			android:text="@string/back_camera_liveness_neurotech_label"
-			android:textSize="20sp" />
+			android:text="@string/front_camera_liveness_nfv_label"
+			android:textSize="16sp" />
+
+		<Button
+			android:id="@+id/front_liveness_innovatrics_btn"
+			style="@style/FaceActivityButton"
+			android:layout_marginStart="10dp"
+			android:text="@string/front_camera_liveness_innovatrics_label"
+			android:textSize="16sp" />
+
+		<Button
+			android:id="@+id/front_liveness_luna_btn"
+			style="@style/FaceActivityButton"
+			android:layout_marginStart="10dp"
+			android:text="Liveness-Luna(Front)"
+			android:visibility="visible"
+			android:textSize="16sp" />
+
+		<Button
+			android:id="@+id/barcode_btn"
+			style="@style/FaceActivityButton"
+			android:layout_marginStart="10dp"
+			android:text="@string/barcode_cid_label"
+			android:visibility="visible"
+			android:textSize="16sp" />
 
 
 	</LinearLayout>
