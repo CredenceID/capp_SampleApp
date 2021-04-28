@@ -17,7 +17,7 @@ public class credenceCamera_Constant {
     /*Providers that will be used for the feature*/
     public static final String PROVIDER = "PROVIDER";
     public static final int PROVIDER_CID = 10;
-    public static final int PROVIDER_NEUROTECH = 11;
+    public static final int PROVIDER_TECH5 = 11;
     public static final int PROVIDER_INNOVATRICS = 12;
     public static final int PROVIDER_NFV = 13;
     public static final int PROVIDER_LUNA = 14;

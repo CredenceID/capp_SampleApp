@@ -18,7 +18,6 @@
 			android:elevation="10dp"/>
 
 
-
 	<TextView
 		android:id="@+id/status_textview"
 		android:layout_width="match_parent"
@@ -77,6 +76,14 @@
 			android:text="@string/back_camera_liveness_luna_label"
 			android:textSize="16sp" />
 
+		<Button
+			android:id="@+id/back_liveness_tech5_btn"
+			style="@style/FaceActivityButton"
+			android:layout_marginStart="10dp"
+			android:text="@string/back_camera_liveness_tech5_label"
+			android:visibility="visible"
+			android:textSize="16sp" />
+
 	</LinearLayout>
 
 	<LinearLayout
@@ -84,7 +91,6 @@
 		android:layout_height="wrap_content"
 		android:layout_margin="20dp"
 		android:orientation="horizontal">
-
 
 		<Button
 			android:id="@+id/front_liveness_nfv_btn"
@@ -103,7 +109,15 @@
 			android:id="@+id/front_liveness_luna_btn"
 			style="@style/FaceActivityButton"
 			android:layout_marginStart="10dp"
-			android:text="Liveness-Luna(Front)"
+			android:text="@string/front_camera_liveness_luna_label"
+			android:visibility="visible"
+			android:textSize="16sp" />
+
+		<Button
+			android:id="@+id/front_liveness_tech5_btn"
+			style="@style/FaceActivityButton"
+			android:layout_marginStart="10dp"
+			android:text="@string/front_camera_liveness_tech5_label"
 			android:visibility="visible"
 			android:textSize="16sp" />
 

@@ -1,6 +1,7 @@
 package com.credenceid.sdkapp.util;
 
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 public class CredenceCameraAppLivenessResult {
@@ -8,14 +9,14 @@ public class CredenceCameraAppLivenessResult {
     private int mSdkResult;
     private int mLivenessScore;
     private String mSdkResultMessage;
-    private Uri mFaceImageUri;
+    private Uri mResultImageUri;
 
-    public CredenceCameraAppLivenessResult(int cameraAppResult, int livenessScore, String sdkResultMessage, Uri faceImageUri ){
+    public CredenceCameraAppLivenessResult(int cameraAppResult, int livenessScore, String sdkResultMessage, Uri resultImageUri ){
 
         mSdkResult = cameraAppResult;
         mLivenessScore = livenessScore;
         mSdkResultMessage = sdkResultMessage;
-        mFaceImageUri = faceImageUri;
+        mResultImageUri = resultImageUri;
 
     }
 
@@ -26,5 +27,5 @@ public class CredenceCameraAppLivenessResult {
         return mLivenessScore;
     }
     public String getSdkResultMessage(){return mSdkResultMessage;}
-    public Uri getFaceImageUri(){return mFaceImageUri;}
+    public Uri getResultImage(){return mResultImageUri;}
 }

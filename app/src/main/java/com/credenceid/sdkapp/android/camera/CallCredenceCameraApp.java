@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import androidx.activity.result.contract.ActivityResultContract;
@@ -12,10 +14,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 
+import com.credenceid.sdkapp.MainActivity;
 import com.credenceid.sdkapp.util.CredenceCameraAppLivenessResult;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import static com.credenceid.sdkapp.util.credenceCamera_Constant.CAMERA_DEVICE;
 import static com.credenceid.sdkapp.util.credenceCamera_Constant.FEATURE;
@@ -24,14 +32,15 @@ import static com.credenceid.sdkapp.util.credenceCamera_Constant.FEATURE_FACE_LI
 import static com.credenceid.sdkapp.util.credenceCamera_Constant.LIVENESS_MODE;
 import static com.credenceid.sdkapp.util.credenceCamera_Constant.PROVIDER;
 import static com.credenceid.sdkapp.util.credenceCamera_Constant.PROVIDER_CID;
-import static com.credenceid.sdkapp.util.credenceCamera_Constant.PROVIDER_NEUROTECH;
 
 
 public class CallCredenceCameraApp extends ActivityResultContract<Integer, CredenceCameraAppLivenessResult> {
 
+    private static final String TAG = "CID-Sample";
     private int mFeature;
     private int mProvider;
     private int mCameraDevice;
+    private Context mCtx;
 
     public CallCredenceCameraApp(int feature, int provider, int cameraDevice){
         mFeature = feature;
@@ -43,6 +52,7 @@ public class CallCredenceCameraApp extends ActivityResultContract<Integer, Crede
     @Override
     public Intent createIntent(@NonNull Context context, @NonNull Integer integer) {
 
+        mCtx = context;
         Intent intent = new Intent(Intent.ACTION_RUN);
         intent.putExtra(FEATURE, mFeature );
         intent.putExtra(PROVIDER, mProvider );
@@ -59,20 +69,21 @@ public class CallCredenceCameraApp extends ActivityResultContract<Integer, Crede
         int sdkResult = result.getIntExtra("SDK_RESULT", 0);
         int livenessScore = result.getIntExtra("LIVENESS_SCORE", 0);
         String sdkResultMessage = result.getStringExtra("SDK_RESULT_MESSAGE");
-        Uri faceImageUri = null;
-//        if (result.getStringExtra("IMAGE_URI") != null) {
-            Log.d("IMAGE_URI", result.getStringExtra("IMAGE_URI"));
-            faceImageUri = Uri.parse(result.getStringExtra("IMAGE_URI"));
-
-//        }
+        Uri resultImageUri = null;
+        try {
+            resultImageUri = result.getData();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "ERROR: " + e.toString());
+        }
 
         Log.d("CID", "SDK_RESULT = " + sdkResult);
         Log.d("CID", "LIVENESS_SCORE = " + livenessScore);
         Log.d("CID", "SDK_RESULT_MESSAGE = " + sdkResultMessage);
-        if(null != faceImageUri)
-            Log.d("CID", "FACE_IMAGE_URI = " + faceImageUri.getEncodedPath());
+        if(null != resultImageUri)
+            Log.d("CID", "RESULT IMAGE SIZE = " + resultImageUri.getEncodedPath());
 
-        return new CredenceCameraAppLivenessResult(sdkResult, livenessScore, sdkResultMessage, faceImageUri);
+        return new CredenceCameraAppLivenessResult(sdkResult, livenessScore, sdkResultMessage, resultImageUri);
 
     }
 

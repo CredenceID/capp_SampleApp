@@ -86,4 +86,6 @@
 	<string name="front_camera_liveness_innovatrics_label">Innovatrics - FRONT</string>
 	<string name="front_camera_liveness_nfv_label">Nfv- FRONT</string>
 	<string name="front_camera_liveness_luna_label">Luna - FRONT</string>
+	<string name="front_camera_liveness_tech5_label">Tech5 - FRONT</string>
+	<string name="back_camera_liveness_tech5_label">Tech5 - BACK</string>
 </resources>
