@@ -26,6 +26,8 @@ private val TAG = "CID"
 
 class CameraActivity : ComponentActivity() {
 
+    private val LIVENESS_THREASHOLD = 60
+
     val startCCameraAppBarcodeCidBack = registerForActivityResult(CallCredenceCameraApp(
             FEATURE_BARCODE,
             PROVIDER_CID,
@@ -168,15 +170,22 @@ class CameraActivity : ComponentActivity() {
     private fun handleCreenceCameraResult(result: CredenceCameraAppLivenessResult){
         if (result != null) {
             if(result.sdkResult == 1) {
-                status_textview.text = "Result = OK " +
-                        "\nMessage = " + result.sdkResultMessage
+                if(result.livenessScore > LIVENESS_THREASHOLD) {
+                    status_textview.text = "Result = LIVENESS VERIFICATION SUCCESSFUL " +
+                            "\nMessage = " + result.sdkResultMessage
 
-                displayImage(result.resultImage)
+                    displayImage(result.resultImage)
+                } else {
+                    status_textview.text = "Result = LIVENESS VERIFICATION FAILED " +
+                            "\nMessage = " + result.sdkResultMessage
+
+                    displayImage(result.resultImage)
+                }
             }else {
-                status_textview.text = "Result = FAILED"
+                status_textview.text = "Result = VERIFICATION ISSUE"
             }
         } else {
-            Log.e(TAG, "Fail to get Live Subject template.");
+            Log.e(TAG, "Fail to get SDK result.");
         }
 
     }
