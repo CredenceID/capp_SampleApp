@@ -4,14 +4,19 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Environment
 import android.os.SystemClock
+import android.util.Base64
+import android.util.Log
 import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.*
-import com.credenceid.biometrics.Biometrics.FMDFormat.*
+import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_fp.*
-import kotlinx.android.synthetic.main.act_mrz.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 private const val SYNC_API_TIMEOUT_MS = 3000
 
@@ -401,10 +406,42 @@ class FingerprintActivity : Activity() {
     private fun matchFMDTemplates(templateOne: ByteArray?,
                                   templateTwo: ByteArray?) {
 
+        val capturedFpBase64 = "Rk1SACAyMAAAAAFoAAABkAH0AMUAxQEAAABWN4CbAQlJXUB9AR1TXYBUAS3dXYCiAUZhW0BaAQxLW0BsANDAWIFWAKcTV0B3AKouV0EEAOxAVUCGAWZhVID9ARXgVIEGAKSoUkCOAKqzUUDjAPNDUUBVANY5T0EXASljT0EFASthT4DlAUZkS0DdAHokSkD2ATpkSkD3ANArSUDpAXFpSIBbAKm3SEEiAShjRkFCAPZLQ0EVAWvoQ0EdAStpQkDpAG6iQoEYAOXBQoE8APDTQoBnASNcP0FHAMwSPUDrAWvoPIE2AOIwPEDqAOlAPIFMAMcROkFdAOzrOkEpAMeyOEFSAMoROEFGAMQTN4DzAGglNoFYANwNNoFkANyBNQBaAKOwNQEvAPdJNADxAQ3bNAFMANaYNAEyANjFMQFQANuPMQE/AOIfMAFPAPFiLwFWAOtpLgFSAOxkLQFjAUTuLAE5AMizKAAA"
+
+        val cardFpBase64_1 = "TXlJRAAAAAAAAAAAAAAAAAAA1wM524FHLBCSYm2haFghgjlYcySHAzmj+gAAAABGTVIAIDIwAAIwADsBA4ABAUcCEQDFAMUCAAIAZClAogC/S2RAdwFCEWOAwAC5mmNAzgBgSWOA1ACEnWNAqQBjTGJBBgDSP2JAfwB1q2FAiABjqF5AkwBSpl5A/gDrmF6AzgCdRltAcAGpZFqAIgDtdllATAGAEVeAmwB1UFeA6wFTqlSAyQE9QFOA3wF5WVKASQCKClGAYQDnEU5AbAEmeU1ATAGxDEpArwFCRUqA2AE6PEmAmgEFiUhA3wFfTkhBCQE6QkWA"
+
+        val cardFpBase64_2 = "AAAAAAAAAAAAAAAAANcDOduBRywQkmJtoWhYIYI5WHMkhwM5o/oAAAAARk1SACAyMAACMAA7AQOAAQFHAhEAxQDFAgACAGQpQKIAv0tkQHcBQhFjgMAAuZpjQM4AYEljgNQAhJ1jQKkAY0xiQQYA0j9iQH8AdathQIgAY6heQJMAUqZeQP4A65hegM4AnUZbQHABqWRagCIA7XZZQEwBgBFXgJsAdVBXgOsBU6pUgMkBPUBTgN8BeVlSgEkAigpRgGEA5xFOQGwBJnlNQEwBsQxKQK8BQkVKgNgBOjxJgJoBBYlIQN8BX05IQQkBOkJFgE4BQxo7gJYAkFE4QGMBRB8xgKMA/UEqgEUAf2kjgGQA9A8h"
+
+        val capturedTemplate = Base64.decode(capturedFpBase64, Base64.DEFAULT)
+        val cardTemplate_1 = Base64.decode(cardFpBase64_1, Base64.DEFAULT)
+        val cardTemplate_2 = Base64.decode(cardFpBase64_2, Base64.DEFAULT)
+
+        val capturedFile = File(
+                Environment.getExternalStorageDirectory(),
+                "capturedTemplate.bin")
+                .path
+
+        write(capturedTemplate,capturedFile)
+
+        val cardFp_1 = File(
+                Environment.getExternalStorageDirectory(),
+                "cardFP_1.bin")
+                .path
+
+        write(cardTemplate_1,cardFp_1)
+
+
+        val cardFp_2 = File(
+                Environment.getExternalStorageDirectory(),
+                "cardFP_2.bin")
+                .path
+
+        write(cardTemplate_2,cardFp_2)
+
         /* Normally one would handle parameter checking, but this API handles it for us. Meaning
          * that if any FMD is invalid it will return the proper score of 0, etc.
          */
-        App.BioManager!!.compareFMD(templateOne, templateTwo, ISO_19794_2_2005) { rc: ResultCode,
+        App.BioManager!!.compareFMD(capturedTemplate, cardTemplate_2, ISO_19794_2_2005) { rc: ResultCode,
                                                                                   score: Float ->
 
             when (rc) {
@@ -566,6 +603,21 @@ class FingerprintActivity : Activity() {
                 }
                 FAIL == resultCode -> fpStatusTextView.text = "WSQ Decompression: FAIL"
             }
+        }
+    }
+
+    fun write(bytes: ByteArray?,
+              absFilePath: String?): Boolean {
+        val f = File(absFilePath)
+        try {
+            FileOutputStream(f.path).use { fos ->
+                fos.write(bytes)
+                fos.close()
+                return true
+            }
+        } catch (e: IOException) {
+            Log.w("App.TAG", "write(byte[], String): Unable to getSnapshot bytes to file.")
+            return false
         }
     }
 }
