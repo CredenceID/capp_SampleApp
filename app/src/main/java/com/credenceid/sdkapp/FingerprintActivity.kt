@@ -363,7 +363,7 @@ class FingerprintActivity : Activity() {
         val startTime = SystemClock.elapsedRealtime()
 
         App.BioManager!!.convertToFMD(bitmap, ISO_19794_2_2005) { resultCode: ResultCode,
-                                                                  bytes: ByteArray ->
+                                                                  bytes: ByteArray? ->
 
             when (resultCode) {
                 OK -> {
@@ -372,9 +372,9 @@ class FingerprintActivity : Activity() {
                     infoTextView.text = "Created FMD template in: $durationInSeconds seconds."
 
                     if (mCaptureFingerprintOne)
-                        mFingerprintOneFMDTemplate = bytes.copyOf(bytes.size)
+                        mFingerprintOneFMDTemplate = bytes?.copyOf(bytes.size)
                     else
-                        mFingerprintTwoFMDTemplate = bytes.copyOf(bytes.size)
+                        mFingerprintTwoFMDTemplate = bytes?.copyOf(bytes.size)
 
                     /* If both templates have been created then enable Match button. */
                     if (mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null)
