@@ -3,8 +3,11 @@ package com.credenceid.sdkapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.os.Environment
 import android.os.SystemClock
+import android.util.Log
 import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.*
@@ -12,6 +15,9 @@ import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_fp.*
 import kotlinx.android.synthetic.main.act_mrz.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 private const val SYNC_API_TIMEOUT_MS = 3000
 
@@ -321,6 +327,10 @@ class FingerprintActivity : Activity() {
                         if (null != bitmap)
                             fingerTwoImageView.setImageBitmap(bitmap)
 
+                        val bitmapOptions1 = BitmapFactory.Options()
+                        bitmapOptions1.inScaled = false
+                        val sampleImage = BitmapFactory.decodeResource(resources, R.drawable.cbimage, bitmapOptions1)
+
                         /* Create template from fingerprint image. */
                         createFMDTemplate(bitmap)
                     }
@@ -350,6 +360,21 @@ class FingerprintActivity : Activity() {
         })
     }
 
+    fun write(bytes: ByteArray?,
+              absFilePath: String?): Boolean {
+        val f = File(absFilePath)
+        try {
+            FileOutputStream(f.path).use { fos ->
+                fos.write(bytes)
+                fos.close()
+                return true
+            }
+        } catch (e: IOException) {
+            Log.w("App.TAG", "write(byte[], String): Unable to getSnapshot bytes to file.")
+            return false
+        }
+    }
+
     /**
      * Attempts to create a FMD template from given Bitmap image. If successful it saves FMD to
      * respective fingerprint template array.
@@ -371,9 +396,14 @@ class FingerprintActivity : Activity() {
                     val durationInSeconds = (SystemClock.elapsedRealtime() - startTime) / 1000.0
                     infoTextView.text = "Created FMD template in: $durationInSeconds seconds."
 
-                    if (mCaptureFingerprintOne)
+                    if (mCaptureFingerprintOne) {
                         mFingerprintOneFMDTemplate = bytes?.copyOf(bytes.size)
-                    else
+                        val capturedFile = File(
+                                Environment.getExternalStorageDirectory(),
+                                "capturedTemplate.bin")
+                                .path
+                        write(mFingerprintOneFMDTemplate,capturedFile)
+                    }else
                         mFingerprintTwoFMDTemplate = bytes?.copyOf(bytes.size)
 
                     /* If both templates have been created then enable Match button. */
