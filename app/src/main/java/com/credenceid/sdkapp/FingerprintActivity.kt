@@ -332,7 +332,7 @@ class FingerprintActivity : Activity() {
                         val sampleImage = BitmapFactory.decodeResource(resources, R.drawable.cbimage, bitmapOptions1)
 
                         /* Create template from fingerprint image. */
-                        createFMDTemplate(bitmap)
+                        createFMDTemplate(sampleImage)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
