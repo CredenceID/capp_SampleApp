@@ -387,7 +387,7 @@ class FingerprintActivity : Activity() {
         /* Keep a track of how long it takes for FMD creation. */
         val startTime = SystemClock.elapsedRealtime()
 
-        App.BioManager!!.convertToFMD(bitmap, ISO_19794_2_2005) { resultCode: ResultCode,
+        App.BioManager!!.convertToFMD(bitmap, ANSI_378_2004) { resultCode: ResultCode,
                                                                   bytes: ByteArray? ->
 
             when (resultCode) {
@@ -434,7 +434,7 @@ class FingerprintActivity : Activity() {
         /* Normally one would handle parameter checking, but this API handles it for us. Meaning
          * that if any FMD is invalid it will return the proper score of 0, etc.
          */
-        App.BioManager!!.compareFMD(templateOne, templateTwo, ISO_19794_2_2005) { rc: ResultCode,
+        App.BioManager!!.compareFMD(templateOne, templateTwo, ANSI_378_2004) { rc: ResultCode,
                                                                                   score: Float ->
 
             when (rc) {
@@ -474,7 +474,7 @@ class FingerprintActivity : Activity() {
     private fun convertWSQToFMDSync(WSQ: ByteArray): ByteArray {
 
         val res = App.BioManager!!.convertToFMDSync(WSQ,
-                ISO_19794_2_2005,
+                ANSI_378_2004,
                 SYNC_API_TIMEOUT_MS)
 
         return if (null != res && OK == res.resultCode) res.FMD else byteArrayOf()
@@ -510,7 +510,7 @@ class FingerprintActivity : Activity() {
 
         val res = App.BioManager!!.compareFMDSync(FMDOne,
                 FMDTwo,
-                ISO_19794_2_2005,
+                ANSI_378_2004,
                 SYNC_API_TIMEOUT_MS)
         /* Score may be multiplied by 100 to obtain a percentage in range [0, 100]. */
         return if (null == res) 0 else (res.dissimilarity * 100).toInt()
@@ -520,7 +520,7 @@ class FingerprintActivity : Activity() {
     private fun convertToFMDSync(fingerprintImage: Bitmap): ByteArray {
 
         val res = App.BioManager!!.convertToFMDSync(fingerprintImage,
-                ISO_19794_2_2005,
+                ANSI_378_2004,
                 SYNC_API_TIMEOUT_MS)
 
         return if (null != res && OK == res.resultCode) res.FMD else byteArrayOf()
