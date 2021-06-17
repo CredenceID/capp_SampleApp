@@ -15,6 +15,7 @@ import com.credenceid.biometrics.Biometrics.FMDFormat.ANSI_378_2004
 import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.sdkapp.util.BitmapUtils
+import com.credenceid.sdkapp.util.FileUtils
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_fp.*
 import java.io.File
@@ -456,11 +457,14 @@ class FingerprintActivity : Activity() {
                 .path
 
         write(cardTemplate_2,cardFp_2)*/
-
+        val fileOne = File(Environment.getExternalStorageDirectory() , "/fp1.bin")
+        val fileTwo = File(Environment.getExternalStorageDirectory() , "/live.bin")
+        val fpTemplateOne = FileUtils.getBytes(fileOne.absolutePath)
+        val fpTemplateTwo = FileUtils.getBytes(fileTwo.absolutePath)
         /* Normally one would handle parameter checking, but this API handles it for us. Meaning
          * that if any FMD is invalid it will return the proper score of 0, etc.
          */
-        App.BioManager!!.compareFMD(templateOne, templateTwo, ANSI_378_2004) { rc: ResultCode,
+        App.BioManager!!.compareFMD(fpTemplateOne, fpTemplateTwo, ANSI_378_2004) { rc: ResultCode,
                                                                                   score: Float ->
 
             when (rc) {
