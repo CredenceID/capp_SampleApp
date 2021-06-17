@@ -3,6 +3,7 @@ package com.credenceid.sdkapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Environment
 import android.os.SystemClock
@@ -13,6 +14,7 @@ import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.ANSI_378_2004
 import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
 import com.credenceid.biometrics.Biometrics.ResultCode.*
+import com.credenceid.sdkapp.util.BitmapUtils
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_fp.*
 import java.io.File
@@ -274,8 +276,9 @@ class FingerprintActivity : Activity() {
                         fpStatusTextView.text = "WSQ File: $wsqFilepath"
                         infoTextView.text = "Quality: $nfiqScore"
 
+                        val sampleBitmap = BitmapFactory.decodeResource(resources, R.drawable.cbimage)
                         /* Create template from fingerprint image. */
-                        createFMDTemplate(bitmap)
+                        createFMDTemplate(sampleBitmap)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -328,7 +331,8 @@ class FingerprintActivity : Activity() {
                             fingerTwoImageView.setImageBitmap(bitmap)
 
                         /* Create template from fingerprint image. */
-                        createFMDTemplate(bitmap)
+                        val sampleBitmap = BitmapFactory.decodeResource(resources, R.drawable.cbimage)
+                        createFMDTemplate(sampleBitmap)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -368,7 +372,7 @@ class FingerprintActivity : Activity() {
         /* Keep a track of how long it takes for FMD creation. */
         val startTime = SystemClock.elapsedRealtime()
 
-        App.BioManager!!.convertToFMD(bitmap, ISO_19794_2_2005) { resultCode: ResultCode,
+        App.BioManager!!.convertToFMD(bitmap, ANSI_378_2004) { resultCode: ResultCode,
                                                                   bytes: ByteArray ->
 
             when (resultCode) {
@@ -377,11 +381,23 @@ class FingerprintActivity : Activity() {
                     val durationInSeconds = (SystemClock.elapsedRealtime() - startTime) / 1000.0
                     infoTextView.text = "Created FMD template in: $durationInSeconds seconds."
 
-                    if (mCaptureFingerprintOne)
+                    if (mCaptureFingerprintOne) {
                         mFingerprintOneFMDTemplate = bytes.copyOf(bytes.size)
-                    else
-                        mFingerprintTwoFMDTemplate = bytes.copyOf(bytes.size)
+                        val capturedFile = File(
+                                Environment.getExternalStorageDirectory(),
+                                "capturedTemplate_1.bin")
+                                .path
 
+                        write(mFingerprintOneFMDTemplate,capturedFile)
+                    }else {
+                        mFingerprintTwoFMDTemplate = bytes.copyOf(bytes.size)
+                        val capturedFile = File(
+                                Environment.getExternalStorageDirectory(),
+                                "capturedTemplate_2.bin")
+                                .path
+
+                        write(mFingerprintTwoFMDTemplate,capturedFile)
+                    }
                     /* If both templates have been created then enable Match button. */
                     if (mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null)
                         matchBtn.isEnabled = true
@@ -407,7 +423,7 @@ class FingerprintActivity : Activity() {
     private fun matchFMDTemplates(templateOne: ByteArray?,
                                   templateTwo: ByteArray?) {
 
-        //val capturedFpBase64 = "Rk1SACAyMAAAAAFoAAABkAH0AMUAxQEAAABWN4CbAQlJXUB9AR1TXYBUAS3dXYCiAUZhW0BaAQxLW0BsANDAWIFWAKcTV0B3AKouV0EEAOxAVUCGAWZhVID9ARXgVIEGAKSoUkCOAKqzUUDjAPNDUUBVANY5T0EXASljT0EFASthT4DlAUZkS0DdAHokSkD2ATpkSkD3ANArSUDpAXFpSIBbAKm3SEEiAShjRkFCAPZLQ0EVAWvoQ0EdAStpQkDpAG6iQoEYAOXBQoE8APDTQoBnASNcP0FHAMwSPUDrAWvoPIE2AOIwPEDqAOlAPIFMAMcROkFdAOzrOkEpAMeyOEFSAMoROEFGAMQTN4DzAGglNoFYANwNNoFkANyBNQBaAKOwNQEvAPdJNADxAQ3bNAFMANaYNAEyANjFMQFQANuPMQE/AOIfMAFPAPFiLwFWAOtpLgFSAOxkLQFjAUTuLAE5AMizKAAA"
+        /*//val capturedFpBase64 = "Rk1SACAyMAAAAAFoAAABkAH0AMUAxQEAAABWN4CbAQlJXUB9AR1TXYBUAS3dXYCiAUZhW0BaAQxLW0BsANDAWIFWAKcTV0B3AKouV0EEAOxAVUCGAWZhVID9ARXgVIEGAKSoUkCOAKqzUUDjAPNDUUBVANY5T0EXASljT0EFASthT4DlAUZkS0DdAHokSkD2ATpkSkD3ANArSUDpAXFpSIBbAKm3SEEiAShjRkFCAPZLQ0EVAWvoQ0EdAStpQkDpAG6iQoEYAOXBQoE8APDTQoBnASNcP0FHAMwSPUDrAWvoPIE2AOIwPEDqAOlAPIFMAMcROkFdAOzrOkEpAMeyOEFSAMoROEFGAMQTN4DzAGglNoFYANwNNoFkANyBNQBaAKOwNQEvAPdJNADxAQ3bNAFMANaYNAEyANjFMQFQANuPMQE/AOIfMAFPAPFiLwFWAOtpLgFSAOxkLQFjAUTuLAE5AMizKAAA"
         val capturedFpBase64 = "Rk1SACAyMAACMAA7AQOAAQFHAhEAxQDFAgACAGQpQKIAv0tkQHcBQhFjgMAAuZpjQM4AYEljgNQAhJ1jQKkAY0xiQQYA0j9iQH8AdathQIgAY6heQJMAUqZeQP4A65hegM4AnUZbQHABqWRagCIA7XZZQEwBgBFXgJsAdVBXgOsBU6pUgMkBPUBTgN8BeVlSgEkAigpRgGEA5xFOQGwBJnlNQEwBsQxKQK8BQkVKgNgBOjxJgJoBBYlIQN8BX05IQQkBOkJFgE4BQxo7gJYAkFE4QGMBRB8xgKMA/UEqgEUAf2kjgGQA9A8hQCIBihYdQPcBjVkYgGABKXYLQMABWVIJgPsBaU8JgG8BBQwDgKUBRk8AAAAIAGQuQH4ASwtkQIwA8gNigLkAwZ5hgQ0AvplhQNcBbYFggK0BiB5eQO8BiUJegPMAbkleQH4AuW9cQNEBJ41cgNMBzABcgE0AZhRagK0BohJaQR8A00BZgFcAthdVQEgBkmdUQI0BtRBTgNkBT45RQI4AZAVQQDAAq3NPgS0A95ROgLwBV31MQEwAqhlLQPcBrFFLgGQAwxNIgMcBlhFIQCAAqhpHgCoA0nJFgOYA3UBEQKwBEJE/QNMBVIY7gJkAzAQ5gNUAQlE1QIUBPIEzgFEBtA0rgKQAsq4qgGkA3xcpQPMB0FkkQI4BLX8fQCYBMxccgEABzAUbQJIBG3gZgDsBsA8XgGkBkRYVQIcBTyoPgJ8BHIoAAAAwggKvBgkqhkiG9w0BBwKgggKgMIICnAIBAzELMAkGBSsOAwIaBQAwCgYIYIZIAWUDBgIxggJ8MIICeAIBATBrMGMxCzAJBgNVBAYTAlVTMRgwFgYDVQQKEw9VLlMuIEdvdmVybm1lbnQxJjAkBgNVBAsTHVRTQSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0aWVzMRIwEAYDVQQDEwlUV0lDIENBIDECBFPxqUowCQYFKw4DAhoFAKCB5zAXBgkqhkiG9w0BCQMxCgYIYIZIAWUD"
 
         //val cardFpBase64_1 = "TXlJRAAAAAAAAAAAAAAAAAAA1wM524FHLBCSYm2haFghgjlYcySHAzmj+gAAAABGTVIAIDIwAAIwADsBA4ABAUcCEQDFAMUCAAIAZClAogC/S2RAdwFCEWOAwAC5mmNAzgBgSWOA1ACEnWNAqQBjTGJBBgDSP2JAfwB1q2FAiABjqF5AkwBSpl5A/gDrmF6AzgCdRltAcAGpZFqAIgDtdllATAGAEVeAmwB1UFeA6wFTqlSAyQE9QFOA3wF5WVKASQCKClGAYQDnEU5AbAEmeU1ATAGxDEpArwFCRUqA2AE6PEmAmgEFiUhA3wFfTkhBCQE6QkWA"
@@ -439,12 +455,12 @@ class FingerprintActivity : Activity() {
                 "cardFP_2.bin")
                 .path
 
-        write(cardTemplate_2,cardFp_2)
+        write(cardTemplate_2,cardFp_2)*/
 
         /* Normally one would handle parameter checking, but this API handles it for us. Meaning
          * that if any FMD is invalid it will return the proper score of 0, etc.
          */
-        App.BioManager!!.compareFMD(capturedTemplate, cardTemplate_2, ISO_19794_2_2005) { rc: ResultCode,
+        App.BioManager!!.compareFMD(templateOne, templateTwo, ANSI_378_2004) { rc: ResultCode,
                                                                                   score: Float ->
 
             when (rc) {
