@@ -276,10 +276,14 @@ class FingerprintActivity : Activity() {
 
                         fpStatusTextView.text = "WSQ File: $wsqFilepath"
                         infoTextView.text = "Quality: $nfiqScore"
-
+// we are passing cbimage
                         val sampleBitmap = BitmapFactory.decodeResource(resources, R.drawable.cbimage)
                         /* Create template from fingerprint image. */
-                        createFMDTemplate(sampleBitmap)
+                        //createFMDTemplate(sampleBitmap)
+
+                        // live finerprint
+                        createFMDTemplate(bitmap)
+
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -332,8 +336,12 @@ class FingerprintActivity : Activity() {
                             fingerTwoImageView.setImageBitmap(bitmap)
 
                         /* Create template from fingerprint image. */
+                        //passingcbimage
                         val sampleBitmap = BitmapFactory.decodeResource(resources, R.drawable.cbimage)
-                        createFMDTemplate(sampleBitmap)
+                       // createFMDTemplate(sampleBitmap)
+
+                        // live finerprint
+                       createFMDTemplate(bitmap)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
