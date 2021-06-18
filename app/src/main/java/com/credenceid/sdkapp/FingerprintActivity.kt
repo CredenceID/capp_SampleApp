@@ -7,12 +7,14 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Environment
 import android.os.SystemClock
+import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.ANSI_378_2004
 import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
 import com.credenceid.biometrics.Biometrics.ResultCode.*
+import com.credenceid.sdkapp.util.BitmapUtils
 import com.credenceid.sdkapp.util.FileUtils
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_fp.*
@@ -275,11 +277,15 @@ class FingerprintActivity : Activity() {
 
                         fpStatusTextView.text = "WSQ File: $wsqFilepath"
                         infoTextView.text = "Quality: $nfiqScore"
-
+// we are passing cbimage
                         val sampleBitmap = BitmapFactory.decodeResource(resources, R.drawable.cbimage)
                         val bMapScaled = Bitmap.createScaledBitmap(sampleBitmap, 400, 500, false)
                         /* Create template from fingerprint image. */
                         createFMDTemplate(bMapScaled)
+
+                        // live finerprint
+                        //createFMDTemplate(bitmap)
+
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -332,9 +338,13 @@ class FingerprintActivity : Activity() {
                             fingerTwoImageView.setImageBitmap(bitmap)
 
                         /* Create template from fingerprint image. */
+                        //passingcbimage
                         val sampleBitmap = BitmapFactory.decodeResource(resources, R.drawable.cbimage)
                         val bMapScaled = Bitmap.createScaledBitmap(sampleBitmap, 400, 500, false)
                         createFMDTemplate(bMapScaled)
+
+                        // live finerprint
+                       //createFMDTemplate(bitmap)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
