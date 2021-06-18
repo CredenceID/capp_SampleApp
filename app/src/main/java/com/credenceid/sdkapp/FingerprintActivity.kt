@@ -7,20 +7,19 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Environment
 import android.os.SystemClock
-import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.ANSI_378_2004
 import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
 import com.credenceid.biometrics.Biometrics.ResultCode.*
-import com.credenceid.sdkapp.util.BitmapUtils
 import com.credenceid.sdkapp.util.FileUtils
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_fp.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+
 
 private const val SYNC_API_TIMEOUT_MS = 3000
 
@@ -278,8 +277,9 @@ class FingerprintActivity : Activity() {
                         infoTextView.text = "Quality: $nfiqScore"
 
                         val sampleBitmap = BitmapFactory.decodeResource(resources, R.drawable.cbimage)
+                        val bMapScaled = Bitmap.createScaledBitmap(sampleBitmap, 400, 500, false)
                         /* Create template from fingerprint image. */
-                        createFMDTemplate(sampleBitmap)
+                        createFMDTemplate(bMapScaled)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -333,7 +333,8 @@ class FingerprintActivity : Activity() {
 
                         /* Create template from fingerprint image. */
                         val sampleBitmap = BitmapFactory.decodeResource(resources, R.drawable.cbimage)
-                        createFMDTemplate(sampleBitmap)
+                        val bMapScaled = Bitmap.createScaledBitmap(sampleBitmap, 400, 500, false)
+                        createFMDTemplate(bMapScaled)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -457,8 +458,8 @@ class FingerprintActivity : Activity() {
                 .path
 
         write(cardTemplate_2,cardFp_2)*/
-        val fileOne = File(Environment.getExternalStorageDirectory() , "/fp1.bin")
-        val fileTwo = File(Environment.getExternalStorageDirectory() , "/live.bin")
+        val fileOne = File(Environment.getExternalStorageDirectory() , "/fp2.bin")
+        val fileTwo = File(Environment.getExternalStorageDirectory() , "/capturedTemplate_1.bin")
         val fpTemplateOne = FileUtils.getBytes(fileOne.absolutePath)
         val fpTemplateTwo = FileUtils.getBytes(fileTwo.absolutePath)
         /* Normally one would handle parameter checking, but this API handles it for us. Meaning
