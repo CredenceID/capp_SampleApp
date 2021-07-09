@@ -163,6 +163,7 @@
 				android:layout_height="@dimen/main_button_size"
 				android:layout_marginTop="@dimen/main_button_inter_margin"
 				android:background="@drawable/tab_btn_background"
+				android:visibility="gone"
 				android:src="@drawable/ic_camera"
 				tools:ignore="ContentDescription" />
 

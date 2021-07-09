@@ -5,6 +5,7 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.SystemClock
+import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.*
 import com.credenceid.biometrics.Biometrics.ResultCode.*
@@ -196,8 +197,12 @@ class FingerprintActivity : Activity() {
         }
 
         matchBtn.setOnClickListener {
-            this.setAllComponentEnable(false)
-            this.matchFMDTemplates(mFingerprintOneFMDTemplate, mFingerprintTwoFMDTemplate)
+            if(mFingerprintOneFMDTemplate!=null && mFingerprintTwoFMDTemplate!=null) {
+                this.setAllComponentEnable(false)
+                this.matchFMDTemplates(mFingerprintOneFMDTemplate, mFingerprintTwoFMDTemplate)
+            }else{
+                Toast.makeText(this,"Please capture both fingerprints to match.",Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -210,6 +215,9 @@ class FingerprintActivity : Activity() {
 
         captureBtn.isEnabled = enable
         matchBtn.isEnabled = enable
+
+        /* If both templates have been created then enable Match button. */
+        matchBtn.isEnabled = mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null
     }
 
     /**
@@ -355,7 +363,7 @@ class FingerprintActivity : Activity() {
         val startTime = SystemClock.elapsedRealtime()
 
         App.BioManager!!.convertToFMD(bitmap, ISO_19794_2_2005) { resultCode: ResultCode,
-                                                                  bytes: ByteArray ->
+                                                                  bytes: ByteArray? ->
 
             when (resultCode) {
                 OK -> {
@@ -364,9 +372,9 @@ class FingerprintActivity : Activity() {
                     infoTextView.text = "Created FMD template in: $durationInSeconds seconds."
 
                     if (mCaptureFingerprintOne)
-                        mFingerprintOneFMDTemplate = bytes.copyOf(bytes.size)
+                        mFingerprintOneFMDTemplate = bytes?.copyOf(bytes.size)
                     else
-                        mFingerprintTwoFMDTemplate = bytes.copyOf(bytes.size)
+                        mFingerprintTwoFMDTemplate = bytes?.copyOf(bytes.size)
 
                     /* If both templates have been created then enable Match button. */
                     if (mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null)
@@ -403,7 +411,7 @@ class FingerprintActivity : Activity() {
                 OK -> {
                     var matchDecision = "No Match"
                     /* This is how to properly determine a match or not. */
-                    if (score < Integer.MAX_VALUE / 1000000)
+                    if (score !=0f)
                         matchDecision = "Match"
 
                     fpStatusTextView.text = "Matching complete."
