@@ -14,6 +14,8 @@ import com.credenceid.biometrics.Biometrics.ResultCode
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_cardreader.*
+import kotlinx.android.synthetic.main.act_cardreader.openCloseBtn
+import kotlinx.android.synthetic.main.act_fp.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -240,6 +242,7 @@ class CardReaderActivity : Activity() {
             if (!hasFocus)
                 hideKeyboard(v)
         }
+
     }
 
     /**
@@ -348,29 +351,33 @@ class CardReaderActivity : Activity() {
         App.BioManager!!.cardCommand(ApduCommand(APDUCommand), false) { rc: ResultCode,
                                                                         sw1: Byte,
                                                                         sw2: Byte,
-                                                                        data: ByteArray ->
+                                                                        data: ByteArray? ->
 
             when {
                 OK == rc -> {
                     var dataToDisplay: String
+                    dataToDisplay = ""
                     /* If data read was equal to special data then convert each byte into human
                      * understandable text, ASCII chars.
                      */
                     if (mREAD_SPECIAL_APDU_LEN == currentReadAPDU.length) {
                         dataToDisplay = ""
                         /* Convert read data into human readable ASCII characters. */
-                        for (aData in data)
-                            dataToDisplay += aData.toChar()
+                        if (data != null) {
+                            for (aData in data)
+                                dataToDisplay += aData.toChar()
+                        }
                     } else {
                         /* If non special data was read then simply convert to String format. */
-                        dataToDisplay = HexUtils.toString(data)
+                        if (data != null)
+                            dataToDisplay = HexUtils.toString(data)
                     }
 
                     val str = String.format(Locale.ENGLISH,
                             "SW1: %s, SW2: %s\nLength of data read: %d\n\n %s",
                             HexUtils.toString(sw1),
                             HexUtils.toString(sw2),
-                            data.size,
+                            dataToDisplay.length,
                             dataToDisplay)
 
                     cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
