@@ -169,4 +169,5 @@
 		android:gravity="center"
 		android:textColor="@color/red"
 		android:textSize="18sp" />
+
 </LinearLayout>

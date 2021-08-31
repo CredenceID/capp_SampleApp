@@ -203,6 +203,10 @@ class FingerprintActivity : Activity() {
                 Toast.makeText(this,"Please capture both fingerprints to match.",Toast.LENGTH_LONG).show()
             }
         }
+
+        calibrateBtn.setOnClickListener{
+            calibrateFingerprintSensor();
+        }
     }
 
     /**
@@ -433,6 +437,15 @@ class FingerprintActivity : Activity() {
             }
             /* Re-enable all components since operation is now complete. */
             this.setAllComponentEnable(true)
+        }
+    }
+
+    private fun calibrateFingerprintSensor(){
+        App.BioManager!!.calibrateFingerprintReader(){resultCode: ResultCode,
+                                                      hint: String? ->
+
+            fpStatusTextView.text = "FP sensor Calibration result = " + resultCode.name
+
         }
     }
 
