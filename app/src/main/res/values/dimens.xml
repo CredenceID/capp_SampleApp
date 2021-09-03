@@ -8,7 +8,7 @@
 
 	<dimen name="tab_btn_background_radius">20dp</dimen>
 
-	<dimen name="main_button_size">150dp</dimen>
+	<dimen name="main_button_size">100dp</dimen>
 	<dimen name="main_button_inter_margin">10dp</dimen>
 
 	<dimen name="card_margintop">10dp</dimen>

@@ -64,6 +64,7 @@
 	<string name="icao_done">Finished reading document.</string>
 	<string name="open_mrz">Open MRZ</string>
 	<string name="close_mrz">Close MRZ</string>
+	<string name="read_hardware_identifiers">Read Identifiers</string>
 	<string name="open_epassport">Open EPassport</string>
 	<string name="close_epassport">Close EPassport</string>
 	<string name="read_icao_button_label">Read ICAO</string>
