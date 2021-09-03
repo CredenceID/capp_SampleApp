@@ -22,8 +22,8 @@
 		<!-- CID logo seen at top of page. -->
 		<ImageView
 			android:id="@+id/logo"
-			android:layout_width="150dp"
-			android:layout_height="150dp"
+			android:layout_width="100dp"
+			android:layout_height="100dp"
 			android:layout_gravity="center_horizontal"
 			android:src="@drawable/ic_launcher"
 			tools:ignore="ContentDescription" />
@@ -193,6 +193,16 @@
 				android:background="@drawable/tab_btn_background"
 				android:src="@drawable/ic_iris"
 				android:visibility="gone"
+				tools:ignore="ContentDescription" />
+
+			<ImageButton
+				android:id="@+id/deviceInfoBtn"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginStart="@dimen/main_button_inter_margin"
+				android:layout_marginTop="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_device_and_hardware"
 				tools:ignore="ContentDescription" />
 
 		</LinearLayout>
