@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.os.SystemClock
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
@@ -20,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.random.Random.Default.nextInt
 
 @Suppress("unused")
 class CardReaderActivity : Activity() {
@@ -241,6 +244,10 @@ class CardReaderActivity : Activity() {
         writeEditText.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus)
                 hideKeyboard(v)
+        }
+
+        startStressTestBtn.setOnClickListener {
+            performStressTest();
         }
 
     }
@@ -587,5 +594,73 @@ class CardReaderActivity : Activity() {
         private const val mREAD_SPECIAL_APDU_LEN = 10
         private const val CARD_ABSENT = 1
         private const val CARD_PRESENT = 2
+    }
+
+    private fun performStressTest() {
+
+        Thread {
+            this.runOnUiThread(java.lang.Runnable {
+                startStressTestBtn.text = "Test started"
+            })
+            for (i in 0..10) {
+                Log.d(TAG, "CID - Stress Test " + i)
+                cardReaderStatusTextView.text = "Stress Test " + i
+                App.BioManager!!.cardOpenCommand(object : Biometrics.CardReaderStatusListener {
+                    override fun onCardReaderOpen(resultCode: ResultCode) {
+                        when {
+                            OK == resultCode -> {
+                                Log.d(TAG, "CID - Stress Test " + "Open OK")
+                                for (j in 0..((0..1).random())) {
+                                    val response = App.BioManager!!.cardCommandSync(ApduCommand(getChallenge), false, 2000)
+                                    if (response.result==OK) {
+                                        Log.d(TAG, "CID - Stress Test " + "APDU CMD OK")
+                                        val str = String.format(Locale.ENGLISH,
+                                                "SW1: %s, SW2: %s, DATA: %s",
+                                                HexUtils.toString(response.sw1),
+                                                HexUtils.toString(response.sw2),
+                                                HexUtils.toString(response.data))
+                                        Log.d(TAG, "CID - Stress Test " + "APDU RESPONSE ->" + str)
+                                    } else {
+                                        Log.d(TAG, "CID - Stress Test " + "APDU CMD FAIL")
+                                    }
+                                    App.BioManager!!.cardCloseCommand()
+                                }
+                            }
+                            INTERMEDIATE == resultCode -> {
+
+                                /* This code is never returned here. */
+                            }
+                            FAIL == resultCode -> {
+                                Log.d(TAG, "CID - Stress Test " + "Open FAIL")
+                            }
+                        }
+                    }
+
+                    @SuppressLint("SetTextI18n")
+                    override fun onCardReaderClosed(resultCode: ResultCode,
+                                                    closeReasonCode: CloseReasonCode) {
+
+                        openCloseBtn.isEnabled = true
+                        when {
+                            OK == resultCode -> {
+                                Log.d(TAG, "CID - Stress Test " + "Close OK")
+                            }
+                            INTERMEDIATE == resultCode -> {
+                                /* This code is never returned here. */
+                            }
+                            FAIL == resultCode ->
+                                Log.d(TAG, "CID - Stress Test " + "Close FAIL")
+                        }
+                    }
+                })
+
+                SystemClock.sleep(10000)
+
+            }
+
+            this.runOnUiThread(java.lang.Runnable {
+                startStressTestBtn.text = "Stress test"
+            })
+        }.start()
     }
 }
