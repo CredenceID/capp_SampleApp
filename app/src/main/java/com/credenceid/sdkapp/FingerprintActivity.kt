@@ -268,11 +268,13 @@ class FingerprintActivity : Activity() {
                         if (null != bitmap)
                             fingerOneImageView.setImageBitmap(bitmap)
 
-                        fpStatusTextView.text = "WSQ File: $wsqFilepath"
+                        //fpStatusTextView.text = "WSQ File: $wsqFilepath"
                         infoTextView.text = "Quality: $nfiqScore"
 
                         /* Create template from fingerprint image. */
-                        createFMDTemplate(bitmap)
+                        //createFMDTemplate(bitmap)
+
+                        setAllComponentEnable(true)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -325,7 +327,7 @@ class FingerprintActivity : Activity() {
                             fingerTwoImageView.setImageBitmap(bitmap)
 
                         /* Create template from fingerprint image. */
-                        createFMDTemplate(bitmap)
+                        //createFMDTemplate(bitmap)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {

@@ -623,8 +623,8 @@ class CardReaderActivity : Activity() {
                                     } else {
                                         Log.d(TAG, "CID - Stress Test " + "APDU CMD FAIL")
                                     }
-                                    App.BioManager!!.cardCloseCommand()
                                 }
+                                App.BioManager!!.cardCloseCommand()
                             }
                             INTERMEDIATE == resultCode -> {
 
@@ -632,6 +632,7 @@ class CardReaderActivity : Activity() {
                             }
                             FAIL == resultCode -> {
                                 Log.d(TAG, "CID - Stress Test " + "Open FAIL")
+                                App.BioManager!!.cardCloseCommand()
                             }
                         }
                     }
