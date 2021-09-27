@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.os.SystemClock
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
@@ -20,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.random.Random.Default.nextInt
 
 @Suppress("unused")
 class CardReaderActivity : Activity() {
@@ -43,29 +46,42 @@ class CardReaderActivity : Activity() {
             + "08")                       // Number of bytes to read
 
     /**
+     * Reads Mifare card UID.
+     */
+    private val readUID= ("FF"         // MiFare Card
+            + "CA"                            // MiFare Card READ Command
+            + "00"                            // P1
+            + "00"                          // P2: Block Number
+            + "00")                       // Number of bytes to read
+
+    /**
      * Reads 4096 (4K) number of bytes from card.
      */
     private val read4KAPDU = ("00"         // MiFare Card
-            + "A4"                            // MiFare Card READ Command
-            + "03"                            // P1
+            + "FF"                            // MiFare Card READ Command
+            + "00"                            // P1
             + "00"                            // P2: Block Number
-            + "00")                       // Number of bytes to read
+            + "001000")                     // Number of bytes to read
+
     /**
      * Reads 2048 (2K) number of bytes from card.
      */
-    private val read2KAPDU = ("FF"         // MiFare Card
-            + "B0"                            // MiFare Card READ Command
+    private val read2KAPDU = ("00"         // MiFare Card
+            + "FF"                            // MiFare Card READ Command
             + "00"                            // P1
             + "00"                            // P2: Block Number
             + "000800")                       // Number of bytes to read
+
+
     /**
      * Reads 1024 (1K) number of bytes from card.
      */
-    private val read1KAPDU = ("FF"         // MiFare Card
-            + "B0"                            // MiFare Card READ Command
+    private val read1KAPDU = ("00"         // MiFare Card
+            + "FF"                            // MiFare Card READ Command
             + "00"                            // P1
             + "00"                            // P2: Block Number
             + "000400")                       // Number of bytes to read
+
     /**
      * This APDU is used to read "specialData" written to the card.
      */
@@ -74,6 +90,7 @@ class CardReaderActivity : Activity() {
             + "00"                              // P1
             + "01"                              // P2: Block Number
             + "00")                             // Number of bytes to read
+
     /**
      * Writes 4096 (4K) number of bytes to card.
      */
@@ -182,10 +199,11 @@ class CardReaderActivity : Activity() {
 
                 when (position) {
                     0 -> currentReadAPDU = readSpecialDataAPDU
-                    1 -> currentReadAPDU = read1KAPDU
-                    2 -> currentReadAPDU = read2KAPDU
-                    3 -> currentReadAPDU = read4KAPDU
-                    4 -> currentReadAPDU = getChallenge
+                    1 -> currentReadAPDU = readUID
+                    2 -> currentReadAPDU = read1KAPDU
+                    3 -> currentReadAPDU = read2KAPDU
+                    4 -> currentReadAPDU = read4KAPDU
+                    5 -> currentReadAPDU = getChallenge
                 }
             }
 
@@ -242,6 +260,10 @@ class CardReaderActivity : Activity() {
             if (!hasFocus)
                 hideKeyboard(v)
         }
+//
+//        startStressTestBtn.setOnClickListener {
+//            performStressTest();
+//        }
 
     }
 
@@ -587,5 +609,74 @@ class CardReaderActivity : Activity() {
         private const val mREAD_SPECIAL_APDU_LEN = 10
         private const val CARD_ABSENT = 1
         private const val CARD_PRESENT = 2
+    }
+
+    private fun performStressTest() {
+
+        Thread {
+            this.runOnUiThread(java.lang.Runnable {
+                startStressTestBtn.text = "Test started"
+            })
+            for (i in 0..10) {
+                Log.d(TAG, "CID - Stress Test " + i)
+                cardReaderStatusTextView.text = "Stress Test " + i
+                App.BioManager!!.cardOpenCommand(object : Biometrics.CardReaderStatusListener {
+                    override fun onCardReaderOpen(resultCode: ResultCode) {
+                        when {
+                            OK == resultCode -> {
+                                Log.d(TAG, "CID - Stress Test " + "Open OK")
+                                for (j in 0..((0..1).random())) {
+                                    val response = App.BioManager!!.cardCommandSync(ApduCommand(getChallenge), false, 2000)
+                                    if (response.result==OK) {
+                                        Log.d(TAG, "CID - Stress Test " + "APDU CMD OK")
+                                        val str = String.format(Locale.ENGLISH,
+                                                "SW1: %s, SW2: %s, DATA: %s",
+                                                HexUtils.toString(response.sw1),
+                                                HexUtils.toString(response.sw2),
+                                                HexUtils.toString(response.data))
+                                        Log.d(TAG, "CID - Stress Test " + "APDU RESPONSE ->" + str)
+                                    } else {
+                                        Log.d(TAG, "CID - Stress Test " + "APDU CMD FAIL")
+                                    }
+                                }
+                                App.BioManager!!.cardCloseCommand()
+                            }
+                            INTERMEDIATE == resultCode -> {
+
+                                /* This code is never returned here. */
+                            }
+                            FAIL == resultCode -> {
+                                Log.d(TAG, "CID - Stress Test " + "Open FAIL")
+                                App.BioManager!!.cardCloseCommand()
+                            }
+                        }
+                    }
+
+                    @SuppressLint("SetTextI18n")
+                    override fun onCardReaderClosed(resultCode: ResultCode,
+                                                    closeReasonCode: CloseReasonCode) {
+
+                        openCloseBtn.isEnabled = true
+                        when {
+                            OK == resultCode -> {
+                                Log.d(TAG, "CID - Stress Test " + "Close OK")
+                            }
+                            INTERMEDIATE == resultCode -> {
+                                /* This code is never returned here. */
+                            }
+                            FAIL == resultCode ->
+                                Log.d(TAG, "CID - Stress Test " + "Close FAIL")
+                        }
+                    }
+                })
+
+                SystemClock.sleep(10000)
+
+            }
+
+            this.runOnUiThread(java.lang.Runnable {
+                startStressTestBtn.text = "Stress test"
+            })
+        }.start()
     }
 }

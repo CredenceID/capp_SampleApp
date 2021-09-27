@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
 
                     /* Populate text fields which display device/App information. */
                     productNameTextView.text = App.BioManager!!.productName
-                    deviceIDTextView.text = App.BioManager!!.deviceID
+                    deviceIDTextView.text = App.BioManager!!.deviceType.name
                     serviceVersionTextView.text = App.BioManager!!.serviceVersion
                     jarVersionTextView.text = App.BioManager!!.sdkJarVersion
 

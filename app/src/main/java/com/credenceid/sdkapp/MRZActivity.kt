@@ -239,6 +239,9 @@ class MRZActivity : Activity() {
             override fun onMRZClose(resultCode: ResultCode,
                                     closeReasonCode: CloseReasonCode) {
 
+
+                Log.d(TAG, "onMRZClose - result = " + resultCode.name)
+
                 when (resultCode) {
                     OK -> {
                         /* Now that sensor is closed, if user presses "openMRZBtn" sensor should
