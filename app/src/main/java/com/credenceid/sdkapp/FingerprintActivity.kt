@@ -318,11 +318,10 @@ class FingerprintActivity : Activity() {
 
         mFingerprintTwoFMDTemplate = null
 
-        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedListener {
+        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedNewListener {
             override fun onFingerprintGrabbed(resultCode: ResultCode,
                                               bitmap: Bitmap?,
                                               bytes: ByteArray?,
-                                              s: String?,
                                               hint: String?) {
 
                 /* If a valid hint was given then display it for user to see. */
