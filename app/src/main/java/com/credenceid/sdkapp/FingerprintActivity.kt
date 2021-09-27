@@ -5,6 +5,7 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.SystemClock
+import android.view.View
 import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
@@ -204,8 +205,12 @@ class FingerprintActivity : Activity() {
             }
         }
 
-        calibrateBtn.setOnClickListener{
-            calibrateFingerprintSensor();
+        if(App.BioManager!!.deviceType.name.contains("CredenceECO_FC")) {
+            calibrateBtn.setOnClickListener {
+                calibrateFingerprintSensor();
+            }
+        } else {
+            calibrateBtn.visibility = View.GONE;
         }
     }
 
@@ -248,15 +253,16 @@ class FingerprintActivity : Activity() {
          * template, fingerprint quality score, along with captured fingerprint image. This saves
          * from having to make separate API calls.
          */
-        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedWSQListener {
+        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedWSQNewListener {
             @SuppressLint("SetTextI18n")
+
             override fun onFingerprintGrabbed(resultCode: ResultCode,
                                               bitmap: Bitmap?,
                                               bytes: ByteArray?,
-                                              filepath: String?,
-                                              wsqFilepath: String?,
+                                              wsqData: ByteArray?,
                                               hint: String?,
                                               nfiqScore: Int) {
+
 
                 /* If a valid hint was given then display it for user to see. */
                 if (hint != null && hint.isNotEmpty())
@@ -272,7 +278,7 @@ class FingerprintActivity : Activity() {
                         infoTextView.text = "Quality: $nfiqScore"
 
                         /* Create template from fingerprint image. */
-                        //createFMDTemplate(bitmap)
+                        createFMDTemplate(bitmap)
 
                         setAllComponentEnable(true)
                     }
@@ -292,6 +298,7 @@ class FingerprintActivity : Activity() {
                         setAllComponentEnable(true)
                     }
                 }
+
             }
 
             override fun onCloseFingerprintReader(resultCode: ResultCode,

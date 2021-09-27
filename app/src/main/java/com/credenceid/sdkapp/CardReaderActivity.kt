@@ -46,29 +46,42 @@ class CardReaderActivity : Activity() {
             + "08")                       // Number of bytes to read
 
     /**
+     * Reads Mifare card UID.
+     */
+    private val readUID= ("FF"         // MiFare Card
+            + "CA"                            // MiFare Card READ Command
+            + "00"                            // P1
+            + "00"                          // P2: Block Number
+            + "00")                       // Number of bytes to read
+
+    /**
      * Reads 4096 (4K) number of bytes from card.
      */
     private val read4KAPDU = ("00"         // MiFare Card
-            + "A4"                            // MiFare Card READ Command
-            + "03"                            // P1
+            + "FF"                            // MiFare Card READ Command
+            + "00"                            // P1
             + "00"                            // P2: Block Number
-            + "00")                       // Number of bytes to read
+            + "001000")                     // Number of bytes to read
+
     /**
      * Reads 2048 (2K) number of bytes from card.
      */
-    private val read2KAPDU = ("FF"         // MiFare Card
-            + "B0"                            // MiFare Card READ Command
+    private val read2KAPDU = ("00"         // MiFare Card
+            + "FF"                            // MiFare Card READ Command
             + "00"                            // P1
             + "00"                            // P2: Block Number
             + "000800")                       // Number of bytes to read
+
+
     /**
      * Reads 1024 (1K) number of bytes from card.
      */
-    private val read1KAPDU = ("FF"         // MiFare Card
-            + "B0"                            // MiFare Card READ Command
+    private val read1KAPDU = ("00"         // MiFare Card
+            + "FF"                            // MiFare Card READ Command
             + "00"                            // P1
             + "00"                            // P2: Block Number
             + "000400")                       // Number of bytes to read
+
     /**
      * This APDU is used to read "specialData" written to the card.
      */
@@ -77,6 +90,7 @@ class CardReaderActivity : Activity() {
             + "00"                              // P1
             + "01"                              // P2: Block Number
             + "00")                             // Number of bytes to read
+
     /**
      * Writes 4096 (4K) number of bytes to card.
      */
@@ -185,10 +199,11 @@ class CardReaderActivity : Activity() {
 
                 when (position) {
                     0 -> currentReadAPDU = readSpecialDataAPDU
-                    1 -> currentReadAPDU = read1KAPDU
-                    2 -> currentReadAPDU = read2KAPDU
-                    3 -> currentReadAPDU = read4KAPDU
-                    4 -> currentReadAPDU = getChallenge
+                    1 -> currentReadAPDU = readUID
+                    2 -> currentReadAPDU = read1KAPDU
+                    3 -> currentReadAPDU = read2KAPDU
+                    4 -> currentReadAPDU = read4KAPDU
+                    5 -> currentReadAPDU = getChallenge
                 }
             }
 
@@ -245,10 +260,10 @@ class CardReaderActivity : Activity() {
             if (!hasFocus)
                 hideKeyboard(v)
         }
-
-        startStressTestBtn.setOnClickListener {
-            performStressTest();
-        }
+//
+//        startStressTestBtn.setOnClickListener {
+//            performStressTest();
+//        }
 
     }
 
