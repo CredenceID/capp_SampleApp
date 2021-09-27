@@ -25,7 +25,8 @@
 	<string name="card_sync_checkbox_label">Use Synchronous APIs</string>
 	<string name="card_edtitext_hint">Enter text to write to card</string>
 	<string-array name="card_spinner_items">
-		<item>Data Written To Card</item>
+		<item>Read data</item>
+		<item>Get UID</item>
 		<item>1K Data</item>
 		<item>2K Data</item>
 		<item>4K Data</item>
