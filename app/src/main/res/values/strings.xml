@@ -8,6 +8,7 @@
 	<string name="device_lib_version_label">DeviceLib Version: </string>
 	<string name="app_version">App Version: </string>
 	<string name="open">Open</string>
+	<string name="calibrate">Calibrate Reader</string>
 	<string name="close">Close</string>
 	<string name="capture">Capture</string>
 	<string name="match">Match</string>
