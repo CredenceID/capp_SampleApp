@@ -71,6 +71,7 @@
 	<string name="open_epassport">Open EPassport</string>
 	<string name="close_epassport">Close EPassport</string>
 	<string name="read_icao_button_label">Read ICAO</string>
+	<string name="read_mrz_button_label">Read MRZ</string>
 	<string name="mrz_opening">Opening MRZ sensor…</string>
 	<string name="mrz_open_failed">Failed to open MRZ sensor.</string>
 	<string name="mrz_opened">MRZ sensor is open.</string>

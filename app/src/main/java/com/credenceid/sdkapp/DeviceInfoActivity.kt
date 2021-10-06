@@ -41,7 +41,7 @@ class DeviceInfoActivity : AppCompatActivity() {
                 simIccId: String ->
 
                 val strResult = String.format(Locale.ENGLISH,
-                        "Serial Numner: %s\n" +
+                        "Serial Number: %s\n" +
                                 "Imei: %s\n" +
                                 "Android ID: %s\n" +
                                 "Wifi Mac add.: %s\n" +

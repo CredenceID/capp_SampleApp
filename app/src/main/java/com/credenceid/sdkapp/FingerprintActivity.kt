@@ -334,7 +334,7 @@ class FingerprintActivity : Activity() {
                             fingerTwoImageView.setImageBitmap(bitmap)
 
                         /* Create template from fingerprint image. */
-                        //createFMDTemplate(bitmap)
+                        createFMDTemplate(bitmap)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -423,7 +423,7 @@ class FingerprintActivity : Activity() {
                 OK -> {
                     var matchDecision = "No Match"
                     /* This is how to properly determine a match or not. */
-                    if (score !=0f)
+                    if (score > 40)
                         matchDecision = "Match"
 
                     fpStatusTextView.text = "Matching complete."

@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.act_mrz.*
 /**
  * Used for Android Logcat.
  */
-private val TAG = MRZActivity::class.java.simpleName
+private val TAG = "CID" + MRZActivity::class.java.simpleName
 /**
  * MRZ reader returns one giant string of data back. Once user splits this string by space
  * delimiter they are supposed to have ten elements. This constant can be used to confirm
@@ -65,8 +65,10 @@ class MRZActivity : Activity() {
      */
 
     private val mrzReadListener = OnMRZReaderListener { resultCode, _, _, _, parsedData ->
+        Log.d(TAG, "SampleApp - resultCode = " + resultCode.name);
         when (resultCode!!) {
             OK -> {
+                Log.d(TAG, "SampleApp - parsedData = " + parsedData);
                 /* Once data is read, it is auto parsed and returned as one big string of data. */
                 if (null == parsedData || parsedData.isEmpty()) {
                     statusTextView.text = getString(R.string.mrz_failed_reswipe)
@@ -197,6 +199,11 @@ class MRZActivity : Activity() {
             icaoDG2ImageView.setImageBitmap(null)
             this.readICAODocument(dateOfBirth, docNumber, dateOfExp)
         }
+
+        readMRZBtn.isEnabled = false
+        readMRZBtn.setOnClickListener {
+            App.BioManager!!.readMRZ(mrzReadListener)
+        }
     }
 
     /**
@@ -206,6 +213,8 @@ class MRZActivity : Activity() {
 
         icaoDG2ImageView.setImageBitmap(null)
         statusTextView.text = getString(R.string.mrz_opening)
+
+        App.BioManager!!.registerOnMRZReaderListener(mrzReadListener)
 
         /* Register a listener that will be invoked each time MRZ reader's status changes. Meaning
          * that anytime a document is placed/removed invoke this callback.
@@ -226,6 +235,7 @@ class MRZActivity : Activity() {
 
                         statusTextView.text = getString(R.string.mrz_opened)
                         openMRZBtn.text = getString(R.string.close_mrz)
+                        readMRZBtn.isEnabled = true
                         openEPassBtn.isEnabled = true
                     }
                     /* This code is returned while sensor is in the middle of opening. */
@@ -253,6 +263,7 @@ class MRZActivity : Activity() {
                         statusTextView.text = getString(R.string.mrz_closed)
                         openMRZBtn.text = getString(R.string.open_mrz)
 
+                        readMRZBtn.isEnabled = false
                         openEPassBtn.isEnabled = false
                         openEPassBtn.text = getString(R.string.open_epassport)
 

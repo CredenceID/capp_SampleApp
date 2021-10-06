@@ -39,11 +39,11 @@ class CardReaderActivity : Activity() {
     /**
      * Get challenge eID document
      */
-    private val getChallenge = ("00"         // MiFare Card
-            + "84"                            // MiFare Card READ Command
-            + "00"                            // P1
-            + "00"                            // P2: Block Number
-            + "08")                       // Number of bytes to read
+    private val getChallenge = ("00"
+            + "84"
+            + "00"
+            + "00"
+            + "08")
 
     /**
      * Reads Mifare card UID.
