@@ -5,6 +5,7 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.*
@@ -383,6 +384,12 @@ class FingerprintActivity : Activity() {
                     val durationInSeconds = (SystemClock.elapsedRealtime() - startTime) / 1000.0
                     infoTextView.text = "Created FMD template in: $durationInSeconds seconds."
 
+                    if (bytes != null) {
+                        Log.d("CID-sample", "FMD template size = " + bytes.size)
+                    } else {
+                        Log.d("CID-sample", "FMD template is NULL ")
+                    }
+
                     if (mCaptureFingerprintOne)
                         mFingerprintOneFMDTemplate = bytes?.copyOf(bytes.size)
                     else
@@ -426,8 +433,8 @@ class FingerprintActivity : Activity() {
                     if (score > 40)
                         matchDecision = "Match"
 
-                    fpStatusTextView.text = "Matching complete."
-                    infoTextView.text = "Match outcome: $matchDecision"
+                    fpStatusTextView.text = "Match outcome: $matchDecision"
+                    infoTextView.text = "Match score: $score"
 
                 }
                 INTERMEDIATE -> {
