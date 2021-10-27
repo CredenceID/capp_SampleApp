@@ -3,6 +3,7 @@ package com.credenceid.sdkapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
@@ -265,6 +266,9 @@ class FingerprintActivity : Activity() {
                                               hint: String?,
                                               nfiqScore: Int) {
 
+                Log.d("CID-sample", "result code is = " + resultCode)
+
+
 
                 /* If a valid hint was given then display it for user to see. */
                 if (hint != null && hint.isNotEmpty())
@@ -273,8 +277,10 @@ class FingerprintActivity : Activity() {
                 when (resultCode) {
                     /* This code is returned once sensor captures fingerprint image. */
                     OK -> {
-                        if (null != bitmap)
-                            fingerOneImageView.setImageBitmap(bitmap)
+                        
+
+                        if (null != bytes)
+                            fingerOneImageView.setImageBitmap(BitmapFactory.decodeByteArray(bytes,0,bytes.size))
 
                         //fpStatusTextView.text = "WSQ File: $wsqFilepath"
                         infoTextView.text = "Quality: $nfiqScore"
@@ -324,6 +330,8 @@ class FingerprintActivity : Activity() {
                                               bitmap: Bitmap?,
                                               bytes: ByteArray?,
                                               hint: String?) {
+                Log.d("CID-sample", "result code is = " + resultCode)
+
 
                 /* If a valid hint was given then display it for user to see. */
                 if (hint != null && hint.isNotEmpty())

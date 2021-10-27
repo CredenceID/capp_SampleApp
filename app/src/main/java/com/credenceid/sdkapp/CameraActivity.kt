@@ -43,7 +43,7 @@ private const val syncAPITimeoutMS = 3000
  * this case "Beeper" class requires it so it may grab audio file from assets.
  */
 @SuppressLint("StaticFieldLeak")
-private var context: Context? = null
+var context: Context? = null
 
 private var camera: Camera? = null
 
