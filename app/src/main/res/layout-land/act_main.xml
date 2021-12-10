@@ -177,6 +177,17 @@
 				android:src="@drawable/ic_mrz"
 				tools:ignore="ContentDescription" />
 
+
+			<ImageButton
+				android:id="@+id/dbBtn"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginStart="@dimen/main_button_inter_margin"
+				android:layout_marginTop="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_database"
+				tools:ignore="ContentDescription" />
+
 		</LinearLayout>
 
 		<LinearLayout

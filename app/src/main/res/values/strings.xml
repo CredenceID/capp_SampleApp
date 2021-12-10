@@ -12,11 +12,16 @@
 	<string name="close">Close</string>
 	<string name="capture">Capture</string>
 	<string name="match">Match</string>
+	<string name="enroll">Enroll</string>
+	<string name="match_db">Match DB</string>
+	<string name="delete">Delete</string>
 	<string name="fingerprint_selection_label">
 		Click on a box to select that fingerprint for capture.
 	</string>
 	<string name="fingerprint_one_imageview_label">Fingerprint One</string>>
 	<string name="fingerprint_two_imageview_label">Fingerprint Two</string>
+	<string name="fingerprint_imageview_label">Fingerprint</string>
+	<string name="face_imageview_label">Face</string>
 	<string name="open_card">Open CardReader</string>
 	<string name="close_card_reader">Close CardReader</string>
 	<string name="write_data">Write To Card</string>
@@ -91,4 +96,10 @@
 	<string name="emotiona_colon_arg">Emotion:\u0020</string>
 	<string name="imagequal_colon_arg">Quality:\u0020</string>
 	<string name="headposedir_colon_arg">Looking:\u0020</string>
+
+
+	<string name="db_test_label">
+		Simple Biometric database API test
+	</string>
+
 </resources>

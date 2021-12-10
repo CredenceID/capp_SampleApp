@@ -11,6 +11,7 @@ class App : Application() {
     companion object {
         const val TAG = "Credence ID Sample App"
         val SDCARD_PATH: String = Environment.getExternalStorageDirectory().toString() + "/"
+
         /**
          * CredenceSDK biometrics object used to interface with APIs.
          */

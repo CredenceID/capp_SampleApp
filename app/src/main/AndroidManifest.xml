@@ -43,6 +43,10 @@
             android:screenOrientation="locked" />
 
         <activity
+            android:name=".BiometricDatabaseActivity"
+            android:screenOrientation="locked" />
+
+        <activity
             android:name=".DeviceInfoActivity"
             android:screenOrientation="locked" />
     </application>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="#FFFFFF"
+	android:orientation="vertical">
+
+	<TextView
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:text="@string/fingerprint_selection_label"
+		android:textColor="@color/black"
+		android:textSize="20sp" />
+
+	<!-- *************************************************************************************** -->
+	<!-- Two fingerprint boxes w/ labels on top of page. -->
+	<!-- *************************************************************************************** -->
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="20dp"
+		android:orientation="horizontal">
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<!-- *********************************************************************************** -->
+		<!-- Fingerprint One -->
+		<!-- *********************************************************************************** -->
+		<RelativeLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+
+			<ImageView
+				android:id="@+id/fingerImageView"
+				android:layout_width="@dimen/fingerprint_width"
+				android:layout_height="@dimen/fingerprint_height"
+				android:background="@drawable/image_border_on"
+				android:padding="@dimen/padding"
+				android:scaleType="fitXY"
+				tools:ignore="ContentDescription" />
+
+			<TextView
+				android:id="@+id/fingerprint_one_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/fingerImageView"
+				android:layout_centerInParent="true"
+				android:layout_marginTop="5dp"
+				android:text="@string/fingerprint_imageview_label"
+				android:textColor="@color/black"
+				android:textSize="16sp" />
+		</RelativeLayout>
+
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<!-- *********************************************************************************** -->
+		<!-- Fingerprint Two -->
+		<!-- *********************************************************************************** -->
+		<RelativeLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+
+			<ImageView
+				android:id="@+id/faceImageView"
+				android:layout_width="@dimen/fingerprint_width"
+				android:layout_height="@dimen/fingerprint_height"
+				android:background="@drawable/image_border_off"
+				android:padding="@dimen/padding"
+				android:scaleType="fitXY"
+				tools:ignore="ContentDescription" />
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/faceImageView"
+				android:layout_centerInParent="true"
+				android:layout_marginTop="5dp"
+				android:text="@string/face_imageview_label"
+				android:textColor="@color/black"
+				android:textSize="16sp" />
+
+		</RelativeLayout>
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+	</LinearLayout>
+
+
+
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="25dp"
+		android:orientation="horizontal">
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<Button
+			android:id="@+id/enrollBtn"
+			style="@style/PageButton"
+			android:text="@string/enroll" />
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<Button
+			android:id="@+id/matchDbBtn"
+			style="@style/PageButton"
+			android:text="@string/match_db" />
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<Button
+			android:id="@+id/deleteBtn"
+			style="@style/PageButton"
+			android:text="@string/delete" />
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/fpStatusTextView"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="20dp"
+		android:gravity="center"
+		android:textColor="@color/black"
+		android:textSize="18sp" />
+
+	<TextView
+		android:id="@+id/infoTextView"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="20dp"
+		android:gravity="center"
+		android:textColor="@color/black"
+		android:textSize="18sp" />
+
+</LinearLayout>

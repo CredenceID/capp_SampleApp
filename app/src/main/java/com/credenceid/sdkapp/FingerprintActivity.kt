@@ -13,12 +13,27 @@ import com.credenceid.biometrics.Biometrics.FMDFormat.*
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_fp.*
-import kotlinx.android.synthetic.main.act_mrz.*
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
+import android.graphics.BitmapFactory
+import com.credenceid.database.BiometricData
+import com.credenceid.database.FingerprintRecord
+import com.credenceid.database.MatchItem
+import java.io.ByteArrayOutputStream
+import com.credenceid.biometrics.FMDToCCFSyncResponse
+
+import com.credenceid.biometrics.Biometrics.FMDFormat
+
+import com.credenceid.biometrics.ConvertToFMDSyncResponse
 
 private const val SYNC_API_TIMEOUT_MS = 3000
+private const val TAG = "Credence ID Sample App"
 
 @SuppressLint("StaticFieldLeak")
 class FingerprintActivity : Activity() {
+
+
 
     /**
      * List of different fingerprint scan types supported across all Credence devices.
@@ -60,6 +75,7 @@ class FingerprintActivity : Activity() {
             /* This code is returned once sensor has fully finished opening. */
             when (resultCode) {
                 OK -> {
+                    Log.d("CID-TEST","onOpenFingerprintReader - result OK" )
                     /* Now that sensor is open, if user presses "openCloseBtn" fingerprint sensor
                      * should now close. To achieve this we change flag which controls what action
                      * openCloseBtn takes.
@@ -75,10 +91,12 @@ class FingerprintActivity : Activity() {
                 }
                 /* This code is returned while sensor is in the middle of opening. */
                 INTERMEDIATE -> {
+                    Log.d("CID-TEST","onOpenFingerprintReader - result INTERMEDIATE" )
                     /* Do nothing while operation is still on-going. */
                 }
                 /* This code is returned if sensor fails to open. */
                 FAIL -> {
+                    Log.d("CID-TEST","onOpenFingerprintReader - result FAIL" )
                     /* Operation is complete, re-enable button. */
                     openCloseBtn.isEnabled = true
                 }
@@ -241,6 +259,7 @@ class FingerprintActivity : Activity() {
         openCloseBtn.isEnabled = enable
         fingerOneImageView.isEnabled = enable
         fingerTwoImageView.isEnabled = enable
+
     }
 
     /**
@@ -280,7 +299,27 @@ class FingerprintActivity : Activity() {
                         infoTextView.text = "Quality: $nfiqScore"
 
                         /* Create template from fingerprint image. */
-                        createFMDTemplate(bitmap)
+                        //createFMDTemplate(bitmap)
+
+                        val fmd: ConvertToFMDSyncResponse = App.BioManager!!.convertToFMDSync(bitmap, ISO_19794_2_2005, 9000)
+                        if (fmd.resultCode == OK) {
+                            Log.d(TAG, "ConvertToFMDSyncResponse ==> PASS")
+                        } else if (fmd.resultCode == INTERMEDIATE) {
+                        } else if (fmd.resultCode == FAIL) {
+                            Log.d(TAG, "ConvertToFMDSyncResponse ==> FAIL")
+                        }
+                        val res: FMDToCCFSyncResponse = App.BioManager!!.convertFMDToCCFSync(fmd.FMD, 5000)
+                        if (res.resultCode == OK && res.CCF != null) {
+                            Log.d(TAG, "convertFMDToCCFSync ==> PASS")
+                        } else if (res.resultCode == INTERMEDIATE) {
+                        } else if (res.resultCode == FAIL) {
+                            Log.d(TAG, "convertFMDToCCFSync ==> FAIL")
+                        }
+
+
+                        if (bitmap != null) {
+                            saveBitmapAsPng("fingerprint.png", bitmap)
+                        }
 
                         setAllComponentEnable(true)
                     }
@@ -319,10 +358,11 @@ class FingerprintActivity : Activity() {
 
         mFingerprintTwoFMDTemplate = null
 
-        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedNewListener {
-            override fun onFingerprintGrabbed(resultCode: ResultCode,
+        App.BioManager!!.grabFingerprint(mScanTypes[0], true, object : OnFingerprintGrabbedListener {
+            override fun onFingerprintGrabbed(resultCode: ResultCode?,
                                               bitmap: Bitmap?,
                                               bytes: ByteArray?,
+                                              path: String?,
                                               hint: String?) {
 
                 /* If a valid hint was given then display it for user to see. */
@@ -333,6 +373,9 @@ class FingerprintActivity : Activity() {
                     OK -> {
                         if (null != bitmap)
                             fingerTwoImageView.setImageBitmap(bitmap)
+
+                        if(null!=path)
+                            Log.d("TEST", "File path = " + path)
 
                         /* Create template from fingerprint image. */
                         createFMDTemplate(bitmap)
@@ -596,4 +639,72 @@ class FingerprintActivity : Activity() {
             }
         }
     }
+
+    @Throws(Exception::class)
+    fun saveBitmapAsPng(file: String, bmp: Bitmap) {
+        var outputPath = ""
+        val externalStorageVolumes = applicationContext.getExternalFilesDirs("")
+        if (null != externalStorageVolumes) {
+            if (null != externalStorageVolumes[0]) {
+                outputPath = externalStorageVolumes[0]!!.absolutePath + "/" + file
+                val toWrite = File(outputPath)
+                if (!toWrite.exists()) {
+                    if (!toWrite.createNewFile()) throw Exception("Fail to create file")
+                }
+                val fOut: FileOutputStream = FileOutputStream(outputPath)
+                val imageByteArray = ByteArrayOutputStream()
+                 bmp.compress(Bitmap.CompressFormat.JPEG, 100, imageByteArray)
+                val imageData: ByteArray = imageByteArray.toByteArray()
+                setDpi(imageData, 500)
+                fOut.write(imageData)
+                fOut.flush()
+                fOut.close()
+            }
+        }
+    }
+
+    fun setDpi(imageData: ByteArray, dpi: Int) {
+        imageData[13] = 1
+        imageData[14] = (dpi shr 8).toByte()
+        imageData[15] = (dpi and 0xff).toByte()
+        imageData[16] = (dpi shr 8).toByte()
+        imageData[17] = (dpi and 0xff).toByte()
+    }
+
+    fun enrollTest(fpImage:Bitmap){
+
+        var fpRecord = FingerprintRecord(FingerprintRecord.Position.RIGHT_THUMB, fpImage, 500)
+
+        App.BioManager!!.enroll(0, fpRecord, null, null){status, i ->
+            Log.d("TEST", "Enroll Result = " + status )
+            Log.d("TEST", "Enroll ID = " + i )
+        }
+    }
+
+    fun matchTest(fpImage:Bitmap){
+
+        var fpRecord = FingerprintRecord(FingerprintRecord.Position.RIGHT_THUMB, fpImage, 500)
+
+        App.BioManager!!.match( fpRecord, null, null){status, arrayList ->
+            Log.d("TEST", "Match Result = " + status )
+            if(null != arrayList) {
+                Log.d("TEST", "Match Result Arraylist size = " + arrayList?.size)
+                for (match: MatchItem in arrayList){
+                    Log.d("TEST", "Match Result candidate = " + match.id)
+                    Log.d("TEST", "Match Result Face Score = " + match.faceScore)
+                    Log.d("TEST", "Match Result Fingerprint Score = " + match.fingerprintScore)
+                }
+            } else {
+                Log.d("TEST", "ArrayList is null")
+            }
+        }
+    }
+
+    fun deleteTest(id:Int){
+
+        App.BioManager!!.delete(id){status->
+            Log.d("TEST", "delete Result = " + status )
+        }
+    }
+
 }

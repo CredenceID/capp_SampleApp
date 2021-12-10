@@ -27,7 +27,7 @@ android {
 
 	buildTypes {
 		debug {
-			signingConfig signingConfigs.defaultKey
+			//signingConfig signingConfigs.defaultKey
 		}
 		release {
 			signingConfig signingConfigs.defaultKey

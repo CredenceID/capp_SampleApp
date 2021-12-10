@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         fpBtn.setOnClickListener { startActivity(Intent(this, FingerprintActivity::class.java)) }
         cardBtn.setOnClickListener { startActivity(Intent(this, CardReaderActivity::class.java)) }
         mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
+        dbBtn.setOnClickListener { startActivity(Intent(this, BiometricDatabaseActivity::class.java)) }
         faceBtn.setOnClickListener { startActivity(Intent(this, CameraActivity::class.java)) }
         deviceInfoBtn.setOnClickListener { startActivity(Intent(this, DeviceInfoActivity::class.java)) }
         setBiometricButtonsVisibility(View.GONE)
