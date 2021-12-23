@@ -160,4 +160,13 @@
 		android:gravity="center"
 		android:textColor="@color/black"
 		android:textSize="18sp" />
+
+	<TextView
+		android:id="@+id/errorTextView"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="20dp"
+		android:gravity="center"
+		android:textColor="@color/red"
+		android:textSize="18sp" />
 </LinearLayout>
