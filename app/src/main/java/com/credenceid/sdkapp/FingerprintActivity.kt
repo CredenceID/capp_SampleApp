@@ -7,11 +7,10 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.*
-import com.credenceid.biometrics.Biometrics.FMDFormat.*
+import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_fp.*
-import kotlinx.android.synthetic.main.act_mrz.*
 
 private const val SYNC_API_TIMEOUT_MS = 3000
 
@@ -359,8 +358,9 @@ class FingerprintActivity : Activity() {
     @SuppressLint("SetTextI18n")
     private fun createFMDTemplate(bitmap: Bitmap?) {
 
-        if (bitmap!=null){
+        if (bitmap == null) {
             errorTextView.text = "Bitmap passed to createFMDTemplate() is null."
+            return
         }
 
         /* Keep a track of how long it takes for FMD creation. */
