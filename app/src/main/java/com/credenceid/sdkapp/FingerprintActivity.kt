@@ -359,6 +359,10 @@ class FingerprintActivity : Activity() {
     @SuppressLint("SetTextI18n")
     private fun createFMDTemplate(bitmap: Bitmap?) {
 
+        if (bitmap!=null){
+            errorTextView.text = "Bitmap passed to createFMDTemplate() is null."
+        }
+
         /* Keep a track of how long it takes for FMD creation. */
         val startTime = SystemClock.elapsedRealtime()
 
@@ -384,7 +388,8 @@ class FingerprintActivity : Activity() {
                     /* This code is never returned for this API. */
                 }
                 FAIL -> {
-                    fpStatusTextView.text = "Failed to create FMD template."
+                    errorTextView.text = "FMD template is null."
+                    fpStatusTextView.text = "Failed to create FMD template. ResultCode : $resultCode"
                 }
             }
             setAllComponentEnable(true)
