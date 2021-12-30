@@ -274,15 +274,18 @@ class FingerprintActivity : Activity() {
          * template, fingerprint quality score, along with captured fingerprint image. This saves
          * from having to make separate API calls.
          */
-        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedWSQNewListener {
+        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedWSQListener {
             @SuppressLint("SetTextI18n")
 
             override fun onFingerprintGrabbed(resultCode: ResultCode,
                                               bitmap: Bitmap?,
                                               bytes: ByteArray?,
+                                              imagePath: String?,
                                               wsqData: ByteArray?,
+                                              wsqFilePath: String?,
                                               hint: String?,
                                               nfiqScore: Int) {
+
 
 
                 /* If a valid hint was given then display it for user to see. */

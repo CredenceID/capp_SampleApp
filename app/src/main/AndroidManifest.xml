@@ -49,6 +49,11 @@
         <activity
             android:name=".DeviceInfoActivity"
             android:screenOrientation="locked" />
+
+        <activity
+            android:name=".LicenseManagementActivity"
+            android:screenOrientation="locked" />
+
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.credenceid.permission.SERVICE" />

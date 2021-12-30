@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         dbBtn.setOnClickListener { startActivity(Intent(this, BiometricDatabaseActivity::class.java)) }
         faceBtn.setOnClickListener { startActivity(Intent(this, CameraActivity::class.java)) }
         deviceInfoBtn.setOnClickListener { startActivity(Intent(this, DeviceInfoActivity::class.java)) }
+        licenseBtn.setOnClickListener { startActivity(Intent(this, LicenseManagementActivity::class.java)) }
         setBiometricButtonsVisibility(View.GONE)
     }
 
