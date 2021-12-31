@@ -57,8 +57,8 @@ class CardReaderActivity : Activity() {
     /**
      * Reads 4096 (4K) number of bytes from card.
      */
-    private val read4KAPDU = ("00"         // MiFare Card
-            + "FF"                            // MiFare Card READ Command
+    private val read4KAPDU = ("FF"         // MiFare Card
+            + "B0"                            // MiFare Card READ Command
             + "00"                            // P1
             + "00"                            // P2: Block Number
             + "001000")                     // Number of bytes to read
@@ -66,8 +66,8 @@ class CardReaderActivity : Activity() {
     /**
      * Reads 2048 (2K) number of bytes from card.
      */
-    private val read2KAPDU = ("00"         // MiFare Card
-            + "FF"                            // MiFare Card READ Command
+    private val read2KAPDU = ("FF"         // MiFare Card
+            + "B0"                            // MiFare Card READ Command
             + "00"                            // P1
             + "00"                            // P2: Block Number
             + "000800")                       // Number of bytes to read
@@ -76,8 +76,8 @@ class CardReaderActivity : Activity() {
     /**
      * Reads 1024 (1K) number of bytes from card.
      */
-    private val read1KAPDU = ("00"         // MiFare Card
-            + "FF"                            // MiFare Card READ Command
+    private val read1KAPDU = ("FF"         // MiFare Card
+            + "B0"                            // MiFare Card READ Command
             + "00"                            // P1
             + "00"                            // P2: Block Number
             + "000400")                       // Number of bytes to read
