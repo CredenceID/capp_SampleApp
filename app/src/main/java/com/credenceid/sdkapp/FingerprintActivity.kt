@@ -317,11 +317,10 @@ class FingerprintActivity : Activity() {
 
         mFingerprintTwoFMDTemplate = null
 
-        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedListener {
+        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedNewListener {
             override fun onFingerprintGrabbed(resultCode: ResultCode,
                                               bitmap: Bitmap?,
                                               bytes: ByteArray?,
-                                              s: String?,
                                               hint: String?) {
 
                 /* If a valid hint was given then display it for user to see. */
@@ -334,7 +333,7 @@ class FingerprintActivity : Activity() {
                             fingerTwoImageView.setImageBitmap(bitmap)
 
                         /* Create template from fingerprint image. */
-                        //createFMDTemplate(bitmap)
+                        createFMDTemplate(bitmap)
                     }
                     /* This code is returned on every new frame/image from sensor. */
                     INTERMEDIATE -> {
@@ -427,11 +426,7 @@ class FingerprintActivity : Activity() {
 
             when (rc) {
                 OK -> {
-                    var matchDecision = "No Match"
-                    /* This is how to properly determine a match or not. */
-                    if (score !=0f)
-                        matchDecision = "Match"
-
+                    var matchDecision = "Match score = $score"
                     fpStatusTextView.text = "Matching complete."
                     infoTextView.text = "Match outcome: $matchDecision"
 

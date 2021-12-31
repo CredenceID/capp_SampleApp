@@ -99,13 +99,6 @@
             android:layout_marginTop="15dp"
             android:text="@string/read_data" />
 
-
-        <Button
-            android:id="@+id/startStressTestBtn"
-            style="@style/CardReaderActivityButton"
-            android:layout_marginTop="15dp"
-            android:text="@string/stress_test" />
-
     </LinearLayout>
 
 </LinearLayout>
