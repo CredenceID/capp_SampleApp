@@ -3,6 +3,7 @@ package com.credenceid.sdkapp
 import android.Manifest.permission
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -19,12 +20,17 @@ import kotlinx.android.synthetic.main.act_device_info.statusTextView
 import kotlinx.android.synthetic.main.act_licence_management.*
 import kotlinx.android.synthetic.main.act_main.*
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.lang.Exception
 import java.util.*
 
 
 class LicenseManagementActivity : AppCompatActivity() {
+
+
+    val fileName = "Margins_ID_Group_FingerExtractor_Mobile_10013_17994.sn"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +46,14 @@ class LicenseManagementActivity : AppCompatActivity() {
 
         generateLicenseBtn.setOnClickListener {
 
-            val fileName = "Margins_ID_Group_FingerExtractor_Mobile_10016_27820.sn"
+
+            val outputPath = (applicationContext.getExternalFilesDir(null)?.absolutePath ?: "") + "/" +  fileName
+
+            val toRead = File(outputPath)
+
+            if(!toRead.exists()){
+                createFile(outputPath)
+            }
 
             val fileData = readBytes(applicationContext.getExternalFilesDir(null).absolutePath
                     + "/" +  fileName);
@@ -48,6 +61,8 @@ class LicenseManagementActivity : AppCompatActivity() {
             Log.d("CID-TEST", "fileName = " + applicationContext.getExternalFilesDir(null).absolutePath
                     + "/" + fileName )
             Log.d("CID-TEST", "fileData = " + String(fileData!!) )
+
+
 
             App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
             ServiceConstants.OperationType.GENERATE_LICENSE_REQUEST,
@@ -58,6 +73,9 @@ class LicenseManagementActivity : AppCompatActivity() {
                     OK -> {
                         statusTextView.text = "GENERATE_LICENSE_REQUEST generation OK"
                         Log.d("CID-TEST", "data = " + String(data) )
+                        saveFile(applicationContext.getExternalFilesDir(null).absolutePath
+                                + "/" + fileName + ".lic",
+                        data)
                     }
                     /* This code is returned while sensor is in the middle of opening. */
                     API_UNAVAILABLE -> {
@@ -75,10 +93,20 @@ class LicenseManagementActivity : AppCompatActivity() {
         }
 
         registerLicenseBtn.setOnClickListener {
+
+            val registerFilename = fileName + ".lic"
+
+            val fileData = readBytes(applicationContext.getExternalFilesDir(null).absolutePath
+                    + "/" +  registerFilename);
+
+            Log.d("CID-TEST", "Register fileName = " + applicationContext.getExternalFilesDir(null).absolutePath
+                    + "/" + registerFilename )
+            Log.d("CID-TEST", "Register fileData = " + String(fileData!!) )
+
             App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
                     ServiceConstants.OperationType.REGISTER_LICENSE,
-                    null,
-                    null){resultCode, apiStatus, data ->
+                    registerFilename,
+                    fileData){resultCode, apiStatus, data ->
 
                 when (resultCode) {
                     OK -> {
@@ -100,10 +128,26 @@ class LicenseManagementActivity : AppCompatActivity() {
         }
 
         deactivateLicenseBtn.setOnClickListener {
+
+
+            val licFileName =  fileName + ".lic"
+
+            val outputPath = (applicationContext.getExternalFilesDir(null)?.absolutePath ?: "") + "/" +  licFileName
+
+            val toRead = File(outputPath)
+
+            if(!toRead.exists()){
+                Log.e("CID-TEST" , "No lic file")
+                return@setOnClickListener
+            }
+
+            val fileData = readBytes(outputPath);
+
+
             App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
                 ServiceConstants.OperationType.DEACTIVATE_LICENCE,
-                    null,
-                    null){resultCode, apiStatus, data ->
+                    licFileName,
+                    fileData){resultCode, apiStatus, data ->
 
                 when (resultCode) {
                     OK -> {
@@ -134,7 +178,7 @@ class LicenseManagementActivity : AppCompatActivity() {
 
                 when (resultCode) {
                     OK -> {
-                        statusTextView.text = "GET_LICENSE_STATUS generation OK"
+                        statusTextView.text = "GET_LICENSE_STATUS OK"
                         Log.d("CID-TEST","Fingerprint provider = " + apiStatus.fingerprintAPIProvider.name )
                         Log.d("CID-TEST","Fingerprint status = " + apiStatus.fingerprintAPIProviderLicenseStatus.name)
                         Log.d("CID-TEST","Face provider = " + apiStatus.faceAPIProviderType.name )
@@ -172,6 +216,35 @@ class LicenseManagementActivity : AppCompatActivity() {
             Log.w(App.TAG, "readBytes(String): Unable to read byes from file.")
             return byteArrayOf()
         }
+    }
+
+    @Throws(Exception::class)
+    fun createFile(file: String) {
+
+        val toWrite = File(file)
+        if (!toWrite.exists()) {
+            Log.d("CID-TEST", "createFile = " + file );
+            if (!toWrite.createNewFile())
+                throw Exception("Fail to create file")
+        }
+        val fOut: FileOutputStream = FileOutputStream(file)
+        val data = byteArrayOf(0x41, 0x42, 0x43)
+        fOut.write(data)
+        fOut.flush()
+        fOut.close()
+
+    }
+
+    fun saveFile(file: String, data: ByteArray) {
+        val toWrite = File(file)
+        if (!toWrite.exists()) {
+            if (!toWrite.createNewFile()) throw Exception("Fail to create file")
+        }
+        val fOut: FileOutputStream = FileOutputStream(toWrite)
+
+        fOut.write(data)
+        fOut.flush()
+        fOut.close()
     }
 
 
