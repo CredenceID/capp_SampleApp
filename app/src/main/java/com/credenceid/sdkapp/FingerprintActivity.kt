@@ -33,7 +33,7 @@ private const val TAG = "Credence ID Sample App"
 @SuppressLint("StaticFieldLeak")
 class FingerprintActivity : Activity() {
 
-
+    var start = 0L
 
     /**
      * List of different fingerprint scan types supported across all Credence devices.
@@ -65,6 +65,8 @@ class FingerprintActivity : Activity() {
     private val mFingerprintOpenCloseListener = object : FingerprintReaderStatusListener {
         override fun onOpenFingerprintReader(resultCode: ResultCode,
                                              hint: String?) {
+
+            Log.d("CID-TEST","Fingerprint Reader opening time = " + (SystemClock.elapsedRealtime() - start) )
 
             /* If hint is valid, display it. Regardless of ResultCode we should
              * message indicating what is going on with sensor.
@@ -199,10 +201,13 @@ class FingerprintActivity : Activity() {
              */
             this.setAllComponentEnable(false)
 
-            if (mOpenFingerprint)
+            if (mOpenFingerprint) {
                 App.BioManager!!.openFingerprintReader(mFingerprintOpenCloseListener)
-            else
+                Log.d("CID-TEST", "openFingerprintReader - start")
+                start = SystemClock.elapsedRealtime()
+            } else {
                 App.BioManager!!.closeFingerprintReader()
+            }
         }
 
         captureBtn.setOnClickListener {
@@ -302,7 +307,7 @@ class FingerprintActivity : Activity() {
                         infoTextView.text = "Quality: $nfiqScore"
 
                         /* Create template from fingerprint image. */
-                        //createFMDTemplate(bitmap)
+                        createFMDTemplate(bitmap)
 
                         val fmd: ConvertToFMDSyncResponse = App.BioManager!!.convertToFMDSync(bitmap, ISO_19794_2_2005, 9000)
                         if (fmd.resultCode == OK) {

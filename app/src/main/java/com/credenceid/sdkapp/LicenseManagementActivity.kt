@@ -31,6 +31,7 @@ class LicenseManagementActivity : AppCompatActivity() {
 
 
     val fileName = "Margins_ID_Group_FingerExtractor_Mobile_10013_17994.sn"
+    val fileName2 = "Margins_ID_Group_FingerMatcher_Mobile_10013_19720.sn"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +49,10 @@ class LicenseManagementActivity : AppCompatActivity() {
 
 
             val outputPath = (applicationContext.getExternalFilesDir(null)?.absolutePath ?: "") + "/" +  fileName
+            val outputPath2 = (applicationContext.getExternalFilesDir(null)?.absolutePath ?: "") + "/" +  fileName2
 
             val toRead = File(outputPath)
+            val toRead2 = File(outputPath2)
 
             if(!toRead.exists()){
                 createFile(outputPath)
@@ -57,10 +60,16 @@ class LicenseManagementActivity : AppCompatActivity() {
 
             val fileData = readBytes(applicationContext.getExternalFilesDir(null).absolutePath
                     + "/" +  fileName);
-
             Log.d("CID-TEST", "fileName = " + applicationContext.getExternalFilesDir(null).absolutePath
                     + "/" + fileName )
             Log.d("CID-TEST", "fileData = " + String(fileData!!) )
+
+            val fileData2 = readBytes(applicationContext.getExternalFilesDir(null).absolutePath
+                    + "/" + fileName2);
+            Log.d("CID-TEST", "fileName = " + applicationContext.getExternalFilesDir(null).absolutePath
+                    + "/" + fileName2 )
+            Log.d("CID-TEST", "fileData = " + String(fileData2!!) )
+
 
 
 
@@ -71,22 +80,50 @@ class LicenseManagementActivity : AppCompatActivity() {
 
                 when (resultCode) {
                     OK -> {
-                        statusTextView.text = "GENERATE_LICENSE_REQUEST generation OK"
-                        Log.d("CID-TEST", "data = " + String(data) )
+                        statusTextView.text = "1 - GENERATE_LICENSE_REQUEST generation OK"
+                        Log.d("CID-TEST", "data1 = " + String(data) )
                         saveFile(applicationContext.getExternalFilesDir(null).absolutePath
                                 + "/" + fileName + ".lic",
                         data)
+
+                        App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
+                                ServiceConstants.OperationType.GENERATE_LICENSE_REQUEST,
+                                fileName2,
+                                fileData2){resultCode, apiStatus, data2 ->
+
+                            when (resultCode) {
+                                OK -> {
+                                    statusTextView.text = "2 - GENERATE_LICENSE_REQUEST generation OK"
+                                    Log.d("CID-TEST", "data2 = " + String(data2) )
+                                    saveFile(applicationContext.getExternalFilesDir(null).absolutePath
+                                            + "/" + fileName + ".lic",
+                                            data2)
+                                }
+                                /* This code is returned while sensor is in the middle of opening. */
+                                API_UNAVAILABLE -> {
+                                    statusTextView.text = "2 - GENERATE_LICENSE_REQUEST - API_UNAVAILABLE"
+                                }
+                                INVALID_INPUT_PARAMETERS -> {
+                                    statusTextView.text = "2 - GENERATE_LICENSE_REQUEST - INVALID_INPUT_PARAMETERS"
+                                }
+                                /* This code is returned if sensor fails to open. */
+                                FAIL -> {
+                                    statusTextView.text = "2 - GENERATE_LICENSE_REQUEST generation failed"
+                                }
+                            }
+                        }
+
                     }
                     /* This code is returned while sensor is in the middle of opening. */
                     API_UNAVAILABLE -> {
-                        statusTextView.text = "GENERATE_LICENSE_REQUEST - API_UNAVAILABLE"
+                        statusTextView.text = "1 - GENERATE_LICENSE_REQUEST - API_UNAVAILABLE"
                     }
                     INVALID_INPUT_PARAMETERS -> {
-                        statusTextView.text = "GENERATE_LICENSE_REQUEST - INVALID_INPUT_PARAMETERS"
+                        statusTextView.text = "1 - GENERATE_LICENSE_REQUEST - INVALID_INPUT_PARAMETERS"
                     }
                     /* This code is returned if sensor fails to open. */
                     FAIL -> {
-                        statusTextView.text = "GENERATE_LICENSE_REQUEST generation failed"
+                        statusTextView.text = "1 - GENERATE_LICENSE_REQUEST generation failed"
                     }
                 }
             }
@@ -95,13 +132,20 @@ class LicenseManagementActivity : AppCompatActivity() {
         registerLicenseBtn.setOnClickListener {
 
             val registerFilename = fileName + ".lic"
+            val registerFilename2 = fileName2 + ".lic"
 
             val fileData = readBytes(applicationContext.getExternalFilesDir(null).absolutePath
-                    + "/" +  registerFilename);
+                    + "/" +  registerFilename)
+            val fileData2 = readBytes(applicationContext.getExternalFilesDir(null).absolutePath
+                    + "/" +  registerFilename2)
 
             Log.d("CID-TEST", "Register fileName = " + applicationContext.getExternalFilesDir(null).absolutePath
                     + "/" + registerFilename )
             Log.d("CID-TEST", "Register fileData = " + String(fileData!!) )
+
+            Log.d("CID-TEST", "Register fileName = " + applicationContext.getExternalFilesDir(null).absolutePath
+                    + "/" + registerFilename2 )
+            Log.d("CID-TEST", "Register fileData = " + String(fileData2!!) )
 
             App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
                     ServiceConstants.OperationType.REGISTER_LICENSE,
@@ -110,18 +154,40 @@ class LicenseManagementActivity : AppCompatActivity() {
 
                 when (resultCode) {
                     OK -> {
-                        statusTextView.text = "REGISTER_LICENSE generation OK"
+                        statusTextView.text = "1 - REGISTER_LICENSE generation OK"
+                        App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
+                                ServiceConstants.OperationType.REGISTER_LICENSE,
+                                registerFilename2,
+                                fileData2){resultCode, apiStatus, data ->
+
+                            when (resultCode) {
+                                OK -> {
+                                    statusTextView.text = "2 - REGISTER_LICENSE generation OK"
+                                }
+                                /* This code is returned while sensor is in the middle of opening. */
+                                API_UNAVAILABLE -> {
+                                    statusTextView.text = "2 - REGISTER_LICENSE - API_UNAVAILABLE"
+                                }
+                                INVALID_INPUT_PARAMETERS -> {
+                                    statusTextView.text = "2 - REGISTER_LICENSE - INVALID_INPUT_PARAMETERS"
+                                }
+                                /* This code is returned if sensor fails to open. */
+                                FAIL -> {
+                                    statusTextView.text = "2 - REGISTER_LICENSE generation failed"
+                                }
+                            }
+                        }
                     }
                     /* This code is returned while sensor is in the middle of opening. */
                     API_UNAVAILABLE -> {
-                        statusTextView.text = "REGISTER_LICENSE - API_UNAVAILABLE"
+                        statusTextView.text = "1 - REGISTER_LICENSE - API_UNAVAILABLE"
                     }
                     INVALID_INPUT_PARAMETERS -> {
-                        statusTextView.text = "REGISTER_LICENSE - INVALID_INPUT_PARAMETERS"
+                        statusTextView.text = "1 - REGISTER_LICENSE - INVALID_INPUT_PARAMETERS"
                     }
                     /* This code is returned if sensor fails to open. */
                     FAIL -> {
-                        statusTextView.text = "REGISTER_LICENSE generation failed"
+                        statusTextView.text = "1 - REGISTER_LICENSE generation failed"
                     }
                 }
             }
@@ -131,17 +197,26 @@ class LicenseManagementActivity : AppCompatActivity() {
 
 
             val licFileName =  fileName + ".lic"
+            val licFileName2 =  fileName2 + ".lic"
 
             val outputPath = (applicationContext.getExternalFilesDir(null)?.absolutePath ?: "") + "/" +  licFileName
+            val outputPath2 = (applicationContext.getExternalFilesDir(null)?.absolutePath ?: "") + "/" +  licFileName2
 
             val toRead = File(outputPath)
+            val toRead2 = File(outputPath2)
 
             if(!toRead.exists()){
                 Log.e("CID-TEST" , "No lic file")
                 return@setOnClickListener
             }
 
-            val fileData = readBytes(outputPath);
+            if(!toRead2.exists()){
+                Log.e("CID-TEST" , "No lic file 2")
+                return@setOnClickListener
+            }
+
+            val fileData = readBytes(outputPath)
+            val fileData2 = readBytes(outputPath2)
 
 
             App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
@@ -151,18 +226,40 @@ class LicenseManagementActivity : AppCompatActivity() {
 
                 when (resultCode) {
                     OK -> {
-                        statusTextView.text = "DEACTIVATE_LICENCE generation OK"
+                        statusTextView.text = "1 - DEACTIVATE_LICENCE generation OK"
+                        App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
+                                ServiceConstants.OperationType.DEACTIVATE_LICENCE,
+                                licFileName2,
+                                fileData2){resultCode, apiStatus, data2 ->
+
+                            when (resultCode) {
+                                OK -> {
+                                    statusTextView.text = "2 - DEACTIVATE_LICENCE generation OK"
+                                }
+                                /* This code is returned while sensor is in the middle of opening. */
+                                API_UNAVAILABLE -> {
+                                    statusTextView.text = "2 - DEACTIVATE_LICENCE - API_UNAVAILABLE"
+                                }
+                                INVALID_INPUT_PARAMETERS -> {
+                                    statusTextView.text = "2 - DEACTIVATE_LICENCE - INVALID_INPUT_PARAMETERS"
+                                }
+                                /* This code is returned if sensor fails to open. */
+                                FAIL -> {
+                                    statusTextView.text = "2 - DEACTIVATE_LICENCE generation failed"
+                                }
+                            }
+                        }
                     }
                     /* This code is returned while sensor is in the middle of opening. */
                     API_UNAVAILABLE -> {
-                        statusTextView.text = "DEACTIVATE_LICENCE - API_UNAVAILABLE"
+                        statusTextView.text = "1 - DEACTIVATE_LICENCE - API_UNAVAILABLE"
                     }
                     INVALID_INPUT_PARAMETERS -> {
-                        statusTextView.text = "DEACTIVATE_LICENCE - INVALID_INPUT_PARAMETERS"
+                        statusTextView.text = "1 - DEACTIVATE_LICENCE - INVALID_INPUT_PARAMETERS"
                     }
                     /* This code is returned if sensor fails to open. */
                     FAIL -> {
-                        statusTextView.text = "DEACTIVATE_LICENCE generation failed"
+                        statusTextView.text = "1 - DEACTIVATE_LICENCE generation failed"
                     }
                 }
             }
