@@ -1,15 +1,8 @@
 package com.credenceid.sdkapp
 
-import android.Manifest.permission
-import android.content.Intent
-import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.graphics.Bitmap
-import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.View
-import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.ResultCode
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.biometrics.BiometricsManager
@@ -25,6 +18,16 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.lang.Exception
 import java.util.*
+import com.credenceid.biometrics.LicensedApiStatus
+
+import com.credenceid.biometrics.Biometrics
+
+import android.os.Environment
+import com.credenceid.biometrics.Biometrics.OnLicenseOperationListener
+import com.credenceid.biometrics.LicenseOperationResult
+import com.credenceid.constants.ServiceConstants.OperationType
+import com.util.FileToShare
+import com.util.FileUtils
 
 
 class LicenseManagementActivity : AppCompatActivity() {
@@ -47,229 +50,23 @@ class LicenseManagementActivity : AppCompatActivity() {
 
         generateLicenseBtn.setOnClickListener {
 
-
-            val outputPath = (applicationContext.getExternalFilesDir(null)?.absolutePath ?: "") + "/" +  fileName
-            val outputPath2 = (applicationContext.getExternalFilesDir(null)?.absolutePath ?: "") + "/" +  fileName2
-
-            val toRead = File(outputPath)
-            val toRead2 = File(outputPath2)
-
-            if(!toRead.exists()){
-                createFile(outputPath)
-            }
-
-            val fileData = readBytes(applicationContext.getExternalFilesDir(null).absolutePath
-                    + "/" +  fileName);
-            Log.d("CID-TEST", "fileName = " + applicationContext.getExternalFilesDir(null).absolutePath
-                    + "/" + fileName )
-            Log.d("CID-TEST", "fileData = " + String(fileData!!) )
-
-            val fileData2 = readBytes(applicationContext.getExternalFilesDir(null).absolutePath
-                    + "/" + fileName2);
-            Log.d("CID-TEST", "fileName = " + applicationContext.getExternalFilesDir(null).absolutePath
-                    + "/" + fileName2 )
-            Log.d("CID-TEST", "fileData = " + String(fileData2!!) )
-
-
-
-
-            App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
-            ServiceConstants.OperationType.GENERATE_LICENSE_REQUEST,
-                    fileName,
-                    fileData){resultCode, apiStatus, data ->
-
-                when (resultCode) {
-                    OK -> {
-                        statusTextView.text = "1 - GENERATE_LICENSE_REQUEST generation OK"
-                        Log.d("CID-TEST", "data1 = " + String(data) )
-                        saveFile(applicationContext.getExternalFilesDir(null).absolutePath
-                                + "/" + fileName + ".lic",
-                        data)
-
-                        App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
-                                ServiceConstants.OperationType.GENERATE_LICENSE_REQUEST,
-                                fileName2,
-                                fileData2){resultCode, apiStatus, data2 ->
-
-                            when (resultCode) {
-                                OK -> {
-                                    statusTextView.text = "2 - GENERATE_LICENSE_REQUEST generation OK"
-                                    Log.d("CID-TEST", "data2 = " + String(data2) )
-                                    saveFile(applicationContext.getExternalFilesDir(null).absolutePath
-                                            + "/" + fileName + ".lic",
-                                            data2)
-                                }
-                                /* This code is returned while sensor is in the middle of opening. */
-                                API_UNAVAILABLE -> {
-                                    statusTextView.text = "2 - GENERATE_LICENSE_REQUEST - API_UNAVAILABLE"
-                                }
-                                INVALID_INPUT_PARAMETERS -> {
-                                    statusTextView.text = "2 - GENERATE_LICENSE_REQUEST - INVALID_INPUT_PARAMETERS"
-                                }
-                                /* This code is returned if sensor fails to open. */
-                                FAIL -> {
-                                    statusTextView.text = "2 - GENERATE_LICENSE_REQUEST generation failed"
-                                }
-                            }
-                        }
-
-                    }
-                    /* This code is returned while sensor is in the middle of opening. */
-                    API_UNAVAILABLE -> {
-                        statusTextView.text = "1 - GENERATE_LICENSE_REQUEST - API_UNAVAILABLE"
-                    }
-                    INVALID_INPUT_PARAMETERS -> {
-                        statusTextView.text = "1 - GENERATE_LICENSE_REQUEST - INVALID_INPUT_PARAMETERS"
-                    }
-                    /* This code is returned if sensor fails to open. */
-                    FAIL -> {
-                        statusTextView.text = "1 - GENERATE_LICENSE_REQUEST generation failed"
-                    }
-                }
-            }
+            pushLicenceToSDK(applicationContext.getExternalFilesDir(null).absolutePath)
         }
 
         registerLicenseBtn.setOnClickListener {
 
-            val registerFilename = fileName + ".lic"
-            val registerFilename2 = fileName2 + ".lic"
-
-            val fileData = readBytes(applicationContext.getExternalFilesDir(null).absolutePath
-                    + "/" +  registerFilename)
-            val fileData2 = readBytes(applicationContext.getExternalFilesDir(null).absolutePath
-                    + "/" +  registerFilename2)
-
-            Log.d("CID-TEST", "Register fileName = " + applicationContext.getExternalFilesDir(null).absolutePath
-                    + "/" + registerFilename )
-            Log.d("CID-TEST", "Register fileData = " + String(fileData!!) )
-
-            Log.d("CID-TEST", "Register fileName = " + applicationContext.getExternalFilesDir(null).absolutePath
-                    + "/" + registerFilename2 )
-            Log.d("CID-TEST", "Register fileData = " + String(fileData2!!) )
-
-            App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
-                    ServiceConstants.OperationType.REGISTER_LICENSE,
-                    registerFilename,
-                    fileData){resultCode, apiStatus, data ->
-
-                when (resultCode) {
-                    OK -> {
-                        statusTextView.text = "1 - REGISTER_LICENSE generation OK"
-                        App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
-                                ServiceConstants.OperationType.REGISTER_LICENSE,
-                                registerFilename2,
-                                fileData2){resultCode, apiStatus, data ->
-
-                            when (resultCode) {
-                                OK -> {
-                                    statusTextView.text = "2 - REGISTER_LICENSE generation OK"
-                                }
-                                /* This code is returned while sensor is in the middle of opening. */
-                                API_UNAVAILABLE -> {
-                                    statusTextView.text = "2 - REGISTER_LICENSE - API_UNAVAILABLE"
-                                }
-                                INVALID_INPUT_PARAMETERS -> {
-                                    statusTextView.text = "2 - REGISTER_LICENSE - INVALID_INPUT_PARAMETERS"
-                                }
-                                /* This code is returned if sensor fails to open. */
-                                FAIL -> {
-                                    statusTextView.text = "2 - REGISTER_LICENSE generation failed"
-                                }
-                            }
-                        }
-                    }
-                    /* This code is returned while sensor is in the middle of opening. */
-                    API_UNAVAILABLE -> {
-                        statusTextView.text = "1 - REGISTER_LICENSE - API_UNAVAILABLE"
-                    }
-                    INVALID_INPUT_PARAMETERS -> {
-                        statusTextView.text = "1 - REGISTER_LICENSE - INVALID_INPUT_PARAMETERS"
-                    }
-                    /* This code is returned if sensor fails to open. */
-                    FAIL -> {
-                        statusTextView.text = "1 - REGISTER_LICENSE generation failed"
-                    }
-                }
-            }
+            repushLicenceToSDK(applicationContext.getExternalFilesDir(null).absolutePath)
         }
 
         deactivateLicenseBtn.setOnClickListener {
-
-
-            val licFileName =  fileName + ".lic"
-            val licFileName2 =  fileName2 + ".lic"
-
-            val outputPath = (applicationContext.getExternalFilesDir(null)?.absolutePath ?: "") + "/" +  licFileName
-            val outputPath2 = (applicationContext.getExternalFilesDir(null)?.absolutePath ?: "") + "/" +  licFileName2
-
-            val toRead = File(outputPath)
-            val toRead2 = File(outputPath2)
-
-            if(!toRead.exists()){
-                Log.e("CID-TEST" , "No lic file")
-                return@setOnClickListener
-            }
-
-            if(!toRead2.exists()){
-                Log.e("CID-TEST" , "No lic file 2")
-                return@setOnClickListener
-            }
-
-            val fileData = readBytes(outputPath)
-            val fileData2 = readBytes(outputPath2)
-
-
-            App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
-                ServiceConstants.OperationType.DEACTIVATE_LICENCE,
-                    licFileName,
-                    fileData){resultCode, apiStatus, data ->
-
-                when (resultCode) {
-                    OK -> {
-                        statusTextView.text = "1 - DEACTIVATE_LICENCE generation OK"
-                        App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
-                                ServiceConstants.OperationType.DEACTIVATE_LICENCE,
-                                licFileName2,
-                                fileData2){resultCode, apiStatus, data2 ->
-
-                            when (resultCode) {
-                                OK -> {
-                                    statusTextView.text = "2 - DEACTIVATE_LICENCE generation OK"
-                                }
-                                /* This code is returned while sensor is in the middle of opening. */
-                                API_UNAVAILABLE -> {
-                                    statusTextView.text = "2 - DEACTIVATE_LICENCE - API_UNAVAILABLE"
-                                }
-                                INVALID_INPUT_PARAMETERS -> {
-                                    statusTextView.text = "2 - DEACTIVATE_LICENCE - INVALID_INPUT_PARAMETERS"
-                                }
-                                /* This code is returned if sensor fails to open. */
-                                FAIL -> {
-                                    statusTextView.text = "2 - DEACTIVATE_LICENCE generation failed"
-                                }
-                            }
-                        }
-                    }
-                    /* This code is returned while sensor is in the middle of opening. */
-                    API_UNAVAILABLE -> {
-                        statusTextView.text = "1 - DEACTIVATE_LICENCE - API_UNAVAILABLE"
-                    }
-                    INVALID_INPUT_PARAMETERS -> {
-                        statusTextView.text = "1 - DEACTIVATE_LICENCE - INVALID_INPUT_PARAMETERS"
-                    }
-                    /* This code is returned if sensor fails to open. */
-                    FAIL -> {
-                        statusTextView.text = "1 - DEACTIVATE_LICENCE generation failed"
-                    }
-                }
-            }
+            deleteLicenceFromSDK(applicationContext.getExternalFilesDir(null).absolutePath)
         }
 
         getLicenseStatusBtn.setOnClickListener {
             App.BioManager!!.manageProviderLicense(ServiceConstants.Provider.NEUROTECHNOLOGY,
                     ServiceConstants.OperationType.GET_LICENSE_STATUS,
                     null,
-                    null){resultCode, apiStatus, data ->
+                    null){resultCode, resultDetails, apiStatus, data ->
 
                 Log.d("CID-TEST","result = " + resultCode.name )
 
@@ -291,6 +88,153 @@ class LicenseManagementActivity : AppCompatActivity() {
                     /* This code is returned if sensor fails to open. */
                     FAIL -> {
                         statusTextView.text = "GET_LICENSE_STATUS generation failed"
+                    }
+                }
+            }
+        }
+
+    }
+
+    fun pushLicenceToSDK(folderPath: String?) {
+        Log.d("CID-TEST", "folderPath = $folderPath")
+
+        var folder = File(folderPath)
+
+        val fileList: Array<String> =  folder.list()
+        if (fileList != null) {
+            val fileToShareList = arrayListOf<FileToShare>()
+            for (f in fileList) {
+                fileToShareList.add(FileToShare(f, readBytes(folderPath+"/"+f)))
+            }
+
+            App.BioManager!!.manageProviderMultipleLicense(
+                    ServiceConstants.Provider.NEUROTECHNOLOGY,
+                    ServiceConstants.OperationType.GENERATE_LICENSE_REQUEST,
+                    fileToShareList) { resultCode, operationResults ->
+
+                Log.d("CID-TEST", "manageProviderMultipleLicense result = " + resultCode.name)
+
+                when (resultCode) {
+                    OK -> {
+                        statusTextView.text = "manageProviderMultipleLicense OK"
+                        for (res: LicenseOperationResult in operationResults) {
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Code = " + res.getmResultCode())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Details = " + res.getmDetailedResult())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result File name = " + res.getmFileName())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Data = " + res.getmResultData())
+                        }
+
+                    }
+                    /* This code is returned while sensor is in the middle of opening. */
+                    API_UNAVAILABLE -> {
+                        statusTextView.text = "manageProviderMultipleLicense - API_UNAVAILABLE"
+                    }
+                    INVALID_INPUT_PARAMETERS -> {
+                        statusTextView.text = "manageProviderMultipleLicense - INVALID_INPUT_PARAMETERS"
+                    }
+                    /* This code is returned if sensor fails to open. */
+                    FAIL -> {
+                        statusTextView.text = "manageProviderMultipleLicense generation failed"
+
+
+                    }
+                }
+            }
+        }
+
+    }
+
+    fun repushLicenceToSDK(folderPath: String?) {
+        Log.d("CID-TEST", "folderPath = $folderPath")
+
+        var folder = File(folderPath)
+
+        val fileList: Array<String> =  folder.list()
+        if (fileList != null) {
+            val fileToShareList = arrayListOf<FileToShare>()
+            for (f in fileList) {
+                fileToShareList.add(FileToShare(f, readBytes(folderPath+"/"+f)))
+            }
+
+            App.BioManager!!.manageProviderMultipleLicense(
+                    ServiceConstants.Provider.NEUROTECHNOLOGY,
+                    ServiceConstants.OperationType.REGISTER_LICENSE,
+                    fileToShareList) { resultCode, operationResults ->
+
+                Log.d("CID-TEST", "manageProviderMultipleLicense result = " + resultCode.name)
+
+                when (resultCode) {
+                    OK -> {
+                        statusTextView.text = "manageProviderMultipleLicense OK"
+                        for (res: LicenseOperationResult in operationResults) {
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Code = " + res.getmResultCode())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Details = " + res.getmDetailedResult())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result File name = " + res.getmFileName())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Data = " + res.getmResultData())
+                        }
+
+                    }
+                    /* This code is returned while sensor is in the middle of opening. */
+                    API_UNAVAILABLE -> {
+                        statusTextView.text = "manageProviderMultipleLicense - API_UNAVAILABLE"
+                    }
+                    INVALID_INPUT_PARAMETERS -> {
+                        statusTextView.text = "manageProviderMultipleLicense - INVALID_INPUT_PARAMETERS"
+                    }
+                    /* This code is returned if sensor fails to open. */
+                    FAIL -> {
+                        statusTextView.text = "manageProviderMultipleLicense generation failed"
+
+
+                    }
+                }
+            }
+        }
+
+    }
+
+    fun deleteLicenceFromSDK(folderPath: String?) {
+        Log.d("CID-TEST", "folderPath = $folderPath")
+
+        var folder = File(folderPath)
+
+        val fileList: Array<String> =  folder.list()
+        if (fileList != null) {
+            val fileToShareList = arrayListOf<FileToShare>()
+            for (f in fileList) {
+                fileToShareList.add(FileToShare(f, readBytes(folderPath+"/"+f)))
+            }
+
+            App.BioManager!!.manageProviderMultipleLicense(
+                    ServiceConstants.Provider.NEUROTECHNOLOGY,
+                    ServiceConstants.OperationType.DEACTIVATE_LICENCE,
+                    fileToShareList) { resultCode, operationResults ->
+
+                Log.d("CID-TEST", "manageProviderMultipleLicense result = " + resultCode.name)
+
+                when (resultCode) {
+                    OK -> {
+                        statusTextView.text = "manageProviderMultipleLicense OK"
+                        for (res: LicenseOperationResult in operationResults) {
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Code = " + res.getmResultCode())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Details = " + res.getmDetailedResult())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result File name = " + res.getmFileName())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Data = " + res.getmResultData())
+                        }
+
+                    }
+                    /* This code is returned while sensor is in the middle of opening. */
+                    API_UNAVAILABLE -> {
+                        statusTextView.text = "manageProviderMultipleLicense - API_UNAVAILABLE"
+                    }
+                    INVALID_INPUT_PARAMETERS -> {
+                        statusTextView.text = "manageProviderMultipleLicense - INVALID_INPUT_PARAMETERS"
+                    }
+                    /* This code is returned if sensor fails to open. */
+                    FAIL -> {
+                        statusTextView.text = "manageProviderMultipleLicense generation failed"
+
+
                     }
                 }
             }
@@ -346,3 +290,4 @@ class LicenseManagementActivity : AppCompatActivity() {
 
 
 }
+

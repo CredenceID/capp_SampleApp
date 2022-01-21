@@ -143,7 +143,7 @@
 	</LinearLayout>
 
 	<TextView
-		android:id="@+id/fpStatusTextView"
+		android:id="@+id/info1DbViewTextView"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="20dp"
@@ -152,7 +152,7 @@
 		android:textSize="18sp" />
 
 	<TextView
-		android:id="@+id/infoTextView"
+		android:id="@+id/info2DbViewTextView"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="20dp"

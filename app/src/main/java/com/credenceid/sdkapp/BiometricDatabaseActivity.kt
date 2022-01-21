@@ -87,9 +87,11 @@ class BiometricDatabaseActivity : Activity() {
         App.BioManager!!.enroll(1, fpRecord, faceRecord, null){status, i ->
             Log.d("TEST-credence", "Enroll Result = " + status )
             Log.d("TEST-credence", "Enroll ID = " + i )
+            info1DbViewTextView.text = "Enroll Result = " + status + " - Enroll ID = " + i
             App.BioManager!!.enroll(2, fpRecord, faceRecord, null){status, i ->
                 Log.d("TEST-credence", "Enroll Result = " + status )
                 Log.d("TEST-credence", "Enroll ID = " + i )
+                info2DbViewTextView.text = "Enroll Result = " + status + " - Enroll ID = " + i
             }
         }
     }
@@ -101,8 +103,10 @@ class BiometricDatabaseActivity : Activity() {
 
         App.BioManager!!.match( fpRecord, faceRecord, null){status, arrayList ->
             Log.d("TEST-credence", "Match Result = " + status )
+            info1DbViewTextView.text = "Match Result = " + status
             if(null != arrayList) {
                 Log.d("TEST-credence", "Match Result Arraylist size = " + arrayList?.size)
+                info2DbViewTextView.text = "Match Result Arraylist size = " + arrayList?.size
                 for (match: MatchItem in arrayList){
                     Log.d("TEST-credence", "Match Result candidate = " + match.id)
                     Log.d("TEST-credence", "Match Result Face Score = " + match.faceScore)
@@ -110,6 +114,7 @@ class BiometricDatabaseActivity : Activity() {
                 }
             } else {
                 Log.d("TEST-credence", "ArrayList is null")
+                info1DbViewTextView.text = "ArrayList is null"
             }
         }
     }
@@ -117,6 +122,8 @@ class BiometricDatabaseActivity : Activity() {
     fun deleteTest(id:Int){
         App.BioManager!!.delete(id){status->
             Log.d("TEST-credence", "delete Result = " + status )
+            info1DbViewTextView.text = "delete id = " + id
+            info2DbViewTextView.text = "delete Result = " + status
         }
     }
 
