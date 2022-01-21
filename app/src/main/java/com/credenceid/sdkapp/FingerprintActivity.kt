@@ -449,6 +449,7 @@ class FingerprintActivity : Activity() {
                                                       hint: String? ->
 
             fpStatusTextView.text = "FP sensor Calibration result = " + resultCode.name
+            infoTextView.text = ""
 
         }
     }
