@@ -84,6 +84,8 @@
 	<string name="mrz_reading_wait">Reading MRZ, please wait…</string>
 	<string name="mrz_read_success">MRZ successfully read.</string>
 
+	<string name="fp_calibration_status">FP sensor Calibration status = %1$s.</string>
+
 	<string name="gender_colon_arg">Gender:\u0020</string>
 	<string name="age_colon_arg">Age:\u0020</string>
 	<string name="glasses_colon_arg">Glasses:\u0020</string>

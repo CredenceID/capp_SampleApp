@@ -448,8 +448,8 @@ class FingerprintActivity : Activity() {
         App.BioManager!!.calibrateFingerprintReader(){resultCode: ResultCode,
                                                       hint: String? ->
 
-            fpStatusTextView.text = "FP sensor Calibration result = " + resultCode.name
-            infoTextView.text = ""
+            fpStatusTextView.text = getString(R.string.fp_calibration_status, resultCode.name)
+            infoTextView.text = hint
 
         }
     }
