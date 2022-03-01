@@ -121,9 +121,24 @@
 			android:layout_weight="1" />
 
 		<Button
-			android:id="@+id/matchDbBtn"
+			android:id="@+id/deleteBtn"
 			style="@style/PageButton"
-			android:text="@string/match_db" />
+			android:text="@string/delete" />
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+	</LinearLayout>
+
+
+
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="25dp"
+		android:orientation="horizontal">
 
 		<View
 			android:layout_width="0dp"
@@ -131,9 +146,20 @@
 			android:layout_weight="1" />
 
 		<Button
-			android:id="@+id/deleteBtn"
+			android:id="@+id/verifyBtn"
 			style="@style/PageButton"
-			android:text="@string/delete" />
+			android:text="@string/verify" />
+
+
+		<View
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<Button
+			android:id="@+id/matchDbBtn"
+			style="@style/PageButton"
+			android:text="@string/match_db" />
 
 		<View
 			android:layout_width="0dp"

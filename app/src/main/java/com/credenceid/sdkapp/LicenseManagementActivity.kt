@@ -3,31 +3,18 @@ package com.credenceid.sdkapp
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import com.credenceid.biometrics.Biometrics.ResultCode
 import com.credenceid.biometrics.Biometrics.ResultCode.*
-import com.credenceid.biometrics.BiometricsManager
 import com.credenceid.constants.ServiceConstants
-import com.util.HexUtils
-import kotlinx.android.synthetic.main.act_device_info.*
 import kotlinx.android.synthetic.main.act_device_info.statusTextView
 import kotlinx.android.synthetic.main.act_licence_management.*
-import kotlinx.android.synthetic.main.act_main.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.lang.Exception
-import java.util.*
-import com.credenceid.biometrics.LicensedApiStatus
 
-import com.credenceid.biometrics.Biometrics
-
-import android.os.Environment
-import com.credenceid.biometrics.Biometrics.OnLicenseOperationListener
 import com.credenceid.biometrics.LicenseOperationResult
-import com.credenceid.constants.ServiceConstants.OperationType
 import com.util.FileToShare
-import com.util.FileUtils
 
 
 class LicenseManagementActivity : AppCompatActivity() {
@@ -50,16 +37,12 @@ class LicenseManagementActivity : AppCompatActivity() {
 
         generateLicenseBtn.setOnClickListener {
 
-            pushLicenceToSDK(applicationContext.getExternalFilesDir(null).absolutePath)
+            pushLicenceToSDK(applicationContext.getExternalFilesDir(null).absolutePath+"/licenses")
         }
 
-        registerLicenseBtn.setOnClickListener {
-
-            repushLicenceToSDK(applicationContext.getExternalFilesDir(null).absolutePath)
-        }
 
         deactivateLicenseBtn.setOnClickListener {
-            deleteLicenceFromSDK(applicationContext.getExternalFilesDir(null).absolutePath)
+            deactivateLicenceFromSDK(applicationContext.getExternalFilesDir(null).absolutePath+"/toDelete")
         }
 
         getLicenseStatusBtn.setOnClickListener {
@@ -144,56 +127,7 @@ class LicenseManagementActivity : AppCompatActivity() {
 
     }
 
-    fun repushLicenceToSDK(folderPath: String?) {
-        Log.d("CID-TEST", "folderPath = $folderPath")
-
-        var folder = File(folderPath)
-
-        val fileList: Array<String> =  folder.list()
-        if (fileList != null) {
-            val fileToShareList = arrayListOf<FileToShare>()
-            for (f in fileList) {
-                fileToShareList.add(FileToShare(f, readBytes(folderPath+"/"+f)))
-            }
-
-            App.BioManager!!.manageProviderMultipleLicense(
-                    ServiceConstants.Provider.NEUROTECHNOLOGY,
-                    ServiceConstants.OperationType.REGISTER_LICENSE,
-                    fileToShareList) { resultCode, operationResults ->
-
-                Log.d("CID-TEST", "manageProviderMultipleLicense result = " + resultCode.name)
-
-                when (resultCode) {
-                    OK -> {
-                        statusTextView.text = "manageProviderMultipleLicense OK"
-                        for (res: LicenseOperationResult in operationResults) {
-                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Code = " + res.getmResultCode())
-                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Details = " + res.getmDetailedResult())
-                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result File name = " + res.getmFileName())
-                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Data = " + res.getmResultData())
-                        }
-
-                    }
-                    /* This code is returned while sensor is in the middle of opening. */
-                    API_UNAVAILABLE -> {
-                        statusTextView.text = "manageProviderMultipleLicense - API_UNAVAILABLE"
-                    }
-                    INVALID_INPUT_PARAMETERS -> {
-                        statusTextView.text = "manageProviderMultipleLicense - INVALID_INPUT_PARAMETERS"
-                    }
-                    /* This code is returned if sensor fails to open. */
-                    FAIL -> {
-                        statusTextView.text = "manageProviderMultipleLicense generation failed"
-
-
-                    }
-                }
-            }
-        }
-
-    }
-
-    fun deleteLicenceFromSDK(folderPath: String?) {
+    fun deactivateLicenceFromSDK(folderPath: String?) {
         Log.d("CID-TEST", "folderPath = $folderPath")
 
         var folder = File(folderPath)

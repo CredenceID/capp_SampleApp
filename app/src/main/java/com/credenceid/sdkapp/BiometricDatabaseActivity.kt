@@ -65,6 +65,12 @@ class BiometricDatabaseActivity : Activity() {
             }
         }
 
+        verifyBtn.setOnClickListener {
+            if ((fpBitmap != null)&&(null != faceBitmap)) {
+                verifyTest(fpBitmap, faceBitmap)
+            }
+        }
+
         matchDbBtn.setOnClickListener {
             if ((fpBitmap != null)&&(null != faceBitmap)) {
                 matchTest(fpBitmap, faceBitmap)
@@ -115,6 +121,25 @@ class BiometricDatabaseActivity : Activity() {
             } else {
                 Log.d("TEST-credence", "ArrayList is null")
                 info1DbViewTextView.text = "ArrayList is null"
+            }
+        }
+    }
+
+    fun verifyTest(fpImage:Bitmap, faceBitmap:Bitmap){
+
+        var fpRecord = FingerprintRecord(FingerprintRecord.Position.RIGHT_THUMB, fpImage, 500)
+        val faceRecord = FaceRecord(faceBitmap)
+
+        App.BioManager!!.verify(1,  fpRecord, faceRecord, null){status, matchResults->
+            Log.d("TEST-credence", "Verify status = " + status )
+            info1DbViewTextView.text = "Verify status = " + status
+            if(null != matchResults) {
+                Log.d("TEST-credence", "Verify candidate was " + matchResults.id)
+                Log.d("TEST-credence", "Verify Result Face Score = " + matchResults.faceScore)
+                Log.d("TEST-credence", "Verify Result Fingerprint Score = " + matchResults.fingerprintScore)
+            } else {
+                Log.d("TEST-credence", "Verify matchResults is null")
+                info1DbViewTextView.text = "Verify matchResults is null"
             }
         }
     }

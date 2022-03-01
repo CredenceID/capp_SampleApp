@@ -53,6 +53,9 @@ class FingerprintActivity : Activity() {
      * saves data as second fingerprint.
      */
     private var mCaptureFingerprintOne = true
+
+    private var mIsCapturingFp = false
+
     /**
      * Stores FMD templates (used for fingerprint matching) for each fingerprint.
      */
@@ -211,14 +214,25 @@ class FingerprintActivity : Activity() {
         }
 
         captureBtn.setOnClickListener {
-            this.setAllComponentEnable(false)
-            infoTextView.text = ""
 
-            /* Based on which ImageView was selected, capture appropriate fingerprint. */
-            if (mCaptureFingerprintOne)
-                this.captureFingerprintOne()
-            else
-                this.captureFingerprintTwo()
+            if(!mIsCapturingFp) {
+                mIsCapturingFp = true
+                //this.setAllComponentEnable(false)
+                openCloseBtn.isEnabled = false
+                captureBtn.text = "Cancel"
+                infoTextView.text = ""
+
+                /* Based on which ImageView was selected, capture appropriate fingerprint. */
+                if (mCaptureFingerprintOne)
+                    this.captureFingerprintOne()
+                else
+                    this.captureFingerprintTwo()
+            } else {
+                mIsCapturingFp = false
+                App.BioManager!!.cancelCapture()
+                this.setAllComponentEnable(true)
+                captureBtn.text = "Capture"
+            }
         }
 
         matchBtn.setOnClickListener {
@@ -292,7 +306,6 @@ class FingerprintActivity : Activity() {
                                               nfiqScore: Int) {
 
 
-
                 /* If a valid hint was given then display it for user to see. */
                 if (hint != null && hint.isNotEmpty())
                     fpStatusTextView.text = hint
@@ -300,6 +313,9 @@ class FingerprintActivity : Activity() {
                 when (resultCode) {
                     /* This code is returned once sensor captures fingerprint image. */
                     OK -> {
+                        mIsCapturingFp = false
+                        captureBtn.text = "Capture"
+
                         if (null != bitmap)
                             fingerOneImageView.setImageBitmap(bitmap)
 
@@ -344,6 +360,8 @@ class FingerprintActivity : Activity() {
                     }
                     /* This code is returned if sensor fails to capture image. */
                     FAIL -> {
+                        mIsCapturingFp = false
+                        captureBtn.text = "Capture"
                         setAllComponentEnable(true)
                     }
                 }
@@ -379,6 +397,9 @@ class FingerprintActivity : Activity() {
 
                 when (resultCode) {
                     OK -> {
+
+                        captureBtn.text = "Capture"
+                        mIsCapturingFp = false
                         if (null != bitmap)
                             fingerTwoImageView.setImageBitmap(bitmap)
 
@@ -401,6 +422,8 @@ class FingerprintActivity : Activity() {
                     }
                     /* This code is returned if sensor fails to capture image. */
                     FAIL -> {
+                        mIsCapturingFp = false
+                        captureBtn.text = "Capture"
                         setAllComponentEnable(true)
                     }
                 }
