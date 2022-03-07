@@ -9,9 +9,6 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import com.credenceid.biometrics.Biometrics.*
-import com.credenceid.biometrics.Biometrics.FMDFormat.*
-import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.util.HexUtils
 import kotlinx.android.synthetic.main.act_fp.*
 import java.lang.Exception

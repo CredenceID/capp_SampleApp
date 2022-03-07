@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<dimen name="fingerprint_width">136dp</dimen>
-	<dimen name="fingerprint_height">188dp</dimen>
+	<dimen name="fingerprint_width">100dp</dimen>
+	<dimen name="fingerprint_height">133dp</dimen>
 	<dimen name="border_width">4dp</dimen>
 	<dimen name="padding">4dp</dimen>
 	<dimen name="corner_radius">8dp</dimen>

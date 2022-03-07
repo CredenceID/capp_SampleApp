@@ -3,7 +3,6 @@ package com.credenceid.sdkapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.*
 import android.hardware.Camera
 import android.hardware.Camera.Parameters.FLASH_MODE_OFF
@@ -14,20 +13,17 @@ import android.view.SurfaceHolder
 import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
-import android.widget.Toast
 import com.credenceid.biometrics.Biometrics
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.biometrics.DeviceFamily.*
 import com.credenceid.face.FaceEngine
 import com.credenceid.face.FaceEngine.*
 import com.credenceid.sdkapp.android.camera.Utils
-import com.credenceid.sdkapp.util.Beeper
 import kotlinx.android.synthetic.main.act_camera.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.util.*
 
-private val TAG = CameraActivity::class.java.simpleName
+private val TAG = App.TAG
 
 /**
  * To obtain high face detection rate we use lowest possible camera resolution for preview.
@@ -61,31 +57,7 @@ private var surfaceHolder: SurfaceHolder? = null
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class CameraActivity : Activity(), SurfaceHolder.Callback {
 
-    /**
-     * This callback is invoked after camera finishes taking a picture.
-     */
-    private val mOnPictureTakenCallback = Camera.PictureCallback { data, _ ->
-        /* Produce "camera shutter" sound so user knows that picture was captured. */
-        Beeper.click(context!!)
-        /* Now that picture has been taken, turn off flash. */
-        setTorchEnable(false)
-        /* Camera is no longer in preview. */
-        inPreview = false
-
-        try {
-            val intent = Intent(this, FaceActivity::class.java)
-            intent.putExtra(getString(R.string.camera_image), data)
-            stopReleaseCamera()
-            startActivity(intent)
-            finish()
-        } catch (e: Exception) {
-            e.printStackTrace()
-
-            Toast.makeText(this, "Unable to run face analysis, retry.", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    /**
+     /**
      * This callback is invoked on each camera preview frame. In this callback will run call face
      * detection API and pass it preview frame.
      */
@@ -102,8 +74,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         drawingView.setHasTouch(false, Rect(0, 0, 0, 0))
         drawingView.invalidate()
 
-        /* Re-enable capture button. */
-        setCaptureButtonVisibility(true)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -209,14 +179,9 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         surfaceHolder!!.addCallback(this)
         surfaceHolder!!.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
 
-        captureBtn.setOnClickListener { v: View ->
-            if (!inPreview) {
-                this.reset()
-                this.doPreview()
-
-                captureBtn.text = getString(R.string.capture_label)
-            } else if (camera != null)
-                doCapture()
+        finishBtn.setOnClickListener { v: View ->
+            this.stopReleaseCamera()
+            this.finish()
         }
 
         flashOnBtn.setOnClickListener { this.setTorchEnable(true) }
@@ -263,7 +228,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
          * resolution in final image.
          */
         val picSize = Utils.getLargestPictureSize(parameters)
-        parameters.setPictureSize(picSize.width, picSize.height)
+        parameters.setPictureSize(640, 480)
 
         /* Regardless of what size is returned we always use a 320x240 preview size for face
          * detection since it is extremely fast.
@@ -274,7 +239,8 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         previewSize.width = P_WIDTH
         previewSize.height = P_HEIGHT
 
-        if (CredenceTwo == App.DevFamily) {
+        if ((CredenceTwo == App.DevFamily)
+            || (CredenceECO == App.DevFamily)){
             previewFrameLayout.layoutParams.width = (previewSize.height * 2.5).toInt()
             previewFrameLayout.layoutParams.height = (previewSize.width * 2.5).toInt()
         }
@@ -310,8 +276,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
             Log.d(App.TAG, "Camera is configured & valid.")
 
             statusTextView.text = ""
-            captureBtn.text = getString(R.string.capture_label)
-            this.setCaptureButtonVisibility(true)
 
             previewFrameLayout.visibility = VISIBLE
             drawingView.visibility = VISIBLE
@@ -357,7 +321,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
             if (null != camera)
                 camera!!.release()
-
 
             camera = null
             inPreview = false
@@ -419,25 +382,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         camera!!.setDisplayOrientation(orientation)
     }
 
-    /**
-     * Captures image, before capturing image it will set proper picture orientation.
-     */
-    private fun doCapture() {
-
-        this.setCameraPictureOrientation()
-
-        if (camera != null) {
-            this.setCaptureButtonVisibility(false)
-            statusTextView.text = getString(R.string.start_capture_hold_still)
-
-            /* We are no longer going to be in preview. Set variable BEFORE telling camera to take
-             * picture. Camera takes time to take a picture so we do not want any preview event to
-             * take place while a picture is being captured.
-             */
-            inPreview = false
-            camera!!.takePicture(null, null, null, mOnPictureTakenCallback)
-        }
-    }
 
     /**
      * Sets camera flash.
@@ -473,14 +417,9 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
         Log.d(App.TAG, "reset()")
 
-        /* Change capture button image to "Capture". */
-        captureBtn.text = getString(R.string.capture_label)
-
-        /* Turn off flash since new preview. */
+         /* Turn off flash since new preview. */
         this.setTorchEnable(false)
 
-        /* Display all buttons in their proper states. */
-        this.setCaptureButtonVisibility(true)
         this.setFlashButtonVisibility(true)
     }
 
@@ -520,19 +459,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
     }
 
     /**
-     * This method either hides or shows capture button allowing user to capture an image. This is
-     * required because while camera is focusing user should not be allowed to press capture. Once
-     * focusing finishes and a clear preview is available, only then should an image be allowed to
-     * be taken.
-     *
-     * @param visibility If true button is shown, if false button is hidden.
-     */
-    private fun setCaptureButtonVisibility(visibility: Boolean) {
-
-        captureBtn.visibility = if (visibility) VISIBLE else INVISIBLE
-    }
-
-    /**
      * This method either hides or shows flash buttons allowing user to control flash. This is
      * required because after an image is captured a user should not be allowed to control flash
      * since camera is no longer in preview. Instead of disabling the buttons we hide them from
@@ -557,7 +483,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         if (!inPreview)
             return
 
-        this.setCaptureButtonVisibility(false)
         statusTextView.text = getString(R.string.autofocus_wait)
 
         val one = 2000
@@ -606,6 +531,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      */
     private fun detectFaceAsync(bitmapBytes: ByteArray?) {
 
+        Log.d(TAG, "In detectFaceAsync" )
         /* If camera was closed, immediately after a preview callback exit out, this is to prevent
          * NULL pointer exceptions when using the camera object later on.
          */
@@ -637,15 +563,21 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         /* Save fixed color image as final good Bitmap. */
         var bm = BitmapFactory.decodeByteArray(outStream.toByteArray(), 0, outStream.size())
 
+        Log.d(TAG, "bm available : " + bm.byteCount )
+
         /* On CredenceTWO device's captured image is rotated by 270 degrees. To fix this rotate
          * image by another 90 degrees to have it right-side-up.
          */
-        if (CredenceTwo == App.DevFamily)
+        if ((CredenceTwo == App.DevFamily)
+            ||(CredenceECO == App.DevFamily))
             bm = Utils.rotateBitmap(bm, 90f)
 
         /* Detect face on finalized Bitmap image. */
         App.BioManager!!.detectFace(bm) { rc: Biometrics.ResultCode,
                                           rectF: RectF? ->
+
+
+            Log.d(TAG, "Detect result : " + rc.name )
 
             /* If camera was closed or preview stopped, immediately exit out. This is done so that
              * we do not continue to process invalid frames, or draw to NULL surfaces.
@@ -663,10 +595,12 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                         drawingView.setHasFace(true)
 
                         /* If CredenceTWO then bounding Rect needs to be scaled to properly fit. */
-                        if (CredenceTwo == App.DevFamily) {
-                            drawingView.setFaceRect(rectF!!.left + 40, rectF.top - 25,
-                                    rectF.right + 40, rectF.bottom - 50)
+                        if ((CredenceTwo == App.DevFamily)
+                            ||(CredenceECO == App.DevFamily) ){
+                            drawingView.setFaceRect(rectF!!.left + 40, rectF.top - 30,
+                                    rectF.right + 38, rectF.bottom - 50)
                         } else {
+                            Log.d(TAG, "Draw RectF" );
                             drawingView.setFaceRect(rectF!!.left, rectF.top,
                                     rectF.right, rectF.bottom)
                         }

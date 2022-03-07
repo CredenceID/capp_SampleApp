@@ -2,61 +2,41 @@
 
 package com.credenceid.sdkapp
 
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
+import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.PointF
-import android.graphics.RectF
 import android.os.Bundle
-import android.os.Handler
-import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
-import com.credenceid.biometrics.Biometrics
+import android.util.Log
 import com.credenceid.biometrics.Biometrics.ResultCode.*
-import com.credenceid.biometrics.DeviceFamily.CredenceTwo
-import com.credenceid.face.FaceEngine
-import com.credenceid.sdkapp.android.camera.Utils
-import kotlinx.android.synthetic.main.act_face.*
-import java.util.*
+import kotlinx.android.synthetic.main.act_cid_face.*
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.InputStream
 
 @Suppress("DEPRECATION")
 class FaceActivity : Activity() {
 
-    private lateinit var dialog: ProgressDialog
+    val TAG = "CID-TEST"
+    val syncAPITimeoutMS = 3000
+
+    lateinit var templatet1:ByteArray
+    lateinit var templatet2:ByteArray
+    lateinit var templatet3:ByteArray
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.act_face)
-
-        dialog = ProgressDialog(this)
-        dialog.setMessage(getString(R.string.processing))
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER)
-        dialog.isIndeterminate = true
-        dialog.setCancelable(false)
-
+        setContentView(R.layout.act_cid_face)
         this.configureLayoutComponents()
-
-        /* If bytes were given to this activity, perform face analysis. */
-        val imageBytes = intent.getByteArrayExtra(getString(R.string.camera_image))
-        if (null != imageBytes) {
-            var image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            if (CredenceTwo == App.DevFamily)
-                image = Utils.rotateBitmap(image, 90f)
-
-            this.detectFace(image)
-        } else {
-            this.onBackPressed()
-
-            Handler().postDelayed({
-                Toast.makeText(this, "Failed to detect face.", LENGTH_LONG).show()
-            }, 1000)
-        }
     }
 
+    /**
+     * Invoked when user pressed back menu button.
+     */
     override fun onBackPressed() {
 
         super.onBackPressed()
@@ -65,86 +45,168 @@ class FaceActivity : Activity() {
 
     private fun configureLayoutComponents() {
 
-        finishBtn.setOnClickListener { this.finish() }
-    }
+        var face1Bitmap = getBitmapFromAsset(this,"face1.jpg")
+        var face2Bitmap = getBitmapFromAsset(this,"face2.jpg")
+        var face3Bitmap = getBitmapFromAsset(this,"face.jpg")
+        faceImageView1.setImageBitmap(face1Bitmap)
+        faceImageView2.setImageBitmap(face2Bitmap)
+        faceImageView3.setImageBitmap(face3Bitmap)
 
-    @SuppressLint("SetTextI18n")
-    fun detectFace(bitmap: Bitmap?) {
-
-        /* If invalid Bitmap, display Toast and exit out.*/
-        if (null == bitmap) {
-            Toast.makeText(this, getString(R.string.no_image_found_to_process), LENGTH_LONG).show()
-            return
+        detectButton.setOnClickListener {
+            detectTest()
         }
 
-        /* Display dialog so user knows an operation is in progress. */
-        this.showProgressDialog()
+        analyse1Button.setOnClickListener {
+            if (face1Bitmap != null) {
+                analyseTest(face1Bitmap)
+            }
+        }
 
-        /* Create new scaled image to run analysis on. */
-        faceImageView.setImageBitmap(bitmap)
+        analyse2Button.setOnClickListener {
+            if (null != face2Bitmap) {
+                analyseTest( face2Bitmap)
+            }
+        }
 
-        App.BioManager!!.analyzeFace(bitmap) { rc: Biometrics.ResultCode,
-                                               _: RectF,
-                                               _: ArrayList<PointF>,
-                                               _: ArrayList<PointF>,
-                                               _: FloatArray,
-                                               poseDir: Array<FaceEngine.HeadPoseDirection>,
-                                               gender: FaceEngine.Gender,
-                                               age: Int,
-                                               emotion: FaceEngine.Emotion,
-                                               glasses: Boolean,
-                                               imageQuality: Int ->
+        templateButton.setOnClickListener {
+            if ((face1Bitmap != null)&&(null != face2Bitmap)&&(null != face3Bitmap)) {
+                templateTest(face1Bitmap, face2Bitmap, face3Bitmap)
+            }
+        }
 
-            /* If we got back data, populate CropView and other widgets with face data. */
+        compareButton.setOnClickListener {
+            matchTest(templatet1, templatet2, templatet3)
+        }
+
+    }
+
+    fun detectTest(){
+        startActivity(Intent(this, CameraActivity::class.java))
+    }
+
+    fun analyseTest(faceBitmap:Bitmap){
+        App.BioManager!!.analyzeFace(faceBitmap) { rc,
+                                                   rectF,
+                                                   _,
+                                                   _,
+                                                   _,
+                                                   _,
+                                                   gender,
+                                                   age,
+                                                   emotion,
+                                                   hasGlasses,
+                                                   imageQuality ->
+
             when (rc) {
                 OK -> {
-                    genderTextView.text = getString(R.string.gender_colon_arg) + gender.name
-                    ageTextView.text = getString(R.string.age_colon_arg) + age
-                    glassesTextView.text = getString(R.string.glasses_colon_arg) + glasses
-                    emotionTextView.text = getString(R.string.emotiona_colon_arg) + emotion.name
-                    qualityTextView.text = getString(R.string.imagequal_colon_arg) + imageQuality + "%"
-
-                    var text = getString(R.string.headposedir_colon_arg)
-
-                    text += if (poseDir[1] == FaceEngine.HeadPoseDirection.STRAIGHT) {
-                        if (poseDir[2] == FaceEngine.HeadPoseDirection.STRAIGHT)
-                            "STRAIGHT"
-                        else
-                            poseDir[2].name
-
-                    } else if (poseDir[2] == FaceEngine.HeadPoseDirection.STRAIGHT)
-                        poseDir[1].name
-                    else
-                        poseDir[1].name + "\n  &\n" + poseDir[2].name
-
-                    poseDirTextView.text = text
-
+                    Log.d(TAG, "analyzeFaceAsync: RectF: $rectF")
+                    Log.d(TAG, "analyzeFaceAsync: Gender: " + gender.name)
+                    Log.d(TAG, "analyzeFaceAsync: Age: $age")
+                    Log.d(TAG, "analyzeFaceAsync: Emotion: " + emotion.name)
+                    Log.d(TAG, "analyzeFaceAsync: Glasses: $hasGlasses")
+                    Log.d(TAG, "analyzeFaceAsync: ImageQuality: $imageQuality")
                 }
                 INTERMEDIATE -> {
                     /* This code is never returned for this API. */
                 }
-                FAIL -> {
-                    this.onBackPressed()
-                    Handler().postDelayed({
-                        Toast.makeText(this, "Failed to detect face.", LENGTH_LONG).show()
-                    }, 1000)
-                }
+                FAIL -> Log.d(TAG, "analyzeFaceAsync: Failed to find face.")
             }
+        }
 
-            this.dismissProgressDialog()
+    }
+
+    fun templateTest (face1Bitmap:Bitmap, face2Bitmap:Bitmap, face3Bitmap:Bitmap){
+
+        val res = App.BioManager!!.createFaceTemplateSync(face1Bitmap, syncAPITimeoutMS)
+        if (null != res && OK == res.resultCode){
+            templatet1 = res.template
+            faceImageView1.setImageBitmap(decodeBitmap(templatet1))
+            Log.d(TAG, "Template 1 available")
+        } else {
+            Log.d(TAG, "Template 1 Failed - result = " + res.resultCode.name)
+        }
+
+        val res2 = App.BioManager!!.createFaceTemplateSync(face2Bitmap, syncAPITimeoutMS)
+        if (null != res2 && OK == res2.resultCode){
+            templatet2 = res2.template
+            faceImageView2.setImageBitmap(decodeBitmap(templatet2))
+            Log.d(TAG, "Template 2 available")
+        } else {
+            Log.d(TAG, "Template 2 Failed - result = " + res2.resultCode.name)
+        }
+
+        App.BioManager!!.createFaceTemplate(toBytes(face3Bitmap), face3Bitmap.width, face3Bitmap.height) { rc, template ->
+            when (rc) {
+                OK -> {
+                    templatet3 = template
+                    faceImageView3.setImageBitmap(decodeBitmap(templatet3))
+                    Log.d(TAG, "Template 3 available")
+                }
+                INTERMEDIATE -> {
+                    /* This code is never returned for this API. */
+                }
+                FAIL -> Log.d(TAG, "createFaceTemplateAsync - Template 3 : FAIL")
+            }
+        }
+
+    }
+
+    fun matchTest(template1:ByteArray, template2:ByteArray, template3:ByteArray){
+        val res = App.BioManager!!.compareFaceSync(template1, template2, syncAPITimeoutMS)
+        if (null != res && OK == res.resultCode){
+            Log.d(TAG, "compareFaceSync - template1 vs template2 - RES = " +  res.score)
+        } else {
+            Log.d(TAG, "compareFaceSync - template1 vs template2 - ERROR:" + res.resultCode.name)
+        }
+
+        val res2 = App.BioManager!!.compareFaceSync(template1, template3, syncAPITimeoutMS)
+        if (null != res2 && OK == res.resultCode){
+            Log.d(TAG, "compareFaceSync - template1 vs template3 - RES = " +  res2.score)
+        } else {
+            Log.d(TAG, "compareFaceSync - template1 vs template3 - ERROR:" + res2.resultCode.name)
+        }
+
+        App.BioManager!!.compareFace(template2, template3) { rc, score ->
+            when (rc) {
+                OK -> {
+                    Log.d(TAG, "compareFaceSync - template2 vs template3 - RES Score = $score")
+                }
+                INTERMEDIATE -> {
+                    /* This code is never returned for this API. */
+                }
+                FAIL -> Log.d(TAG, "compareFaceSync - template2 vs template3 - ERROR: ${rc.name}")
+            }
+        }
+
+    }
+
+    fun getBitmapFromAsset(context: Context, filePath: String?): Bitmap? {
+        val assetManager: AssetManager = context.getAssets()
+        val istr: InputStream
+        var bitmap: Bitmap? = null
+        try {
+            istr = assetManager.open(filePath.toString())
+            bitmap = BitmapFactory.decodeStream(istr)
+        } catch (e: IOException) {
+            // handle exception
+        }
+        return bitmap
+    }
+
+    fun toBytes(bitmap: Bitmap?): ByteArray? {
+        if (null == bitmap) return null
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        return stream.toByteArray()
+    }
+
+    fun decodeBitmap(data: ByteArray): Bitmap? {
+        return try {
+            BitmapFactory.decodeByteArray(data, 0, data.size)
+        } catch (ignore: Exception) {
+            null
         }
     }
 
-    private fun showProgressDialog() {
-
-        if (!dialog.isShowing)
-            dialog.show()
-    }
-
-    private fun dismissProgressDialog() {
-
-        if (dialog.isShowing)
-            dialog.dismiss()
-    }
 
 }

@@ -74,9 +74,9 @@
 			android:layout_weight="1" />
 
 		<Button
-			android:id="@+id/captureBtn"
+			android:id="@+id/finishBtn"
 			style="@style/FaceActivityButton"
-			android:text="@string/capture_label"
+			android:text="@string/finish_label"
 			android:textSize="20sp" />
 
 		<View

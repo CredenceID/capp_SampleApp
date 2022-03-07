@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         cardBtn.setOnClickListener { startActivity(Intent(this, CardReaderActivity::class.java)) }
         mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
         dbBtn.setOnClickListener { startActivity(Intent(this, BiometricDatabaseActivity::class.java)) }
-        faceBtn.setOnClickListener { startActivity(Intent(this, CameraActivity::class.java)) }
+        faceBtn.setOnClickListener { startActivity(Intent(this, FaceActivity::class.java)) }
         deviceInfoBtn.setOnClickListener { startActivity(Intent(this, DeviceInfoActivity::class.java)) }
         licenseBtn.setOnClickListener { startActivity(Intent(this, LicenseManagementActivity::class.java)) }
         setBiometricButtonsVisibility(View.GONE)
@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity() {
 
         /* By default all Credence device's face a fingerprint sensor and camera. */
         fpBtn.visibility = View.VISIBLE
-        faceBtn.visibility = View.GONE
+        faceBtn.visibility = View.VISIBLE
 
         if (App.BioManager!!.hasCardReader())
             cardBtn.visibility = View.VISIBLE
