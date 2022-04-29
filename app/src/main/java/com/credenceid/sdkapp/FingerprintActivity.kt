@@ -223,10 +223,12 @@ class FingerprintActivity : Activity() {
                 infoTextView.text = ""
 
                 /* Based on which ImageView was selected, capture appropriate fingerprint. */
-                if (mCaptureFingerprintOne)
-                    this.captureFingerprintOne()
-                else
+                if (mCaptureFingerprintOne) {
+                    //this.captureFingerprintOne()
+                    this.captureFingerprintOneRawListener()
+                } else {
                     this.captureFingerprintTwo()
+                }
             } else {
                 mIsCapturingFp = false
                 App.BioManager!!.cancelCapture()
@@ -324,6 +326,110 @@ class FingerprintActivity : Activity() {
 
                         /* Create template from fingerprint image. */
                         createFMDTemplate(bitmap)
+
+                        if (wsqData != null) {
+                            Log.d(TAG, "wsqData not null => Saving file")
+                            saveFile("fingerprint.wsq", wsqData)
+                            Log.d(TAG, "wsqData not null => file saved")
+                        } else {
+                            Log.d(TAG, "wsqData is null => nothing to save")
+                        }
+
+                        val fmd: ConvertToFMDSyncResponse = App.BioManager!!.convertToFMDSync(bitmap, ISO_19794_2_2005, 9000)
+                        if (fmd.resultCode == OK) {
+                            Log.d(TAG, "ConvertToFMDSyncResponse ==> PASS")
+                        } else if (fmd.resultCode == INTERMEDIATE) {
+                        } else if (fmd.resultCode == FAIL) {
+                            Log.d(TAG, "ConvertToFMDSyncResponse ==> FAIL")
+                        }
+                        val res: FMDToCCFSyncResponse = App.BioManager!!.convertFMDToCCFSync(fmd.FMD, 5000)
+                        if (res.resultCode == OK && res.CCF != null) {
+                            Log.d(TAG, "convertFMDToCCFSync ==> PASS")
+                        } else if (res.resultCode == INTERMEDIATE) {
+                        } else if (res.resultCode == FAIL) {
+                            Log.d(TAG, "convertFMDToCCFSync ==> FAIL")
+                        }
+
+
+                        if (bitmap != null) {
+                            saveBitmapAsPng("fingerprint.png", bitmap)
+                        }
+
+                        setAllComponentEnable(true)
+                    }
+                    /* This code is returned on every new frame/image from sensor. */
+                    INTERMEDIATE -> {
+                        if (null != bitmap)
+                            fingerOneImageView.setImageBitmap(bitmap)
+
+                        /* This hint is returned if cancelCapture()" or "closeFingerprint()" are
+                         * called while in middle of capture.
+                         */
+                        if (hint != null && hint == "Capture Stopped")
+                            setAllComponentEnable(true)
+                    }
+                    /* This code is returned if sensor fails to capture image. */
+                    FAIL -> {
+                        mIsCapturingFp = false
+                        captureBtn.text = "Capture"
+                        setAllComponentEnable(true)
+                    }
+                }
+
+            }
+
+            override fun onCloseFingerprintReader(resultCode: ResultCode,
+                                                  closeReasonCode: CloseReasonCode) {
+
+                /* This case is already handled by "mFingerprintOpenCloseListener". */
+            }
+        })
+    }
+
+    private fun captureFingerprintOneRawListener() {
+
+        mFingerprintOneFMDTemplate = null
+
+        App.BioManager!!.grabFingerprint(mScanTypes[0], object : OnFingerprintGrabbedRawNewListener {
+            @SuppressLint("SetTextI18n")
+
+            override fun onFingerprintGrabbed(resultCode: ResultCode,
+                                              bitmap: Bitmap?,
+                                              iso: ByteArray?,
+                                              RawDataBytes: ByteArray?,
+                                              hint: String?) {
+
+
+                /* If a valid hint was given then display it for user to see. */
+                if (hint != null && hint.isNotEmpty())
+                    fpStatusTextView.text = hint
+
+                when (resultCode) {
+                    /* This code is returned once sensor captures fingerprint image. */
+                    OK -> {
+                        mIsCapturingFp = false
+                        captureBtn.text = "Capture"
+
+                        if (null != bitmap)
+                            fingerOneImageView.setImageBitmap(bitmap)
+
+                        /* Create template from fingerprint image. */
+                        createFMDTemplate(bitmap)
+
+                        if (iso != null) {
+                            Log.d(TAG, "iso not null => Saving file")
+                            saveFile("fingerprint.wsq", iso)
+                            Log.d(TAG, "iso not null => file saved")
+                        } else {
+                            Log.d(TAG, "iso is null => nothing to save")
+                        }
+
+
+                        if (RawDataBytes != null) {
+                            Log.d(TAG, "RawDataBytes not null => RawDataBytes size = " + RawDataBytes.size)
+                        } else {
+                            Log.d(TAG, "RawDataBytes is null")
+                        }
 
                         val fmd: ConvertToFMDSyncResponse = App.BioManager!!.convertToFMDSync(bitmap, ISO_19794_2_2005, 9000)
                         if (fmd.resultCode == OK) {
@@ -688,6 +794,28 @@ class FingerprintActivity : Activity() {
                 val imageData: ByteArray = imageByteArray.toByteArray()
                 setDpi(imageData, 500)
                 fOut.write(imageData)
+                fOut.flush()
+                fOut.close()
+            }
+        }
+    }
+
+    @Throws(Exception::class)
+    fun saveFile(file: String, data: ByteArray) {
+        var outputPath = ""
+        val externalStorageVolumes = applicationContext.getExternalFilesDirs("")
+        if (null != externalStorageVolumes) {
+            if (null != externalStorageVolumes[0]) {
+                outputPath = externalStorageVolumes[0]!!.absolutePath + "/" + file
+                val toWrite = File(outputPath)
+                Log.d(TAG, "Writing file : " + outputPath)
+                if (!toWrite.exists()) {
+                    if (!toWrite.createNewFile()){
+                        throw Exception("Fail to create file")
+                    }
+                }
+                val fOut = FileOutputStream(outputPath)
+                fOut.write(data)
                 fOut.flush()
                 fOut.close()
             }

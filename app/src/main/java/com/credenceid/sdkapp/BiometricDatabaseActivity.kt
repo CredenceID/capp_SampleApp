@@ -154,7 +154,7 @@ class BiometricDatabaseActivity : Activity() {
         val istr: InputStream
         var bitmap: Bitmap? = null
         try {
-            istr = assetManager.open(filePath)
+            istr = filePath?.let { assetManager.open(it) }!!
             bitmap = BitmapFactory.decodeStream(istr)
         } catch (e: IOException) {
             // handle exception

@@ -37,12 +37,12 @@ class LicenseManagementActivity : AppCompatActivity() {
 
         generateLicenseBtn.setOnClickListener {
 
-            pushLicenceToSDK(applicationContext.getExternalFilesDir(null).absolutePath+"/licenses")
+            pushLicenceToSDK((applicationContext.getExternalFilesDir(null)?.absolutePath ?:"" ) +"/licenses")
         }
 
 
         deactivateLicenseBtn.setOnClickListener {
-            deactivateLicenceFromSDK(applicationContext.getExternalFilesDir(null).absolutePath+"/toDelete")
+            deactivateLicenceFromSDK((applicationContext.getExternalFilesDir(null)?.absolutePath ?:"" ) +"/toDelete")
         }
 
         getLicenseStatusBtn.setOnClickListener {
