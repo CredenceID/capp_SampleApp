@@ -12,7 +12,7 @@ android {
 		//noinspection OldTargetApi
 		targetSdkVersion 29
 		versionCode 1
-		versionName "5.5"
+		versionName "5.6.0"
 		archivesBaseName = "C-SampleApp"
 	}
 
@@ -46,7 +46,7 @@ android {
 }
 
 dependencies {
-	implementation files('libs/CredenceIDDeviceSDK.aar')
+	implementation files('libs/CredenceID-SDKJar-5.6.0-release.aar')
 	implementation 'com.android.support:appcompat-v7:28.0.0'
 	implementation 'com.android.support:design:28.0.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
