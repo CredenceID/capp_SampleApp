@@ -12,7 +12,7 @@ android {
 		//noinspection OldTargetApi
 		targetSdkVersion 29
 		versionCode 1
-		versionName "5.7g"
+		versionName "5.7"
 		archivesBaseName = "C-SampleApp"
 	}
 
