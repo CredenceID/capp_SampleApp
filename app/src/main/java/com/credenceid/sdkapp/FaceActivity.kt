@@ -65,6 +65,29 @@ class FaceActivity : Activity() {
         analyse2Button.setOnClickListener {
             if (null != face2Bitmap) {
                 analyseTest( face2Bitmap)
+                var faceBitmap = getBitmapFromAsset(this,"FaceMenBlack.jpg")
+                if (null != faceBitmap) {
+                    analyseTest(faceBitmap)
+                }
+                faceBitmap = getBitmapFromAsset(this,"FaceMenAsiaticGlasses.jpg")
+                if (null != faceBitmap) {
+                    analyseTest(faceBitmap)
+                }
+
+                faceBitmap = getBitmapFromAsset(this,"FaceMenWhiteOld.jpg")
+                if (null != faceBitmap) {
+                    analyseTest(faceBitmap)
+                }
+
+                faceBitmap = getBitmapFromAsset(this,"FaceWomenAsiatic.jpg")
+                if (null != faceBitmap) {
+                    analyseTest(faceBitmap)
+                }
+
+                faceBitmap = getBitmapFromAsset(this,"FaceWomenIndian.jpg")
+                if (null != faceBitmap) {
+                    analyseTest(faceBitmap)
+                }
             }
         }
 
