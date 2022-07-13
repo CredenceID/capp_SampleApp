@@ -5,10 +5,10 @@ import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.credenceid.biometrics.Biometrics.ResultCode
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.biometrics.BiometricsManager
