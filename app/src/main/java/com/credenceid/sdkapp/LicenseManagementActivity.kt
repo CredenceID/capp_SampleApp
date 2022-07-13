@@ -1,8 +1,8 @@
 package com.credenceid.sdkapp
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.constants.ServiceConstants
 import kotlinx.android.synthetic.main.act_device_info.statusTextView
@@ -100,11 +100,12 @@ class LicenseManagementActivity : AppCompatActivity() {
                 when (resultCode) {
                     OK -> {
                         statusTextView.text = "manageProviderMultipleLicense OK"
-                        for (res: LicenseOperationResult in operationResults) {
-                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Code = " + res.getmResultCode())
-                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Details = " + res.getmDetailedResult())
-                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result File name = " + res.getmFileName())
-                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Data = " + res.getmResultData())
+                        Log.d("CID-TEST", "manageProviderMultipleLicense result - result Size = " + operationResults.size)
+                        for (operationResult: LicenseOperationResult in operationResults) {
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Code = " + operationResult.getmResultCode())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Details = " + operationResult.getmDetailedResult())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result File name = " + operationResult.getmFileName())
+                            Log.d("CID-TEST", "manageProviderMultipleLicense result - result Data = " + operationResult.getmResultData())
                         }
 
                     }
