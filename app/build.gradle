@@ -20,7 +20,7 @@ android {
 		defaultKey {
 			keyAlias 'CredenceIDPublicKey'
 			keyPassword 'CredenceID'
-			storeFile file('/home/mika/credence_id_dev/CredencePublicKeys/PublicKey.jks')
+			storeFile file('../../CredencePublicKeys/PublicKey.jks')
 			storePassword 'CredenceID'
 		}
 	}
