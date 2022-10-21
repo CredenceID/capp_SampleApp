@@ -12,7 +12,7 @@ android {
 		//noinspection OldTargetApi
 		targetSdkVersion 29
 		versionCode 1
-		versionName "5.6.1"
+		versionName "5.7.0"
 		archivesBaseName = "C-SampleApp"
 	}
 
@@ -47,7 +47,7 @@ android {
 }
 
 dependencies {
-	implementation files('libs/CredenceID-SDKJar-5.6.1-release.aar')
+	implementation files('libs/CredenceID-SDKJar-5.7.0-RC2-release.aar')
 
 	implementation 'androidx.appcompat:appcompat:1.0.0'
 	implementation 'com.google.android.material:material:1.0.0'
