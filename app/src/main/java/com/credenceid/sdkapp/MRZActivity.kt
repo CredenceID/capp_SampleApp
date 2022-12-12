@@ -122,6 +122,8 @@ class MRZActivity : Activity() {
      * Callback invoked whenever a document status change is detected on MRZ sensor.
      */
     private val onMRZDocumentStatusListener = OnMRZDocumentStatusListener { _, currState ->
+
+        Log.d("MTEST", "MRZ - Current state = " + currState );
         /* If currentState is two, then document is present. */
         if (DOCUMENT_PRESENT_CODE == currState) {
             statusTextView.text = getString(R.string.mrz_reading_wait)
@@ -139,6 +141,10 @@ class MRZActivity : Activity() {
      * Callback invoked each time sensor detects a document change from EPassport reader.
      */
     private val ePassportCardStatusListener = OnEPassportStatusListener { _, currState ->
+
+
+    Log.d("MTEST", "RFID - Current state = " + currState );
+
         /* If currentState is not 2, then no document is present. */
         if (DOCUMENT_PRESENT_CODE != currState)
             isDocPresentOnEPassport = false

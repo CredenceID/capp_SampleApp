@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +21,10 @@ import kotlinx.android.synthetic.main.act_main.*
  * that permission was requested from.
  */
 private const val REQUEST_ALL_PERMISSIONS = 0
+private var sdkInitializationTime:Long = 0
+private var sdkStartingTime:Long = 0
+
+
 /**
  * List of all permissions we will request.
  */
@@ -64,10 +70,12 @@ class MainActivity : AppCompatActivity() {
         App.BioManager = BiometricsManager(this)
 
         /* Initialize object, meaning tell CredenceService to bind to this application. */
+        sdkStartingTime = SystemClock.elapsedRealtime()
         App.BioManager!!.initializeBiometrics { rc: ResultCode,
                                                 _: String?,
                                                 _: String? ->
 
+            Log.d("CID-TEST", "Init time = " + (SystemClock.elapsedRealtime()- sdkStartingTime))
             when (rc) {
                 OK -> {
                     Toast.makeText(this, getString(R.string.bio_init), Toast.LENGTH_LONG).show()
