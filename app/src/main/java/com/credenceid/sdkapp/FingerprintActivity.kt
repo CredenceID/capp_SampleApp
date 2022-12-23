@@ -226,7 +226,6 @@ class FingerprintActivity : Activity() {
      */
     private fun setCaptureMatchButtonEnable(enable: Boolean) {
         captureBtn.isEnabled = enable
-        matchBtn.isEnabled = enable
 
         /* If both templates have been created then enable Match button. */
         matchBtn.isEnabled = mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null
@@ -285,7 +284,7 @@ class FingerprintActivity : Activity() {
 
                             /* Create template from fingerprint image. */
                             if (bitmap != null) {
-                                // getNFIQFromSdk(bitmap)
+                                createFMDTemplate(bitmap)
                             }
 
                             setAllComponentEnable(true)
