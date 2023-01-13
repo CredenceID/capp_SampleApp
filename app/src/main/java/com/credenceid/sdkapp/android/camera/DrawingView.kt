@@ -1,12 +1,14 @@
 package com.credenceid.sdkapp.android.camera
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.* // ktlint-disable no-wildcard-imports
 import android.util.AttributeSet
 import android.view.View
 
-class DrawingView(context: Context,
-                  attrs: AttributeSet) : View(context, attrs) {
+class DrawingView(
+    context: Context,
+    attrs: AttributeSet
+) : View(context, attrs) {
 
     /**
      * Purposely use two separate paints, one for TapToFocus and another for drawing face Rect.
@@ -16,26 +18,32 @@ class DrawingView(context: Context,
      */
     private val touchPaint: Paint = Paint()
     private val facePaint: Paint = Paint()
+
     /**
      * Flag indicating is user has touched View since last Draw().
      */
     private var hasTouch: Boolean = false
+
     /**
      * Rect to hold our user touched area.
      */
     private var touchRect: Rect = Rect()
+
     /**
      * Scaling used for displaying face Rect.
      */
     private var bitmapScale: Float = 0.toFloat()
+
     /**
      * Rect. containing found face region.
      */
     private val faceRect: RectF
+
     /**
      * If true, View will draw "faceRect" to surface.
      */
     private var hasFace: Boolean = false
+
     /**
      * Used for calculating "true" width of detected face Rect. We need to take into account the
      * given Bitmap image width vs. DrawingView Layout width.
@@ -72,8 +80,9 @@ class DrawingView(context: Context,
         }
 
         /* If face was found, then draw face rect. */
-        if (this.hasFace)
+        if (this.hasFace) {
             canvas.drawRoundRect(faceRect, 10f, 10f, facePaint)
+        }
     }
 
     /**
@@ -84,9 +93,10 @@ class DrawingView(context: Context,
      * @param rect Region where tap-to-focus was initiated. This is used to calculate center point
      * 			   from where to draw circle.
      */
-    fun setHasTouch(hasTouch: Boolean,
-                    rect: Rect) {
-
+    fun setHasTouch(
+        hasTouch: Boolean,
+        rect: Rect
+    ) {
         this.hasTouch = hasTouch
         this.touchRect = rect
     }
@@ -100,9 +110,10 @@ class DrawingView(context: Context,
      * @param width Width of camera preview frames.
      * @param height Height of camera preview frames.
      */
-    fun setBitmapDimensions(width: Int,
-                            height: Int) {
-
+    fun setBitmapDimensions(
+        width: Int,
+        height: Int
+    ) {
         this.bitmapScale = this.layoutParams.height.toFloat() / height
         this.faceImageWidth = (this.bitmapScale * width).toInt()
     }
@@ -110,7 +121,6 @@ class DrawingView(context: Context,
     /**
      * Tell this View if it should draw facial Rect. on next OnDraw() call. */
     fun setHasFace(hasFace: Boolean) {
-
         this.hasFace = hasFace
     }
 
@@ -122,16 +132,18 @@ class DrawingView(context: Context,
      * @param right Bottom right point of detected face Rect.
      * @param bottom Bottom point of detected face Rect.
      */
-    fun setFaceRect(left: Float,
-                    top: Float,
-                    right: Float,
-                    bottom: Float) {
-
+    fun setFaceRect(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float
+    ) {
         val shift = (this.layoutParams.width - this.faceImageWidth) * 0.5f
-
-        this.faceRect.set(shift + left * this.bitmapScale,
-                top * this.bitmapScale,
-                shift + right * this.bitmapScale,
-                bottom * this.bitmapScale)
+        this.faceRect.set(
+            shift + left * this.bitmapScale,
+            top * this.bitmapScale,
+            shift + right * this.bitmapScale,
+            bottom * this.bitmapScale
+        )
     }
 }

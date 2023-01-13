@@ -18,12 +18,11 @@ import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.biometrics.DeviceFamily.*
 import com.credenceid.face.FaceEngine
 import com.credenceid.face.FaceEngine.*
+import com.credenceid.sdkapp.App.Companion.TAG
 import com.credenceid.sdkapp.android.camera.Utils
 import kotlinx.android.synthetic.main.act_camera.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-
-private val TAG = App.TAG
 
 /**
  * To obtain high face detection rate we use lowest possible camera resolution for preview.
@@ -47,6 +46,7 @@ private var camera: Camera? = null
  * If true then camera is in preview, if false it is not.
  */
 private var inPreview = false
+
 /**
  * Has camera preview settings been initialized. If true yes, false otherwise. This is required
  * so camera preview does not start without it first being configured.
@@ -57,7 +57,7 @@ private var surfaceHolder: SurfaceHolder? = null
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class CameraActivity : Activity(), SurfaceHolder.Callback {
 
-     /**
+    /**
      * This callback is invoked on each camera preview frame. In this callback will run call face
      * detection API and pass it preview frame.
      */
@@ -73,7 +73,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         /* Tell DrawingView to stop displaying auto-focus circle by giving it a region of 0. */
         drawingView.setHasTouch(false, Rect(0, 0, 0, 0))
         drawingView.invalidate()
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,7 +87,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * This is required to stop camera every time back button is pressed.
      */
     override fun onBackPressed() {
-
         Log.d(App.TAG, "onBackPressed()")
         super.onBackPressed()
         this.stopReleaseCamera()
@@ -111,7 +109,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * This is required to stop camera preview every time activity loses focus.
      */
     override fun onPause() {
-
         Log.d(App.TAG, "onPause()")
         super.onPause()
         this.stopReleaseCamera()
@@ -121,16 +118,16 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * This is required to stop camera every time application is killed.
      */
     override fun onDestroy() {
-
         Log.d(App.TAG, "onDestroy()")
         super.onDestroy()
     }
 
-    override fun surfaceChanged(holder: SurfaceHolder,
-                                format: Int,
-                                width: Int,
-                                height: Int) {
-
+    override fun surfaceChanged(
+        holder: SurfaceHolder,
+        format: Int,
+        width: Int,
+        height: Int
+    ) {
         Log.d(App.TAG, "surfaceChanged()")
 
         if (null == camera) {
@@ -147,15 +144,14 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-
         Log.d(App.TAG, "surfaceCreated()")
         surfaceHolder = holder
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
-
-        if (null == camera)
+        if (null == camera) {
             return
+        }
 
         stopReleaseCamera()
     }
@@ -164,12 +160,12 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * Configure all layout file component objects. Assigns listeners, configurations, etc.
      */
     private fun configureLayoutComponents() {
-
         this.setFlashButtonVisibility(true)
 
         /* Only CredenceTAB family of device's support 8MP back camera resolution.  */
-        if (CredenceTAB != App.DevFamily)
+        if (CredenceTAB != App.DevFamily) {
             eightMPCheckBox.visibility = View.GONE
+        }
 
         previewFrameLayout.visibility = VISIBLE
         drawingView.visibility = VISIBLE
@@ -189,7 +185,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
     }
 
     private fun initPreview() {
-
         Log.d(App.TAG, "initPreview()")
 
         if (null == camera || null == surfaceHolder!!.surface) {
@@ -217,7 +212,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         Log.d(App.TAG, "Camera Parameters = " + parameters.flatten())
 
         // Enable auto-focus if available.
-       val focusModes = parameters.supportedFocusModes
+        val focusModes = parameters.supportedFocusModes
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
             Log.d(App.TAG, "Set FOCUS_MODE_AUTO camera parameters")
             parameters.focusMode = Camera.Parameters.FOCUS_MODE_AUTO
@@ -239,8 +234,10 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         previewSize.width = P_WIDTH
         previewSize.height = P_HEIGHT
 
-        if ((CredenceTwo == App.DevFamily)
-            || (CredenceECO == App.DevFamily)){
+        if ((CredenceTwo == App.DevFamily) ||
+            (CredenceECO == App.DevFamily) ||
+            (CredenceThree == App.DevFamily)
+        ) {
             previewFrameLayout.layoutParams.width = (previewSize.height * 2.5).toInt()
             previewFrameLayout.layoutParams.height = (previewSize.width * 2.5).toInt()
         }
@@ -269,7 +266,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
     }
 
     private fun startPreview() {
-
         Log.d(App.TAG, "startPreview()")
 
         if (mIsCameraConfigured && null != camera) {
@@ -284,14 +280,12 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
             Log.d(App.TAG, "Executing: camera.startPreview()")
             camera!!.startPreview()
             inPreview = true
-
         } else {
             Log.w(TAG, "Camera not configured, aborting start preview.")
         }
     }
 
     private fun doPreview() {
-
         Log.d(App.TAG, "doPreview()")
         try {
             /* If camera was not already opened, open it. */
@@ -312,20 +306,19 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                 this.setCameraPreviewDisplayOrientation()
                 /* Now we can tell camera to start preview frames. */
                 this.startPreview()
-
             } else {
                 Log.d(App.TAG, "Camera failed to open.")
             }
         } catch (e: Exception) {
             e.printStackTrace()
 
-            if (null != camera)
+            if (null != camera) {
                 camera!!.release()
+            }
 
             camera = null
             inPreview = false
         }
-
     }
 
     /**
@@ -335,10 +328,11 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * @param height Height of preview frames to send back.
      * @param ratio Aspect ration of preview frames to send back.
      */
-    private fun setPreviewSize(@Suppress("SameParameterValue") width: Int,
-                               @Suppress("SameParameterValue") height: Int,
-                               @Suppress("SameParameterValue") ratio: Double) {
-
+    private fun setPreviewSize(
+        @Suppress("SameParameterValue") width: Int,
+        @Suppress("SameParameterValue") height: Int,
+        @Suppress("SameParameterValue") ratio: Double
+    ) {
         val parameters = camera!!.parameters
         parameters.setPreviewSize(width, height)
         previewFrameLayout.setAspectRatio(ratio)
@@ -350,15 +344,15 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * devices the physical camera hardware is 90 degrees, etc.
      */
     private fun setCameraPictureOrientation() {
-
         val parameters = camera!!.parameters
 
-        if (App.DevFamily == TridentOne)
+        if (App.DevFamily == TridentOne) {
             parameters.setRotation(270)
-        else if (App.DevFamily == TridentTwo)
+        } else if (App.DevFamily == TridentTwo) {
             parameters.setRotation(180)
-        else if (App.DevFamily == CredenceOne || App.DevFamily == CredenceTAB)
+        } else if (App.DevFamily == CredenceOne || App.DevFamily == CredenceTAB) {
             parameters.setRotation(0)
+        }
 
         camera!!.parameters = parameters
     }
@@ -368,20 +362,18 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * devices the physical camera hardware is 90 degrees, etc.
      */
     private fun setCameraPreviewDisplayOrientation() {
-
         var orientation = 90
 
         /* For C-TAB, the BACK camera requires 0, but FRONT camera is 180. In this example FRONT
          * camera is not used, so that case was not programed in.
          */
-        if (App.DevFamily == TridentOne || App.DevFamily == TridentTwo
-                || App.DevFamily == CredenceTAB) {
-
+        if (App.DevFamily == TridentOne || App.DevFamily == TridentTwo ||
+            App.DevFamily == CredenceTAB
+        ) {
             orientation = 0
         }
         camera!!.setDisplayOrientation(orientation)
     }
-
 
     /**
      * Sets camera flash.
@@ -389,10 +381,10 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * @param useFlash If true turns on flash, if false disables flash.
      */
     private fun setTorchEnable(useFlash: Boolean) {
-
         /* If camera object was destroyed, there is nothing to do. */
-        if (null == camera)
+        if (null == camera) {
             return
+        }
 
         /* Camera flash parameters do not work on TAB/TRIDENT devices. In order to use flash on
          * these devices you must use the Credence APIs.
@@ -407,17 +399,15 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
         }
     }
 
     /**
      * Resets camera flash and UI back to camera preview state. */
     private fun reset() {
-
         Log.d(App.TAG, "reset()")
 
-         /* Turn off flash since new preview. */
+        /* Turn off flash since new preview. */
         this.setTorchEnable(false)
 
         this.setFlashButtonVisibility(true)
@@ -427,7 +417,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * Stops camera preview, turns off torch, releases camera object, and sets it to null.
      */
     private fun stopReleaseCamera() {
-
         Log.d(App.TAG, "stopReleaseCamera()")
 
         if (null != camera) {
@@ -447,7 +436,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
             Log.d(App.TAG, "Executing: camera.release().")
             /* Release camera and nullify object. */
             camera!!.release()
-            mIsCameraConfigured = false;
+            mIsCameraConfigured = false
             camera = null
             /* We are no longer in preview mode. */
             inPreview = false
@@ -467,7 +456,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * @param visibility If true buttons are show, if false they are hidden.
      */
     private fun setFlashButtonVisibility(@Suppress("SameParameterValue") visibility: Boolean) {
-
         flashOnBtn.visibility = if (visibility) VISIBLE else INVISIBLE
         flashOffBtn.visibility = if (visibility) VISIBLE else INVISIBLE
     }
@@ -479,9 +467,9 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      */
     @SuppressLint("SetTextI18n")
     fun performTapToFocus(touchRect: Rect) {
-
-        if (!inPreview)
+        if (!inPreview) {
             return
+        }
 
         statusTextView.text = getString(R.string.autofocus_wait)
 
@@ -490,10 +478,11 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
         /* Here we properly bound our Rect for a better tap to focus region */
         val targetFocusRect = Rect(
-                touchRect.left * one / drawingView.width - two,
-                touchRect.top * one / drawingView.height - two,
-                touchRect.right * one / drawingView.width - two,
-                touchRect.bottom * one / drawingView.height - two)
+            touchRect.left * one / drawingView.width - two,
+            touchRect.top * one / drawingView.height - two,
+            touchRect.right * one / drawingView.width - two,
+            touchRect.bottom * one / drawingView.height - two
+        )
 
         /* Since Camera parameters only accept a List of  areas to focus, create a list. */
         val focusList = ArrayList<Camera.Area>()
@@ -530,13 +519,13 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      * @param bitmapBytes Bitmap image in byte format to run detection on.
      */
     private fun detectFaceAsync(bitmapBytes: ByteArray?) {
-
-        Log.d(TAG, "In detectFaceAsync" )
+        Log.d(TAG, "In detectFaceAsync")
         /* If camera was closed, immediately after a preview callback exit out, this is to prevent
          * NULL pointer exceptions when using the camera object later on.
          */
-        if (null == camera || null == bitmapBytes)
+        if (null == camera || null == bitmapBytes) {
             return
+        }
 
         /* We need to stop camera preview callbacks from continuously being invoked while processing
          * is going on. Otherwise we would have a backlog of frames needing to be processed. To fix
@@ -563,27 +552,30 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         /* Save fixed color image as final good Bitmap. */
         var bm = BitmapFactory.decodeByteArray(outStream.toByteArray(), 0, outStream.size())
 
-        Log.d(TAG, "bm available : " + bm.byteCount )
+        Log.d(TAG, "bm available : " + bm.byteCount)
 
         /* On CredenceTWO device's captured image is rotated by 270 degrees. To fix this rotate
          * image by another 90 degrees to have it right-side-up.
          */
-        if ((CredenceTwo == App.DevFamily)
-            ||(CredenceECO == App.DevFamily))
+        if ((CredenceTwo == App.DevFamily) ||
+            (CredenceECO == App.DevFamily) ||
+            (CredenceThree == App.DevFamily)
+        ) {
             bm = Utils.rotateBitmap(bm, 90f)
+        }
 
         /* Detect face on finalized Bitmap image. */
         App.BioManager!!.detectFace(bm) { rc: Biometrics.ResultCode,
-                                          rectF: RectF? ->
+            rectF: RectF? ->
 
-
-            Log.d(TAG, "Detect result : " + rc.name )
+            Log.d(TAG, "Detect result : " + rc.name)
 
             /* If camera was closed or preview stopped, immediately exit out. This is done so that
              * we do not continue to process invalid frames, or draw to NULL surfaces.
              */
-            if (null == camera || !inPreview)
+            if (null == camera || !inPreview) {
                 return@detectFace
+            }
 
             /* Tell camera to start preview callbacks again. */
             camera!!.setPreviewCallback(mCameraPreviewCallback)
@@ -595,14 +587,24 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                         drawingView.setHasFace(true)
 
                         /* If CredenceTWO then bounding Rect needs to be scaled to properly fit. */
-                        if ((CredenceTwo == App.DevFamily)
-                            ||(CredenceECO == App.DevFamily) ){
-                            drawingView.setFaceRect(rectF!!.left + 40, rectF.top - 30,
-                                    rectF.right + 38, rectF.bottom - 50)
+                        if ((CredenceTwo == App.DevFamily) ||
+                            (CredenceThree == App.DevFamily) ||
+                            (CredenceECO == App.DevFamily)
+                        ) {
+                            drawingView.setFaceRect(
+                                rectF!!.left + 40,
+                                rectF.top - 30,
+                                rectF.right + 38,
+                                rectF.bottom - 50
+                            )
                         } else {
-                            Log.d(TAG, "Draw RectF" );
-                            drawingView.setFaceRect(rectF!!.left, rectF.top,
-                                    rectF.right, rectF.bottom)
+                            Log.d(TAG, "Draw RectF")
+                            drawingView.setFaceRect(
+                                rectF!!.left,
+                                rectF.top,
+                                rectF.right,
+                                rectF.bottom
+                            )
                         }
                     }
                 }
@@ -630,10 +632,11 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      */
 
     @Suppress("unused")
-    private fun detectFaceAsync(bitmapBytes: ByteArray,
-                                bitmapWidth: Int,
-                                bitmapHeight: Int) {
-
+    private fun detectFaceAsync(
+        bitmapBytes: ByteArray,
+        bitmapWidth: Int,
+        bitmapHeight: Int
+    ) {
         App.BioManager!!.detectFace(bitmapBytes, bitmapWidth, bitmapHeight) { rc, rectF ->
             when (rc) {
                 OK -> Log.d(TAG, "detectFaceAsync(byte[], int, int): RectF: $rectF")
@@ -646,21 +649,22 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
     }
 
     @Suppress("unused")
-    private fun analyzeFaceAsync(bitmapBytes: ByteArray,
-                                 bitmapWidth: Int,
-                                 bitmapHeight: Int) {
-
+    private fun analyzeFaceAsync(
+        bitmapBytes: ByteArray,
+        bitmapWidth: Int,
+        bitmapHeight: Int
+    ) {
         App.BioManager!!.analyzeFace(bitmapBytes, bitmapWidth, bitmapHeight) { rc,
-                                                                               rectF,
-                                                                               _,
-                                                                               _,
-                                                                               _,
-                                                                               _,
-                                                                               gender,
-                                                                               age,
-                                                                               emotion,
-                                                                               hasGlasses,
-                                                                               imageQuality ->
+            rectF,
+            _,
+            _,
+            _,
+            _,
+            gender,
+            age,
+            emotion,
+            hasGlasses,
+            imageQuality ->
 
             when (rc) {
                 OK -> {
@@ -681,7 +685,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
     @Suppress("unused")
     private fun createFaceTemplateAsync(bitmap: Bitmap) {
-
         App.BioManager!!.createFaceTemplate(bitmap) { rc, _ ->
 
             when (rc) {
@@ -695,10 +698,11 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
     }
 
     @Suppress("unused")
-    private fun createFaceTemplateAsync(bitmapBytes: ByteArray,
-                                        bitmapWidth: Int,
-                                        bitmapHeight: Int) {
-
+    private fun createFaceTemplateAsync(
+        bitmapBytes: ByteArray,
+        bitmapWidth: Int,
+        bitmapHeight: Int
+    ) {
         App.BioManager!!.createFaceTemplate(bitmapBytes, bitmapWidth, bitmapHeight) { rc, _ ->
 
             when (rc) {
@@ -712,9 +716,10 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
     }
 
     @Suppress("unused")
-    private fun matchFacesAsync(templateOne: ByteArray,
-                                templateTwo: ByteArray) {
-
+    private fun matchFacesAsync(
+        templateOne: ByteArray,
+        templateTwo: ByteArray
+    ) {
         App.BioManager!!.compareFace(templateOne, templateTwo) { rc, i ->
             when (rc) {
                 OK -> Log.d(TAG, "matchFacesAsync(byte[], byte[]): Score = $i")
@@ -728,95 +733,104 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
     @Suppress("unused")
     private fun detectFaceSync(bitmap: Bitmap): RectF {
-
         val res = App.BioManager!!.detectFaceSync(bitmap, syncAPITimeoutMS)
 
         return if (null != res && OK == res.resultCode) res.faceRect else RectF(0f, 0f, 0f, 0f)
     }
 
     @Suppress("unused")
-    private fun detectFaceSync(bitmapBytes: ByteArray,
-                               bitmapWidth: Int,
-                               bitmapHeight: Int): RectF {
-
-        val res = App.BioManager!!.detectFaceSync(bitmapBytes,
-                bitmapWidth,
-                bitmapHeight,
-                syncAPITimeoutMS)
+    private fun detectFaceSync(
+        bitmapBytes: ByteArray,
+        bitmapWidth: Int,
+        bitmapHeight: Int
+    ): RectF {
+        val res = App.BioManager!!.detectFaceSync(
+            bitmapBytes,
+            bitmapWidth,
+            bitmapHeight,
+            syncAPITimeoutMS
+        )
 
         return if (null != res && OK == res.resultCode) res.faceRect else RectF(0f, 0f, 0f, 0f)
     }
 
     @Suppress("unused")
     private fun analyzeFaceSync(bitmap: Bitmap): FaceData {
-
         val res = App.BioManager!!.analyzeFaceSync(bitmap, syncAPITimeoutMS)
 
         return if (null != res && OK == res.resultCode) {
-            FaceData(res.faceRect,
-                    res.landmark5,
-                    res.landmark68,
-                    res.headPoseEstimations,
-                    res.headPoseDirections,
-                    res.gender,
-                    res.dominantEmotion,
-                    res.age,
-                    res.hasGlasses,
-                    res.imageQuality)
-
+            FaceData(
+                res.faceRect,
+                res.landmark5,
+                res.landmark68,
+                res.headPoseEstimations,
+                res.headPoseDirections,
+                res.gender,
+                res.dominantEmotion,
+                res.age,
+                res.hasGlasses,
+                res.imageQuality
+            )
         } else FaceData()
     }
 
     @Suppress("unused")
-    private fun analyzeFaceSync(bitmapBytes: ByteArray,
-                                bitmapWidth: Int,
-                                bitmapHeight: Int): FaceData {
-
-        val res = App.BioManager!!.analyzeFaceSync(bitmapBytes,
-                bitmapWidth,
-                bitmapHeight,
-                syncAPITimeoutMS)
+    private fun analyzeFaceSync(
+        bitmapBytes: ByteArray,
+        bitmapWidth: Int,
+        bitmapHeight: Int
+    ): FaceData {
+        val res = App.BioManager!!.analyzeFaceSync(
+            bitmapBytes,
+            bitmapWidth,
+            bitmapHeight,
+            syncAPITimeoutMS
+        )
 
         return if (null != res && OK == res.resultCode) {
-            FaceData(res.faceRect,
-                    res.landmark5,
-                    res.landmark68,
-                    res.headPoseEstimations,
-                    res.headPoseDirections,
-                    res.gender,
-                    res.dominantEmotion,
-                    res.age,
-                    res.hasGlasses,
-                    res.imageQuality)
-
+            FaceData(
+                res.faceRect,
+                res.landmark5,
+                res.landmark68,
+                res.headPoseEstimations,
+                res.headPoseDirections,
+                res.gender,
+                res.dominantEmotion,
+                res.age,
+                res.hasGlasses,
+                res.imageQuality
+            )
         } else FaceData()
     }
 
     @Suppress("unused")
     private fun createFaceTemplateSync(bitmap: Bitmap): ByteArray {
-
         val res = App.BioManager!!.createFaceTemplateSync(bitmap, syncAPITimeoutMS)
 
         return if (null != res && OK == res.resultCode) res.template else byteArrayOf()
     }
 
     @Suppress("unused")
-    private fun createFaceTemplateSync(bitmapBytes: ByteArray,
-                                       bitmapWidth: Int,
-                                       bitmapHeight: Int): ByteArray {
-
-        val res = App.BioManager!!.createFaceTemplateSync(bitmapBytes,
-                bitmapWidth,
-                bitmapHeight,
-                syncAPITimeoutMS)
+    private fun createFaceTemplateSync(
+        bitmapBytes: ByteArray,
+        bitmapWidth: Int,
+        bitmapHeight: Int
+    ): ByteArray {
+        val res = App.BioManager!!.createFaceTemplateSync(
+            bitmapBytes,
+            bitmapWidth,
+            bitmapHeight,
+            syncAPITimeoutMS
+        )
 
         return if (null != res && OK == res.resultCode) res.template else byteArrayOf()
     }
 
     @Suppress("unused")
-    private fun matchFacesSync(templateOne: ByteArray,
-                               templateTwo: ByteArray): Int {
-
+    private fun matchFacesSync(
+        templateOne: ByteArray,
+        templateTwo: ByteArray
+    ): Int {
         val res = App.BioManager!!.compareFaceSync(templateOne, templateTwo, syncAPITimeoutMS)
 
         return if (null != res && OK == res.resultCode) res.score else 0
@@ -837,16 +851,18 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
         constructor()
 
-        constructor(rect: RectF,
-                    landmark5: ArrayList<PointF>,
-                    landmark68: ArrayList<PointF>,
-                    pose: FloatArray,
-                    poseDirections: Array<HeadPoseDirection>,
-                    gender: Gender,
-                    emotion: Emotion,
-                    age: Int,
-                    glasses: Boolean,
-                    quality: Int) {
+        constructor(
+            rect: RectF,
+            landmark5: ArrayList<PointF>,
+            landmark68: ArrayList<PointF>,
+            pose: FloatArray,
+            poseDirections: Array<HeadPoseDirection>,
+            gender: Gender,
+            emotion: Emotion,
+            age: Int,
+            glasses: Boolean,
+            quality: Int
+        ) {
 
             this.faceRect = rect
             this.landmark5 = landmark5
