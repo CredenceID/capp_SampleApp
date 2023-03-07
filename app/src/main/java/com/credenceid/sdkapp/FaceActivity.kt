@@ -22,13 +22,11 @@ class FaceActivity : Activity() {
     val TAG = "CID-TEST"
     val syncAPITimeoutMS = 3000
 
-    lateinit var templatet1:ByteArray
-    lateinit var templatet2:ByteArray
-    lateinit var templatet3:ByteArray
-
+    lateinit var templatet1: ByteArray
+    lateinit var templatet2: ByteArray
+    lateinit var templatet3: ByteArray
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.act_cid_face)
         this.configureLayoutComponents()
@@ -38,16 +36,14 @@ class FaceActivity : Activity() {
      * Invoked when user pressed back menu button.
      */
     override fun onBackPressed() {
-
         super.onBackPressed()
         this.finish()
     }
 
     private fun configureLayoutComponents() {
-
-        var face1Bitmap = getBitmapFromAsset(this,"face1.jpg")
-        var face2Bitmap = getBitmapFromAsset(this,"face2.jpg")
-        var face3Bitmap = getBitmapFromAsset(this,"face.jpg")
+        var face1Bitmap = getBitmapFromAsset(this, "face1.jpg")
+        var face2Bitmap = getBitmapFromAsset(this, "face2.jpg")
+        var face3Bitmap = getBitmapFromAsset(this, "face.jpg")
         faceImageView1.setImageBitmap(face1Bitmap)
         faceImageView2.setImageBitmap(face2Bitmap)
         faceImageView3.setImageBitmap(face3Bitmap)
@@ -64,35 +60,35 @@ class FaceActivity : Activity() {
 
         analyse2Button.setOnClickListener {
             if (null != face2Bitmap) {
-                analyseTest( face2Bitmap)
-                var faceBitmap = getBitmapFromAsset(this,"FaceMenBlack.jpg")
-                if (null != faceBitmap) {
-                    analyseTest(faceBitmap)
-                }
-                faceBitmap = getBitmapFromAsset(this,"FaceMenAsiaticGlasses.jpg")
-                if (null != faceBitmap) {
-                    analyseTest(faceBitmap)
-                }
-
-                faceBitmap = getBitmapFromAsset(this,"FaceMenWhiteOld.jpg")
-                if (null != faceBitmap) {
-                    analyseTest(faceBitmap)
-                }
-
-                faceBitmap = getBitmapFromAsset(this,"FaceWomenAsiatic.jpg")
-                if (null != faceBitmap) {
-                    analyseTest(faceBitmap)
-                }
-
-                faceBitmap = getBitmapFromAsset(this,"FaceWomenIndian.jpg")
-                if (null != faceBitmap) {
-                    analyseTest(faceBitmap)
-                }
+                analyseTest(face2Bitmap)
+//                var faceBitmap = getBitmapFromAsset(this,"FaceMenBlack.jpg")
+//                if (null != faceBitmap) {
+//                    analyseTest(faceBitmap)
+//                }
+//                faceBitmap = getBitmapFromAsset(this,"FaceMenAsiaticGlasses.jpg")
+//                if (null != faceBitmap) {
+//                    analyseTest(faceBitmap)
+//                }
+//
+//                faceBitmap = getBitmapFromAsset(this,"FaceMenWhiteOld.jpg")
+//                if (null != faceBitmap) {
+//                    analyseTest(faceBitmap)
+//                }
+//
+//                faceBitmap = getBitmapFromAsset(this,"FaceWomenAsiatic.jpg")
+//                if (null != faceBitmap) {
+//                    analyseTest(faceBitmap)
+//                }
+//
+//                faceBitmap = getBitmapFromAsset(this,"FaceWomenIndian.jpg")
+//                if (null != faceBitmap) {
+//                    analyseTest(faceBitmap)
+//                }
             }
         }
 
         templateButton.setOnClickListener {
-            if ((face1Bitmap != null)&&(null != face2Bitmap)&&(null != face3Bitmap)) {
+            if ((face1Bitmap != null) && (null != face2Bitmap) && (null != face3Bitmap)) {
                 templateTest(face1Bitmap, face2Bitmap, face3Bitmap)
             }
         }
@@ -100,25 +96,24 @@ class FaceActivity : Activity() {
         compareButton.setOnClickListener {
             matchTest(templatet1, templatet2, templatet3)
         }
-
     }
 
-    fun detectTest(){
+    fun detectTest() {
         startActivity(Intent(this, CameraActivity::class.java))
     }
 
-    fun analyseTest(faceBitmap:Bitmap){
+    fun analyseTest(faceBitmap: Bitmap) {
         App.BioManager!!.analyzeFace(faceBitmap) { rc,
-                                                   rectF,
-                                                   _,
-                                                   _,
-                                                   _,
-                                                   _,
-                                                   gender,
-                                                   age,
-                                                   emotion,
-                                                   hasGlasses,
-                                                   imageQuality ->
+            rectF,
+            _,
+            _,
+            _,
+            _,
+            gender,
+            age,
+            emotion,
+            hasGlasses,
+            imageQuality ->
 
             when (rc) {
                 OK -> {
@@ -132,16 +127,16 @@ class FaceActivity : Activity() {
                 INTERMEDIATE -> {
                     /* This code is never returned for this API. */
                 }
-                FAIL -> Log.d(TAG, "analyzeFaceAsync: Failed to find face.")
+                FAIL -> {
+                    Log.d(TAG, "analyzeFaceAsync: Failed to find face.")
+                }
             }
         }
-
     }
 
-    fun templateTest (face1Bitmap:Bitmap, face2Bitmap:Bitmap, face3Bitmap:Bitmap){
-
+    fun templateTest(face1Bitmap: Bitmap, face2Bitmap: Bitmap, face3Bitmap: Bitmap) {
         val res = App.BioManager!!.createFaceTemplateSync(face1Bitmap, syncAPITimeoutMS)
-        if (null != res && OK == res.resultCode){
+        if (null != res && OK == res.resultCode) {
             templatet1 = res.template
             faceImageView1.setImageBitmap(decodeBitmap(templatet1))
             Log.d(TAG, "Template 1 available")
@@ -150,7 +145,7 @@ class FaceActivity : Activity() {
         }
 
         val res2 = App.BioManager!!.createFaceTemplateSync(face2Bitmap, syncAPITimeoutMS)
-        if (null != res2 && OK == res2.resultCode){
+        if (null != res2 && OK == res2.resultCode) {
             templatet2 = res2.template
             faceImageView2.setImageBitmap(decodeBitmap(templatet2))
             Log.d(TAG, "Template 2 available")
@@ -171,20 +166,19 @@ class FaceActivity : Activity() {
                 FAIL -> Log.d(TAG, "createFaceTemplateAsync - Template 3 : FAIL")
             }
         }
-
     }
 
-    fun matchTest(template1:ByteArray, template2:ByteArray, template3:ByteArray){
+    fun matchTest(template1: ByteArray, template2: ByteArray, template3: ByteArray) {
         val res = App.BioManager!!.compareFaceSync(template1, template2, syncAPITimeoutMS)
-        if (null != res && OK == res.resultCode){
-            Log.d(TAG, "compareFaceSync - template1 vs template2 - RES = " +  res.score)
+        if (null != res && OK == res.resultCode) {
+            Log.d(TAG, "compareFaceSync - template1 vs template2 - RES = " + res.score)
         } else {
             Log.d(TAG, "compareFaceSync - template1 vs template2 - ERROR:" + res.resultCode.name)
         }
 
         val res2 = App.BioManager!!.compareFaceSync(template1, template3, syncAPITimeoutMS)
-        if (null != res2 && OK == res.resultCode){
-            Log.d(TAG, "compareFaceSync - template1 vs template3 - RES = " +  res2.score)
+        if (null != res2 && OK == res.resultCode) {
+            Log.d(TAG, "compareFaceSync - template1 vs template3 - RES = " + res2.score)
         } else {
             Log.d(TAG, "compareFaceSync - template1 vs template3 - ERROR:" + res2.resultCode.name)
         }
@@ -200,7 +194,6 @@ class FaceActivity : Activity() {
                 FAIL -> Log.d(TAG, "compareFaceSync - template2 vs template3 - ERROR: ${rc.name}")
             }
         }
-
     }
 
     fun getBitmapFromAsset(context: Context, filePath: String?): Bitmap? {
@@ -230,6 +223,4 @@ class FaceActivity : Activity() {
             null
         }
     }
-
-
 }

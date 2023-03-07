@@ -219,8 +219,8 @@ class FingerprintActivity : Activity() {
 
                 /* Based on which ImageView was selected, capture appropriate fingerprint. */
                 if (mCaptureFingerprintOne) {
-                    // this.captureFingerprintOne()
-                    this.captureFingerprintOneRawListener()
+                     this.captureFingerprintOne()
+                    //this.captureFingerprintOneRawListener()
                 } else {
                     this.captureFingerprintTwo()
                 }
@@ -318,6 +318,8 @@ class FingerprintActivity : Activity() {
 
                             // fpStatusTextView.text = "WSQ File: $wsqFilepath"
                             infoTextView.text = "Quality: $nfiqScore"
+
+                            Log.d(TAG,  "Quality: $nfiqScore")
 
                             /* Create template from fingerprint image. */
                             createFMDTemplate(bitmap)
