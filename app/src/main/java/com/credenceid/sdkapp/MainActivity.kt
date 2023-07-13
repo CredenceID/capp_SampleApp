@@ -101,6 +101,8 @@ class MainActivity : AppCompatActivity() {
                      */
                     finish()
                 }
+                else -> {
+                }
             }
         }
     }

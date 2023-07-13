@@ -129,6 +129,8 @@ class FaceActivity : Activity() {
                         Toast.makeText(this, "Failed to detect face.", LENGTH_LONG).show()
                     }, 1000)
                 }
+                else -> {
+                }
             }
 
             this.dismissProgressDialog()

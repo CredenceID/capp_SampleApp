@@ -87,6 +87,8 @@ class FingerprintActivity : Activity() {
                     /* Operation is complete, re-enable button. */
                     openCloseBtn.isEnabled = true
                 }
+                else -> {
+                }
             }
         }
 
@@ -116,6 +118,8 @@ class FingerprintActivity : Activity() {
                     /* This code is never returned for this API. */
                 }
                 FAIL == resultCode -> fpStatusTextView.text = "Fingerprint FAILED to close."
+                else -> {
+                }
             }
         }
     }
@@ -306,6 +310,8 @@ class FingerprintActivity : Activity() {
                         FAIL -> {
                             setAllComponentEnable(true)
                         }
+                        else -> {
+                        }
                     }
                 }
 
@@ -378,6 +384,8 @@ class FingerprintActivity : Activity() {
                         FAIL -> {
                             setAllComponentEnable(true)
                         }
+                        else -> {
+                        }
                     }
                 }
 
@@ -434,6 +442,8 @@ class FingerprintActivity : Activity() {
                     errorTextView.text = "FMD template is null."
                     fpStatusTextView.text = "Failed to create FMD template. ResultCode : $resultCode"
                 }
+                else -> {
+                }
             }
             setAllComponentEnable(true)
         }
@@ -468,6 +478,8 @@ class FingerprintActivity : Activity() {
                 FAIL -> {
                     fpStatusTextView.text = "Failed to compare templates."
                     infoTextView.text = ""
+                }
+                else -> {
                 }
             }
             /* Re-enable all components since operation is now complete. */
@@ -603,6 +615,8 @@ class FingerprintActivity : Activity() {
                         /* This code is returned if sensor fails to capture image. */
                         FAIL -> {
                             setAllComponentEnable(true)
+                        }
+                        else -> {
                         }
                     }
                 }

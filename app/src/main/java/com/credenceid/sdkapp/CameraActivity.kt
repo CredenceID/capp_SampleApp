@@ -679,6 +679,10 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                     /* Tell view to not draw face Rect. region on next "onDraw()" call. */
                     drawingView.setHasFace(false)
                 }
+                else -> {
+                    /* Tell view to not draw face Rect. region on next "onDraw()" call. */
+                    drawingView.setHasFace(false)
+                }
             }
 
             /* Tell view to invoke an "onDraw()". */
@@ -707,6 +711,9 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                     /* This code is never returned for this API. */
                 }
                 FAIL -> Log.d(TAG, "detectFaceAsync(byte[], int, int): Failed to find face.")
+
+                else -> {
+                }
             }
         }
     }
@@ -741,6 +748,8 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                     /* This code is never returned for this API. */
                 }
                 FAIL -> Log.d(TAG, "analyzeFaceAsync(byte[], int, int): Failed to find face.")
+                else -> {
+                }
             }
         }
     }
@@ -756,6 +765,8 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                     /* This code is never returned for this API. */
                 }
                 FAIL -> Log.d(TAG, "createFaceTemplateAsync(Bitmap): Failed to create template.")
+                else -> {
+                }
             }
         }
     }
@@ -773,6 +784,8 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                     /* This code is never returned for this API. */
                 }
                 FAIL -> Log.d(TAG, "createFaceTemplateAsync(byte[], int, int): FAIL")
+                else -> {
+                }
             }
         }
     }
@@ -788,6 +801,8 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                     /* This code is never returned for this API. */
                 }
                 FAIL -> Log.d(TAG, "matchFacesAsync(byte[], byte[]): Failed to compare templates.")
+                else -> {
+                }
             }
         }
     }

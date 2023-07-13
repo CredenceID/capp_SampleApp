@@ -115,6 +115,8 @@ class MRZActivity : Activity() {
                 statusTextView.text = getString(R.string.mrz_failed_reswipe)
                 hasMRZData = false
             }
+            else -> {
+            }
         }
     }
 
@@ -239,6 +241,8 @@ class MRZActivity : Activity() {
                     }
                     /* This code is returned if sensor fails to open. */
                     FAIL -> statusTextView.text = getString(R.string.mrz_open_failed)
+                    else -> {
+                    }
                 }
             }
 
@@ -267,6 +271,8 @@ class MRZActivity : Activity() {
                     INTERMEDIATE -> {
                     }
                     FAIL -> statusTextView.text = getString(R.string.mrz_failed_close)
+                    else -> {
+                    }
                 }
             }
         })
@@ -307,6 +313,8 @@ class MRZActivity : Activity() {
                     /* This code is returned if sensor fails to open. */
                     FAIL ->
                         statusTextView.text = getString(R.string.epassport_open_failed)
+                    else -> {
+                    }
                 }
             }
 
@@ -330,6 +338,8 @@ class MRZActivity : Activity() {
                     INTERMEDIATE -> {
                     }
                     FAIL -> statusTextView.text = getString(R.string.mrz_failed_close)
+                    else -> {
+                    }
                 }
             }
         })
