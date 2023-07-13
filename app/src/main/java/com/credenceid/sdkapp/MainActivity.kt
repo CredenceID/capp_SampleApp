@@ -21,19 +21,19 @@ import kotlinx.android.synthetic.main.act_main.*
  * that permission was requested from.
  */
 private const val REQUEST_ALL_PERMISSIONS = 0
-private var sdkInitializationTime:Long = 0
-private var sdkStartingTime:Long = 0
-
+private var sdkInitializationTime: Long = 0
+private var sdkStartingTime: Long = 0
 
 /**
  * List of all permissions we will request.
  */
 private val PERMISSIONS = arrayOf(
-        permission.WRITE_EXTERNAL_STORAGE,
-        permission.READ_EXTERNAL_STORAGE,
-        permission.CAMERA,
-        permission.READ_CONTACTS,
-        permission.READ_PHONE_STATE)
+    permission.WRITE_EXTERNAL_STORAGE,
+    permission.READ_EXTERNAL_STORAGE,
+    permission.CAMERA,
+    permission.READ_CONTACTS,
+    permission.READ_PHONE_STATE
+)
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,7 +50,6 @@ class MainActivity : AppCompatActivity() {
      * Configure all objects in layout file, set up listeners, views, etc.
      */
     private fun configureLayoutComponents() {
-
         appVersionTextView.text = packageVersion
         fpBtn.setOnClickListener { startActivity(Intent(this, FingerprintActivity::class.java)) }
         cardBtn.setOnClickListener { startActivity(Intent(this, CardReaderActivity::class.java)) }
@@ -60,22 +59,20 @@ class MainActivity : AppCompatActivity() {
         setBiometricButtonsVisibility(View.GONE)
     }
 
-
     /**
      * Initializes CredenceSDK biometrics object.
      */
     private fun initializeBiometrics() {
-
         /*  Create new biometrics object. */
         App.BioManager = BiometricsManager(this)
 
         /* Initialize object, meaning tell CredenceService to bind to this application. */
         sdkStartingTime = SystemClock.elapsedRealtime()
         App.BioManager!!.initializeBiometrics { rc: ResultCode,
-                                                _: String?,
-                                                _: String? ->
+            _: String?,
+            _: String? ->
 
-            Log.d("CID-TEST", "Init time = " + (SystemClock.elapsedRealtime()- sdkStartingTime))
+            Log.d("CID-TEST", "Init time = " + (SystemClock.elapsedRealtime() - sdkStartingTime))
             when (rc) {
                 OK -> {
                     Toast.makeText(this, getString(R.string.bio_init), Toast.LENGTH_LONG).show()
@@ -113,16 +110,17 @@ class MainActivity : AppCompatActivity() {
      * application is running on.
      */
     private fun configureButtons() {
-
         /* By default all Credence device's face a fingerprint sensor and camera. */
         fpBtn.visibility = View.VISIBLE
         faceBtn.visibility = View.GONE
 
-        if (App.BioManager!!.hasCardReader())
+        if (App.BioManager!!.hasCardReader()) {
             cardBtn.visibility = View.VISIBLE
+        }
 
-        if (App.BioManager!!.hasMRZReader())
+        if (App.BioManager!!.hasMRZReader()) {
             mrzBtn.visibility = View.VISIBLE
+        }
     }
 
     /**
@@ -131,7 +129,6 @@ class MainActivity : AppCompatActivity() {
      * @param visibility View.VISIBLE, View.INVISIBLE, View.GONE
      */
     private fun setBiometricButtonsVisibility(@Suppress("SameParameterValue") visibility: Int) {
-
         fpBtn.visibility = visibility
         cardBtn.visibility = visibility
         faceBtn.visibility = visibility
@@ -142,13 +139,13 @@ class MainActivity : AppCompatActivity() {
      * Checks if permissions stated in manifest have been granted, if not it then requests them.
      */
     private fun requestPermissions() {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED
-                    || checkSelfPermission(permission.READ_EXTERNAL_STORAGE) != PERMISSION_GRANTED
-                    || checkSelfPermission(permission.CAMERA) != PERMISSION_GRANTED
-                    || checkSelfPermission(permission.READ_CONTACTS) != PERMISSION_GRANTED
-                    ||checkSelfPermission(permission.READ_PHONE_STATE) != PERMISSION_GRANTED) {
+            if (checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED ||
+                checkSelfPermission(permission.READ_EXTERNAL_STORAGE) != PERMISSION_GRANTED ||
+                checkSelfPermission(permission.CAMERA) != PERMISSION_GRANTED ||
+                checkSelfPermission(permission.READ_CONTACTS) != PERMISSION_GRANTED ||
+                checkSelfPermission(permission.READ_PHONE_STATE) != PERMISSION_GRANTED
+            ) {
                 requestPermissions(PERMISSIONS, REQUEST_ALL_PERMISSIONS)
             }
         }
