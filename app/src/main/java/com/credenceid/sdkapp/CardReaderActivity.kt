@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.os.SystemClock
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
@@ -22,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.random.Random.Default.nextInt
 
 @Suppress("unused")
 class CardReaderActivity : Activity() {
@@ -30,6 +27,7 @@ class CardReaderActivity : Activity() {
      * Keeps track of card reader sensor. If true then sensor is open, if false sensor is closed.
      */
     private var isSensorOpen = false
+
     /**
      * Keeps track of if card is present on sensor. If true card is present, if false no card is
      * present.
@@ -39,82 +37,142 @@ class CardReaderActivity : Activity() {
     /**
      * Get challenge eID document
      */
-    private val getChallenge = ("00"         // MiFare Card
-            + "84"                            // MiFare Card READ Command
-            + "00"                            // P1
-            + "00"                            // P2: Block Number
-            + "08")                       // Number of bytes to read
+    private val getChallenge = (
+        "00" + // MiFare Card
+            "84" + // MiFare Card READ Command
+            "00" + // P1
+            "00" + // P2: Block Number
+            "08"
+        ) // Number of bytes to read
 
     /**
      * Reads Mifare card UID.
      */
-    private val readUID= ("FF"         // MiFare Card
-            + "CA"                            // MiFare Card READ Command
-            + "00"                            // P1
-            + "00"                          // P2: Block Number
-            + "00")                       // Number of bytes to read
+    private val readUID = (
+        "FF" + // MiFare Card
+            "CA" + // MiFare Card READ Command
+            "00" + // P1
+            "00" + // P2: Block Number
+            "00"
+        ) // Number of bytes to read
 
     /**
      * Reads 4096 (4K) number of bytes from card.
      */
-    private val read4KAPDU = ("FF"         // MiFare Card
-            + "B0"                            // MiFare Card READ Command
-            + "00"                            // P1
-            + "00"                            // P2: Block Number
-            + "001000")                     // Number of bytes to read
+    private val read4KAPDU = (
+        "FF" + // MiFare Card
+            "B0" + // MiFare Card READ Command
+            "00" + // P1
+            "00" + // P2: Block Number
+            "001000"
+        ) // Number of bytes to read
 
     /**
      * Reads 2048 (2K) number of bytes from card.
      */
-    private val read2KAPDU = ("FF"         // MiFare Card
-            + "B0"                            // MiFare Card READ Command
-            + "00"                            // P1
-            + "00"                            // P2: Block Number
-            + "000800")                       // Number of bytes to read
-
+    private val read2KAPDU = (
+        "FF" + // MiFare Card
+            "B0" + // MiFare Card READ Command
+            "00" + // P1
+            "00" + // P2: Block Number
+            "000800"
+        ) // Number of bytes to read
 
     /**
      * Reads 1024 (1K) number of bytes from card.
      */
-    private val read1KAPDU = ("FF"         // MiFare Card
-            + "B0"                            // MiFare Card READ Command
-            + "00"                            // P1
-            + "00"                            // P2: Block Number
-            + "000400")                       // Number of bytes to read
+    private val read1KAPDU = (
+        "FF" + // MiFare Card
+            "B0" + // MiFare Card READ Command
+            "00" + // P1
+            "00" + // P2: Block Number
+            "000400"
+        ) // Number of bytes to read
 
     /**
      * This APDU is used to read "specialData" written to the card.
      */
-    private var readSpecialDataAPDU = ("FF"  // MiFare Card
-            + "B0"                              // MiFare Card READ Command
-            + "00"                              // P1
-            + "01"                              // P2: Block Number
-            + "00")                             // Number of bytes to read
+    private var readSpecialDataAPDU = (
+        "FF" + // MiFare Card
+            "B0" + // MiFare Card READ Command
+            "00" + // P1
+            "01" + // P2: Block Number
+            "00"
+        ) // Number of bytes to read
 
     /**
      * Writes 4096 (4K) number of bytes to card.
      */
-    private val write4KAPDU = ("FF"        // MiFare Card
-            + "D6"                            // MiFare Card READ Command
-            + "00"                            // P1
-            + "00"                            // P2: Block Number
-            + "001000")                       // Number of bytes to read
+    private val write4KAPDU = (
+        "FF" + // MiFare Card
+            "D6" + // MiFare Card READ Command
+            "00" + // P1
+            "00" + // P2: Block Number
+            "001000"
+        ) // Number of bytes to read
+
     /**
      * Writes 2048 (2K) number of bytes to card.
      */
-    private val write2KAPDU = ("FF"        // MiFare Card
-            + "D6"                            // MiFare Card READ Command
-            + "00"                            // P1
-            + "00"                            // P2: Block Number
-            + "000800")                       // Number of bytes to read
+    private val write2KAPDU = (
+        "FF" + // MiFare Card
+            "D6" + // MiFare Card READ Command
+            "00" + // P1
+            "00" + // P2: Block Number
+            "000800"
+        ) // Number of bytes to read
+
     /**
      * Writes 1024 (1K) number of bytes to card.
      */
-    private val write1KAPDU = ("FF"        // MiFare Card
-            + "D6"                            // MiFare Card READ Command
-            + "00"                            // P1
-            + "00"                            // P2: Block Number
-            + "000400")                       // Number of bytes to read
+    private val write1KAPDU = (
+        "FF" + // MiFare Card
+            "D6" + // MiFare Card READ Command
+            "00" + // P1
+            "00" + // P2: Block Number
+            "000400"
+        ) // Number of bytes to read
+
+    /**
+     * Select TWIC card applet
+     */
+    private val cardTwicSelectAPDU = ( // TWIC card select
+        "00" +
+            "A4" +
+            "04" +
+            "00" +
+            "0B" +
+            "A0" +
+            "00" +
+            "00" +
+            "03" +
+            "08" +
+            "00" +
+            "00" +
+            "10" +
+            "00" +
+            "01" +
+            "00" +
+            "18"
+        )
+
+    /**
+     * Select TWIC card get CHUID command
+     */
+    private val cardTwicGetChuidAPDU = ( // TWIC Get CHUID
+        "00" +
+            "CB" +
+            "3F" +
+            "FF" +
+            "05" +
+            "5C" +
+            "03" +
+            "5F" +
+            "C1" +
+            "02" +
+            "00"
+        )
+
     /**
      * Data to be written to card will be stored here.
      */
@@ -145,21 +203,18 @@ class CardReaderActivity : Activity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.act_cardreader)
         this.configureLayoutComponents()
     }
 
     override fun onBackPressed() {
-
         super.onBackPressed()
         /* If back button is pressed when we want to destroy activity. */
         this.onDestroy()
     }
 
     override fun onDestroy() {
-
         super.onDestroy()
 
         /* Close card reader since user is exiting activity. */
@@ -170,7 +225,6 @@ class CardReaderActivity : Activity() {
      * Configure all objects in layout file, set up listeners, views, etc.
      */
     private fun configureLayoutComponents() {
-
         /* Disable views which allow user to read/write to/from card until card reader is open. */
         this.setReadWriteComponentEnable(false)
 
@@ -182,21 +236,23 @@ class CardReaderActivity : Activity() {
             cardStatusTextView.text = ""
 
             /* Based on status of card reader take appropriate action. */
-            if (isSensorOpen)
+            if (isSensorOpen) {
                 App.BioManager!!.cardCloseCommand()
-            else
+            } else {
                 this.openCardReader()
+            }
         }
 
         /* Each time an item is selected we need up update "currentReadAPDU". This is so when user
          * presses "readDataBtn", APDU which matches  selected option has already been set.
          */
         readAPDUSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>,
-                                        view: View,
-                                        position: Int,
-                                        id: Long) {
-
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View,
+                position: Int,
+                id: Long
+            ) {
                 when (position) {
                     0 -> currentReadAPDU = readSpecialDataAPDU
                     1 -> currentReadAPDU = readUID
@@ -204,6 +260,8 @@ class CardReaderActivity : Activity() {
                     3 -> currentReadAPDU = read2KAPDU
                     4 -> currentReadAPDU = read4KAPDU
                     5 -> currentReadAPDU = getChallenge
+                    6 -> currentReadAPDU = cardTwicSelectAPDU
+                    7 -> currentReadAPDU = cardTwicGetChuidAPDU
                 }
             }
 
@@ -233,10 +291,11 @@ class CardReaderActivity : Activity() {
             specialData = data.toByteArray()
 
             /* Based on if user has selected sync/async APIs call appropriate method. */
-            if (syncCheckBox.isChecked)
+            if (syncCheckBox.isChecked) {
                 writeCardSync(specialData)
-            else
+            } else {
                 writeCardAsync(specialData)
+            }
         }
 
         readDataBtn.setOnClickListener {
@@ -250,24 +309,24 @@ class CardReaderActivity : Activity() {
             this.setReadWriteComponentEnable(false)
 
             /* Based on if user has selected sync/async APIs call appropriate method. */
-            if (syncCheckBox.isChecked)
+            if (syncCheckBox.isChecked) {
                 readCardSync(currentReadAPDU)
-            else
+            } else {
                 readCardAsync(currentReadAPDU)
+            }
         }
 
         writeEditText.setOnFocusChangeListener { v, hasFocus ->
-            if (!hasFocus)
+            if (!hasFocus) {
                 hideKeyboard(v)
+            }
         }
-
     }
 
     /**
      * Hides keyboard for a give view. This is usually used with EditText components.
      */
     private fun hideKeyboard(view: View) {
-
         try {
             val im = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             im.hideSoftInputFromWindow(view.windowToken, 0)
@@ -279,7 +338,6 @@ class CardReaderActivity : Activity() {
      * Calls Credence APIs to open card reader.
      */
     private fun openCardReader() {
-
         /* Let user know card reader will now try to be opened. */
         cardReaderStatusTextView.text = getString(R.string.opening_card_reader)
 
@@ -312,15 +370,16 @@ class CardReaderActivity : Activity() {
             }
 
             @SuppressLint("SetTextI18n")
-            override fun onCardReaderClosed(resultCode: ResultCode,
-                                            closeReasonCode: CloseReasonCode) {
-
+            override fun onCardReaderClosed(
+                resultCode: ResultCode,
+                closeReasonCode: CloseReasonCode
+            ) {
                 openCloseBtn.isEnabled = true
                 when {
                     OK == resultCode -> {
                         isSensorOpen = false
                         cardReaderStatusTextView.text =
-                                getString(R.string.card_reader_closed) + closeReasonCode.name
+                            getString(R.string.card_reader_closed) + closeReasonCode.name
                         cardStatusTextView.text = ""
                         openCloseBtn.text = getString(R.string.open_card)
                         setReadWriteComponentEnable(false)
@@ -341,7 +400,6 @@ class CardReaderActivity : Activity() {
      * @param enabled If true enables components, if false dis-ables them.
      */
     private fun setReadWriteComponentEnable(enabled: Boolean) {
-
         writeEditText.isEnabled = enabled
         writeDataBtn.isEnabled = enabled
         readAPDUSelector.isEnabled = enabled
@@ -363,13 +421,12 @@ class CardReaderActivity : Activity() {
      * @param APDUCommand Initial APDU command to execute.
      */
     private fun readCardAsync(APDUCommand: String) {
-
         cardReaderStatusTextView.text = getString(R.string.reading_card_wait)
 
         App.BioManager!!.cardCommand(ApduCommand(APDUCommand), false) { rc: ResultCode,
-                                                                        sw1: Byte,
-                                                                        sw2: Byte,
-                                                                        data: ByteArray? ->
+            sw1: Byte,
+            sw2: Byte,
+            data: ByteArray? ->
 
             when {
                 OK == rc -> {
@@ -387,16 +444,19 @@ class CardReaderActivity : Activity() {
                         }
                     } else {
                         /* If non special data was read then simply convert to String format. */
-                        if (data != null)
+                        if (data != null) {
                             dataToDisplay = HexUtils.toString(data)
+                        }
                     }
 
-                    val str = String.format(Locale.ENGLISH,
-                            "SW1: %s, SW2: %s\nLength of data read: %d\n\n %s",
-                            HexUtils.toString(sw1),
-                            HexUtils.toString(sw2),
-                            dataToDisplay.length,
-                            dataToDisplay)
+                    val str = String.format(
+                        Locale.ENGLISH,
+                        "SW1: %s, SW2: %s\nLength of data read: %d\n\n %s",
+                        HexUtils.toString(sw1),
+                        HexUtils.toString(sw2),
+                        dataToDisplay.length,
+                        dataToDisplay
+                    )
 
                     cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
                     dataTextView.text = str
@@ -422,7 +482,6 @@ class CardReaderActivity : Activity() {
      * using sync. APIs.
      */
     private fun readCardSync(APDUCommand: String) {
-
         cardReaderStatusTextView.text = getString(R.string.reading_card_wait)
 
         GlobalScope.launch(Dispatchers.Main) {
@@ -451,12 +510,14 @@ class CardReaderActivity : Activity() {
                 dataToDisplay = HexUtils.toString(response.data)
             }
 
-            val str = String.format(Locale.ENGLISH,
-                    "SW1: %s, SW2: %s\nLength of data read: %d\n\n %s",
-                    HexUtils.toString(response.sw1),
-                    HexUtils.toString(response.sw2),
-                    response.data.size,
-                    dataToDisplay)
+            val str = String.format(
+                Locale.ENGLISH,
+                "SW1: %s, SW2: %s\nLength of data read: %d\n\n %s",
+                HexUtils.toString(response.sw1),
+                HexUtils.toString(response.sw2),
+                response.data.size,
+                dataToDisplay
+            )
 
             cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
             dataTextView.text = str
@@ -470,7 +531,6 @@ class CardReaderActivity : Activity() {
      * @param data, Data to write to card in String format.
      */
     private fun writeCardSync(data: String) {
-
         this.writeCardSync(data.toByteArray())
     }
 
@@ -480,7 +540,6 @@ class CardReaderActivity : Activity() {
      * @param dataToWrite, Data to write to card in byte array format.
      */
     private fun writeCardSync(dataToWrite: ByteArray) {
-
         GlobalScope.launch(Dispatchers.Main) {
             val apdu = createWriteAPDUCommand(0x01.toByte(), dataToWrite)
             val response = App.BioManager!!.cardCommandSync(ApduCommand(apdu), false, 4000)
@@ -493,10 +552,12 @@ class CardReaderActivity : Activity() {
                 return@launch
             }
 
-            val str = String.format(Locale.ENGLISH,
-                    "SW1: %s, SW2: %s",
-                    HexUtils.toString(response.sw1),
-                    HexUtils.toString(response.sw2))
+            val str = String.format(
+                Locale.ENGLISH,
+                "SW1: %s, SW2: %s",
+                HexUtils.toString(response.sw1),
+                HexUtils.toString(response.sw2)
+            )
 
             cardReaderStatusTextView.text = getString(R.string.done_writing_to_card)
             dataTextView.text = str
@@ -514,20 +575,21 @@ class CardReaderActivity : Activity() {
      * to read that same data back.
      */
     private fun writeCardAsync(dataToWrite: ByteArray) {
-
         val apdu = createWriteAPDUCommand(0x01.toByte(), dataToWrite)
 
         App.BioManager!!.cardCommand(ApduCommand(apdu), false) { rc: ResultCode,
-                                                                 sw1: Byte,
-                                                                 sw2: Byte,
-                                                                 _: ByteArray ->
+            sw1: Byte,
+            sw2: Byte,
+            _: ByteArray ->
 
             when {
                 OK == rc -> {
-                    val str = String.format(Locale.ENGLISH,
-                            "SW1: %s, SW2: %s",
-                            HexUtils.toString(sw1),
-                            HexUtils.toString(sw2))
+                    val str = String.format(
+                        Locale.ENGLISH,
+                        "SW1: %s, SW2: %s",
+                        HexUtils.toString(sw1),
+                        HexUtils.toString(sw2)
+                    )
 
                     cardReaderStatusTextView.text = getString(R.string.done_writing_to_card)
                     dataTextView.text = str
@@ -558,21 +620,22 @@ class CardReaderActivity : Activity() {
      * @param data, Data to write to card.
      * @return APDU command in String format.
      */
-    private fun createWriteAPDUCommand(@Suppress("SameParameterValue") blockNumber: Byte,
-                                       data: ByteArray): String {
-
+    private fun createWriteAPDUCommand(
+        @Suppress("SameParameterValue") blockNumber: Byte,
+        data: ByteArray
+    ): String {
         val dataLen = data.size
 
         /* 7 MiFare bytes, 2 Data size bytes, CID header bytes+ data */
         val writeAPDU = ByteArray(7 + dataLen)
 
-        writeAPDU[0] = 0xFF.toByte()                        // MiFare Card Header
-        writeAPDU[1] = 0xD6.toByte()                        // MiFare Card WRITE Command
-        writeAPDU[2] = 0x00.toByte()                        // P1
-        writeAPDU[3] = blockNumber                        // P2: Block Number
-        writeAPDU[4] = 0x00.toByte()                        // Escape Character
-        writeAPDU[5] = (dataLen shr 8 and 0xFF).toByte()     // Number of bytes: MSB
-        writeAPDU[6] = (dataLen and 0xFF).toByte()            // Number of bytes: LSB
+        writeAPDU[0] = 0xFF.toByte() // MiFare Card Header
+        writeAPDU[1] = 0xD6.toByte() // MiFare Card WRITE Command
+        writeAPDU[2] = 0x00.toByte() // P1
+        writeAPDU[3] = blockNumber // P2: Block Number
+        writeAPDU[4] = 0x00.toByte() // Escape Character
+        writeAPDU[5] = (dataLen shr 8 and 0xFF).toByte() // Number of bytes: MSB
+        writeAPDU[6] = (dataLen and 0xFF).toByte() // Number of bytes: LSB
 
         /* Append "data" to end of "writeAPDU" byte array. */
         System.arraycopy(data, 0, writeAPDU, 7, dataLen)
@@ -586,17 +649,18 @@ class CardReaderActivity : Activity() {
      * will update special APDU read command to read data that was last written to card.
      */
     private fun updateReadSpecialAPDU() {
-
-        readSpecialDataAPDU = ("FF"   // MiFare Card
-                + "B0"                // MiFare Card READ Command
-                + "00"                // P1
-                + "01")               // P2: Block Number
+        readSpecialDataAPDU = (
+            "FF" + // MiFare Card
+                "B0" + // MiFare Card READ Command
+                "00" + // P1
+                "01"
+            ) // P2: Block Number
         readSpecialDataAPDU += HexUtils.toString(specialData.size.toByte())
 
         /* If user has selected special read APDU, then we need to update it also. */
-        if (mREAD_SPECIAL_APDU_LEN == currentReadAPDU.length)
+        if (mREAD_SPECIAL_APDU_LEN == currentReadAPDU.length) {
             currentReadAPDU = readSpecialDataAPDU
-
+        }
     }
 
     companion object {
@@ -606,5 +670,4 @@ class CardReaderActivity : Activity() {
         private const val CARD_ABSENT = 1
         private const val CARD_PRESENT = 2
     }
-
 }
