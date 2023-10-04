@@ -20,7 +20,7 @@ android {
 		defaultKey {
 			keyAlias 'CredenceIDPublicKey'
 			keyPassword 'CredenceID'
-			storeFile file('../../CredencePublicKeys/PublicKey.jks')
+			storeFile file('/Users/navya/Documents/CredencePublicKeys/PublicKey.jks')
 			storePassword 'CredenceID'
 		}
 	}
