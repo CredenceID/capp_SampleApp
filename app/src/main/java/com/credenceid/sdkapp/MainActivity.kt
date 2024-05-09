@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
     private fun configureButtons() {
         /* By default all Credence device's face a fingerprint sensor and camera. */
         binding.fpBtn.visibility = View.VISIBLE
-        binding.faceBtn.visibility = View.GONE
+        binding.faceBtn.visibility = View.VISIBLE
 
         if (App.BioManager!!.hasCardReader()) {
             binding.cardBtn.visibility = View.VISIBLE

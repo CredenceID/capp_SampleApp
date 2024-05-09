@@ -76,9 +76,11 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         /* Camera is no longer in preview. */
         inPreview = false
 
+        val dataBytes = compressImageByteArray(data, 80)
+
         try {
             val intent = Intent(this, FaceActivity::class.java)
-            intent.putExtra(getString(R.string.camera_image), data)
+            intent.putExtra(getString(R.string.camera_image), dataBytes)
             stopReleaseCamera()
             startActivity(intent)
             finish()
@@ -88,6 +90,43 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
             Toast.makeText(this, "Unable to run face analysis, retry.", Toast.LENGTH_LONG).show()
         }
     }
+
+    fun compressImageByteArray(imageByteArray: ByteArray, quality: Int): ByteArray {
+        // Convert the byte array to a Bitmap
+        val bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size)
+
+        // Compress the bitmap
+        val compressedBitmap = compressBitmap(bitmap, quality)
+
+        // Convert the compressed bitmap back to a byte array
+        val stream = ByteArrayOutputStream()
+        compressedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream) // Adjust format and quality as needed
+        return stream.toByteArray()
+    }
+    private fun compressBitmap(bitmap: Bitmap, quality: Int): Bitmap {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream)
+        val byteArray = stream.toByteArray()
+        val options = BitmapFactory.Options()
+        options.inSampleSize = calculateInSampleSize(byteArray, quality)
+        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+    }
+
+    private fun calculateInSampleSize(byteArray: ByteArray, quality: Int): Int {
+        val options = BitmapFactory.Options()
+        options.inJustDecodeBounds = true
+        BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+        val originalWidth = options.outWidth
+        val originalHeight = options.outHeight
+        val targetWidth = originalWidth / 2
+        val targetHeight = originalHeight / 2
+        var inSampleSize = 1
+        while ((originalWidth / inSampleSize) >= targetWidth && (originalHeight / inSampleSize) >= targetHeight) {
+            inSampleSize *= 2
+        }
+        return inSampleSize
+    }
+
 
     /**
      * This callback is invoked on each camera preview frame. In this callback will run call face
