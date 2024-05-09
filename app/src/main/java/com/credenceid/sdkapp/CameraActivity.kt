@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.credenceid.sdkapp
 
 import android.annotation.SuppressLint
@@ -21,8 +23,8 @@ import com.credenceid.biometrics.DeviceFamily.*
 import com.credenceid.face.FaceEngine
 import com.credenceid.face.FaceEngine.*
 import com.credenceid.sdkapp.android.camera.Utils
+import com.credenceid.sdkapp.databinding.ActCameraBinding
 import com.credenceid.sdkapp.util.Beeper
-import kotlinx.android.synthetic.main.act_camera.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.*
@@ -61,6 +63,8 @@ private var surfaceHolder: SurfaceHolder? = null
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class CameraActivity : Activity(), SurfaceHolder.Callback {
 
+    private lateinit var binding: ActCameraBinding
+
     /**
      * This callback is invoked after camera finishes taking a picture.
      */
@@ -96,11 +100,11 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      */
     private val mAutoFocusCallback = Camera.AutoFocusCallback { _, _ ->
         /* Remove previous status since auto-focus is now done. */
-        statusTextView.text = ""
+        binding.statusTextView.text = ""
 
         /* Tell DrawingView to stop displaying auto-focus circle by giving it a region of 0. */
-        drawingView.setHasTouch(false, Rect(0, 0, 0, 0))
-        drawingView.invalidate()
+        binding.drawingView.setHasTouch(false, Rect(0, 0, 0, 0))
+        binding.drawingView.invalidate()
 
         /* Re-enable capture button. */
         setCaptureButtonVisibility(true)
@@ -109,8 +113,8 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(App.TAG, "onCreate()")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.act_camera)
-
+        binding = ActCameraBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         context = this
     }
 
@@ -199,28 +203,28 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
         /* Only CredenceTAB family of device's support 8MP back camera resolution.  */
         if (CredenceTAB != App.DevFamily)
-            eightMPCheckBox.visibility = View.GONE
+            binding.eightMPCheckBox.visibility = View.GONE
 
-        previewFrameLayout.visibility = VISIBLE
-        drawingView.visibility = VISIBLE
-        scanImageView.visibility = VISIBLE
+        binding.previewFrameLayout.visibility = VISIBLE
+        binding.drawingView.visibility = VISIBLE
+        binding.scanImageView.visibility = VISIBLE
 
-        surfaceHolder = scanImageView.holder
+        surfaceHolder = binding.scanImageView.holder
         surfaceHolder!!.addCallback(this)
         surfaceHolder!!.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
 
-        captureBtn.setOnClickListener { v: View ->
+        binding.captureBtn.setOnClickListener { v: View ->
             if (!inPreview) {
                 this.reset()
                 this.doPreview()
 
-                captureBtn.text = getString(R.string.capture_label)
+                binding.captureBtn.text = getString(R.string.capture_label)
             } else if (camera != null)
                 doCapture()
         }
 
-        flashOnBtn.setOnClickListener { this.setTorchEnable(true) }
-        flashOffBtn.setOnClickListener { this.setTorchEnable(false) }
+        binding.flashOnBtn.setOnClickListener { this.setTorchEnable(true) }
+        binding.flashOffBtn.setOnClickListener { this.setTorchEnable(false) }
     }
 
     private fun initPreview() {
@@ -275,28 +279,28 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         previewSize.height = P_HEIGHT
 
         if (CredenceTwo == App.DevFamily) {
-            previewFrameLayout.layoutParams.width = (previewSize.height * 2.5).toInt()
-            previewFrameLayout.layoutParams.height = (previewSize.width * 2.5).toInt()
+            binding.previewFrameLayout.layoutParams.width = (previewSize.height * 2.5).toInt()
+            binding.previewFrameLayout.layoutParams.height = (previewSize.width * 2.5).toInt()
         }
-        previewFrameLayout.setAspectRatio(previewSize.width / previewSize.height.toDouble())
+        binding.previewFrameLayout.setAspectRatio(previewSize.width / previewSize.height.toDouble())
 
-        val drawingViewLayoutParams = drawingView.layoutParams
+        val drawingViewLayoutParams = binding.drawingView.layoutParams
 
         if (CredenceTAB == App.DevFamily) {
             drawingViewLayoutParams.width = (previewSize.width * 2.75).toInt()
             drawingViewLayoutParams.height = (previewSize.height * 2.75).toInt()
         } else {
-            val prevParams = previewFrameLayout.layoutParams
+            val prevParams = binding.previewFrameLayout.layoutParams
             drawingViewLayoutParams.width = prevParams.width
             drawingViewLayoutParams.height = prevParams.height
         }
-        drawingView.layoutParams = drawingViewLayoutParams
+        binding.drawingView.layoutParams = drawingViewLayoutParams
 
         /* Need to set FaceEngine specific bitmap size so DrawingView knows
          * where and how to draw face detection points. Otherwise it would
          * assume the bitmap size is 0.
          */
-        drawingView.setBitmapDimensions(P_WIDTH, P_HEIGHT)
+        binding.drawingView.setBitmapDimensions(P_WIDTH, P_HEIGHT)
 
         camera!!.parameters = parameters
         mIsCameraConfigured = true
@@ -309,13 +313,13 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         if (mIsCameraConfigured && null != camera) {
             Log.d(App.TAG, "Camera is configured & valid.")
 
-            statusTextView.text = ""
-            captureBtn.text = getString(R.string.capture_label)
+            binding.statusTextView.text = ""
+            binding.captureBtn.text = getString(R.string.capture_label)
             this.setCaptureButtonVisibility(true)
 
-            previewFrameLayout.visibility = VISIBLE
-            drawingView.visibility = VISIBLE
-            scanImageView.visibility = VISIBLE
+            binding.previewFrameLayout.visibility = VISIBLE
+            binding.drawingView.visibility = VISIBLE
+            binding.scanImageView.visibility = VISIBLE
 
             Log.d(App.TAG, "Executing: camera.startPreview()")
             camera!!.startPreview()
@@ -378,7 +382,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
         val parameters = camera!!.parameters
         parameters.setPreviewSize(width, height)
-        previewFrameLayout.setAspectRatio(ratio)
+        binding.previewFrameLayout.setAspectRatio(ratio)
         camera!!.parameters = parameters
     }
 
@@ -428,7 +432,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
 
         if (camera != null) {
             this.setCaptureButtonVisibility(false)
-            statusTextView.text = getString(R.string.start_capture_hold_still)
+            binding.statusTextView.text = getString(R.string.start_capture_hold_still)
 
             /* We are no longer going to be in preview. Set variable BEFORE telling camera to take
              * picture. Camera takes time to take a picture so we do not want any preview event to
@@ -474,7 +478,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         Log.d(App.TAG, "reset()")
 
         /* Change capture button image to "Capture". */
-        captureBtn.text = getString(R.string.capture_label)
+        binding.captureBtn.text = getString(R.string.capture_label)
 
         /* Turn off flash since new preview. */
         this.setTorchEnable(false)
@@ -529,7 +533,7 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      */
     private fun setCaptureButtonVisibility(visibility: Boolean) {
 
-        captureBtn.visibility = if (visibility) VISIBLE else INVISIBLE
+        binding.captureBtn.visibility = if (visibility) VISIBLE else INVISIBLE
     }
 
     /**
@@ -542,8 +546,8 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
      */
     private fun setFlashButtonVisibility(@Suppress("SameParameterValue") visibility: Boolean) {
 
-        flashOnBtn.visibility = if (visibility) VISIBLE else INVISIBLE
-        flashOffBtn.visibility = if (visibility) VISIBLE else INVISIBLE
+        binding.flashOnBtn.visibility = if (visibility) VISIBLE else INVISIBLE
+        binding.flashOffBtn.visibility = if (visibility) VISIBLE else INVISIBLE
     }
 
     /**
@@ -558,17 +562,17 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
             return
 
         this.setCaptureButtonVisibility(false)
-        statusTextView.text = getString(R.string.autofocus_wait)
+        binding.statusTextView.text = getString(R.string.autofocus_wait)
 
         val one = 2000
         val two = 1000
 
         /* Here we properly bound our Rect for a better tap to focus region */
         val targetFocusRect = Rect(
-                touchRect.left * one / drawingView.width - two,
-                touchRect.top * one / drawingView.height - two,
-                touchRect.right * one / drawingView.width - two,
-                touchRect.bottom * one / drawingView.height - two)
+                touchRect.left * one / binding.drawingView.width - two,
+                touchRect.top * one / binding.drawingView.height - two,
+                touchRect.right * one / binding.drawingView.width - two,
+                touchRect.bottom * one / binding.drawingView.height - two)
 
         /* Since Camera parameters only accept a List of  areas to focus, create a list. */
         val focusList = ArrayList<Camera.Area>()
@@ -589,9 +593,9 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         /* Call camera AutoFocus and pass callback to be called when auto focus finishes */
         camera!!.autoFocus(mAutoFocusCallback)
         /* Tell our drawing view we have a touch in the given Rect */
-        drawingView.setHasTouch(true, touchRect)
+        binding.drawingView.setHasTouch(true, touchRect)
         /* Tell our drawing view to Update */
-        drawingView.invalidate()
+        binding.drawingView.invalidate()
     }
 
     private inline fun <T : Any, R> whenNotNull(input: T?, callback: (T) -> R): R? {
@@ -660,14 +664,14 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                 OK -> {
                     whenNotNull(rectF) {
                         /* Tell view that it will need to draw a detected face's Rect. region. */
-                        drawingView.setHasFace(true)
+                        binding.drawingView.setHasFace(true)
 
                         /* If CredenceTWO then bounding Rect needs to be scaled to properly fit. */
                         if (CredenceTwo == App.DevFamily) {
-                            drawingView.setFaceRect(rectF!!.left + 40, rectF.top - 25,
+                            binding.drawingView.setFaceRect(rectF!!.left + 40, rectF.top - 25,
                                     rectF.right + 40, rectF.bottom - 50)
                         } else {
-                            drawingView.setFaceRect(rectF!!.left, rectF.top,
+                            binding.drawingView.setFaceRect(rectF!!.left, rectF.top,
                                     rectF.right, rectF.bottom)
                         }
                     }
@@ -677,16 +681,16 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
                 }
                 FAIL -> {
                     /* Tell view to not draw face Rect. region on next "onDraw()" call. */
-                    drawingView.setHasFace(false)
+                    binding.drawingView.setHasFace(false)
                 }
                 else -> {
                     /* Tell view to not draw face Rect. region on next "onDraw()" call. */
-                    drawingView.setHasFace(false)
+                    binding.drawingView.setHasFace(false)
                 }
             }
 
             /* Tell view to invoke an "onDraw()". */
-            drawingView.invalidate()
+            binding.drawingView.invalidate()
         }
     }
 

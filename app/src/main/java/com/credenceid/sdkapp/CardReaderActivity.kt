@@ -12,10 +12,8 @@ import com.credenceid.biometrics.Biometrics
 import com.credenceid.biometrics.Biometrics.CloseReasonCode
 import com.credenceid.biometrics.Biometrics.ResultCode
 import com.credenceid.biometrics.Biometrics.ResultCode.*
+import com.credenceid.sdkapp.databinding.ActCardreaderBinding
 import com.util.HexUtils
-import kotlinx.android.synthetic.main.act_cardreader.*
-import kotlinx.android.synthetic.main.act_cardreader.openCloseBtn
-import kotlinx.android.synthetic.main.act_fp.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -23,6 +21,8 @@ import java.util.*
 
 @Suppress("unused")
 class CardReaderActivity : Activity() {
+    private lateinit var binding: ActCardreaderBinding
+
     /**
      * Keeps track of card reader sensor. If true then sensor is open, if false sensor is closed.
      */
@@ -191,20 +191,21 @@ class CardReaderActivity : Activity() {
         /* If currentState is 1, then no card is present. */
         if (CARD_ABSENT == currentState) {
             isCardPresent = false
-            cardStatusTextView.text = getString(R.string.card_absent)
+            binding.cardStatusTextView.text = getString(R.string.card_absent)
         }
         /* currentStates [2, 6] represent a card present. If a card is present code will reach.
          * Here you may perform any operations you want ran automatically when a card is detected.
          */
         else {
             isCardPresent = true
-            cardStatusTextView.text = getString(R.string.card_present)
+            binding.cardStatusTextView.text = getString(R.string.card_present)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.act_cardreader)
+        binding = ActCardreaderBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         this.configureLayoutComponents()
     }
 
@@ -229,11 +230,11 @@ class CardReaderActivity : Activity() {
         this.setReadWriteComponentEnable(false)
 
         /* This will remove focus from view, meaning keyboard will hide. */
-        writeEditText.clearFocus()
+        binding.writeEditText.clearFocus()
 
-        openCloseBtn.setOnClickListener {
-            openCloseBtn.isEnabled = false
-            cardStatusTextView.text = ""
+        binding.openCloseBtn.setOnClickListener {
+            binding.openCloseBtn.isEnabled = false
+            binding.cardStatusTextView.text = ""
 
             /* Based on status of card reader take appropriate action. */
             if (isSensorOpen) {
@@ -246,7 +247,7 @@ class CardReaderActivity : Activity() {
         /* Each time an item is selected we need up update "currentReadAPDU". This is so when user
          * presses "readDataBtn", APDU which matches  selected option has already been set.
          */
-        readAPDUSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.readAPDUSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
                 view: View,
@@ -268,19 +269,19 @@ class CardReaderActivity : Activity() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        writeDataBtn.setOnClickListener {
+        binding.writeDataBtn.setOnClickListener {
             /* Do not do anything if card is not present. */
             if (!isCardPresent) {
-                cardReaderStatusTextView.text = getString(R.string.no_card_present_to_write_to)
+                binding.cardReaderStatusTextView.text = getString(R.string.no_card_present_to_write_to)
                 return@setOnClickListener
             }
 
             /* Check to make sure user has entered some valid data to write to card. If nothing
              * exists then do not do anything.
              */
-            val data = writeEditText.text.toString()
+            val data = binding.writeEditText.text.toString()
             if (mEMPTY_STRING_LEN == data.length) {
-                cardReaderStatusTextView.text = getString(R.string.no_data_to_write_to_card)
+                binding.cardReaderStatusTextView.text = getString(R.string.no_data_to_write_to_card)
                 return@setOnClickListener
             }
 
@@ -291,17 +292,17 @@ class CardReaderActivity : Activity() {
             specialData = data.toByteArray()
 
             /* Based on if user has selected sync/async APIs call appropriate method. */
-            if (syncCheckBox.isChecked) {
+            if (binding.syncCheckBox.isChecked) {
                 writeCardSync(specialData)
             } else {
                 writeCardAsync(specialData)
             }
         }
 
-        readDataBtn.setOnClickListener {
+        binding.readDataBtn.setOnClickListener {
             /* Do not do anything if card is not present. */
             if (!isCardPresent) {
-                cardReaderStatusTextView.text = getString(R.string.no_card_present_read_from)
+                binding.cardReaderStatusTextView.text = getString(R.string.no_card_present_read_from)
                 return@setOnClickListener
             }
 
@@ -309,14 +310,14 @@ class CardReaderActivity : Activity() {
             this.setReadWriteComponentEnable(false)
 
             /* Based on if user has selected sync/async APIs call appropriate method. */
-            if (syncCheckBox.isChecked) {
+            if (binding.syncCheckBox.isChecked) {
                 readCardSync(currentReadAPDU)
             } else {
                 readCardAsync(currentReadAPDU)
             }
         }
 
-        writeEditText.setOnFocusChangeListener { v, hasFocus ->
+        binding.writeEditText.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
                 hideKeyboard(v)
             }
@@ -339,17 +340,17 @@ class CardReaderActivity : Activity() {
      */
     private fun openCardReader() {
         /* Let user know card reader will now try to be opened. */
-        cardReaderStatusTextView.text = getString(R.string.opening_card_reader)
+        binding.cardReaderStatusTextView.text = getString(R.string.opening_card_reader)
 
         App.BioManager!!.cardOpenCommand(object : Biometrics.CardReaderStatusListener {
             override fun onCardReaderOpen(resultCode: ResultCode) {
                 when {
                     OK == resultCode -> {
-                        openCloseBtn.isEnabled = true
+                        binding.openCloseBtn.isEnabled = true
                         isSensorOpen = true
 
-                        cardReaderStatusTextView.text = getString(R.string.card_reader_opened)
-                        openCloseBtn.text = getString(R.string.close_card_reader)
+                        binding.cardReaderStatusTextView.text = getString(R.string.card_reader_opened)
+                        binding.openCloseBtn.text = getString(R.string.close_card_reader)
 
                         setReadWriteComponentEnable(true)
 
@@ -363,8 +364,8 @@ class CardReaderActivity : Activity() {
                         /* This code is never returned here. */
                     }
                     FAIL == resultCode -> {
-                        openCloseBtn.isEnabled = true
-                        cardReaderStatusTextView.text = getString(R.string.failed_open_card_reader)
+                        binding.openCloseBtn.isEnabled = true
+                        binding.cardReaderStatusTextView.text = getString(R.string.failed_open_card_reader)
                     }
                 }
             }
@@ -374,21 +375,21 @@ class CardReaderActivity : Activity() {
                 resultCode: ResultCode,
                 closeReasonCode: CloseReasonCode
             ) {
-                openCloseBtn.isEnabled = true
+                binding.openCloseBtn.isEnabled = true
                 when {
                     OK == resultCode -> {
                         isSensorOpen = false
-                        cardReaderStatusTextView.text =
+                        binding.cardReaderStatusTextView.text =
                             getString(R.string.card_reader_closed) + closeReasonCode.name
-                        cardStatusTextView.text = ""
-                        openCloseBtn.text = getString(R.string.open_card)
+                        binding.cardStatusTextView.text = ""
+                        binding.openCloseBtn.text = getString(R.string.open_card)
                         setReadWriteComponentEnable(false)
                     }
                     INTERMEDIATE == resultCode -> {
                         /* This code is never returned here. */
                     }
                     FAIL == resultCode ->
-                        cardReaderStatusTextView.text = getString(R.string.card_reader_fail_close)
+                        binding.cardReaderStatusTextView.text = getString(R.string.card_reader_fail_close)
                 }
             }
         })
@@ -400,10 +401,10 @@ class CardReaderActivity : Activity() {
      * @param enabled If true enables components, if false dis-ables them.
      */
     private fun setReadWriteComponentEnable(enabled: Boolean) {
-        writeEditText.isEnabled = enabled
-        writeDataBtn.isEnabled = enabled
-        readAPDUSelector.isEnabled = enabled
-        readDataBtn.isEnabled = enabled
+        binding.writeEditText.isEnabled = enabled
+        binding.writeDataBtn.isEnabled = enabled
+        binding.readAPDUSelector.isEnabled = enabled
+        binding.readDataBtn.isEnabled = enabled
     }
 
     /**
@@ -421,7 +422,7 @@ class CardReaderActivity : Activity() {
      * @param APDUCommand Initial APDU command to execute.
      */
     private fun readCardAsync(APDUCommand: String) {
-        cardReaderStatusTextView.text = getString(R.string.reading_card_wait)
+        binding.cardReaderStatusTextView.text = getString(R.string.reading_card_wait)
 
         App.BioManager!!.cardCommand(ApduCommand(APDUCommand), false) { rc: ResultCode,
             sw1: Byte,
@@ -458,15 +459,15 @@ class CardReaderActivity : Activity() {
                         dataToDisplay
                     )
 
-                    cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
-                    dataTextView.text = str
+                    binding.cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
+                    binding.dataTextView.text = str
                 }
                 INTERMEDIATE == rc -> {
                     /* This code is never returned here. */
                 }
                 FAIL == rc -> {
-                    cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
-                    dataTextView.text = getString(R.string.apdu_failed)
+                    binding.cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
+                    binding.dataTextView.text = getString(R.string.apdu_failed)
                 }
             }
 
@@ -482,15 +483,15 @@ class CardReaderActivity : Activity() {
      * using sync. APIs.
      */
     private fun readCardSync(APDUCommand: String) {
-        cardReaderStatusTextView.text = getString(R.string.reading_card_wait)
+        binding.cardReaderStatusTextView.text = getString(R.string.reading_card_wait)
 
         GlobalScope.launch(Dispatchers.Main) {
             val response = App.BioManager!!.cardCommandSync(ApduCommand(APDUCommand), false, 4000)
 
             /* If APDU failed then response will be NULL. */
             if (null == response) {
-                cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
-                dataTextView.text = getString(R.string.apdu_failed)
+                binding.cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
+                binding.dataTextView.text = getString(R.string.apdu_failed)
                 setReadWriteComponentEnable(true)
                 return@launch
             }
@@ -519,8 +520,8 @@ class CardReaderActivity : Activity() {
                 dataToDisplay
             )
 
-            cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
-            dataTextView.text = str
+            binding.cardReaderStatusTextView.text = getString(R.string.done_reading_from_card)
+            binding.dataTextView.text = str
             setReadWriteComponentEnable(true)
         }
     }
@@ -546,8 +547,8 @@ class CardReaderActivity : Activity() {
 
             /* If APDU failed then response will be NULL. */
             if (null == response) {
-                cardReaderStatusTextView.text = getString(R.string.done_writing_to_card)
-                dataTextView.text = getString(R.string.apdu_failed)
+                binding.cardReaderStatusTextView.text = getString(R.string.done_writing_to_card)
+                binding.dataTextView.text = getString(R.string.apdu_failed)
                 setReadWriteComponentEnable(true)
                 return@launch
             }
@@ -559,8 +560,8 @@ class CardReaderActivity : Activity() {
                 HexUtils.toString(response.sw2)
             )
 
-            cardReaderStatusTextView.text = getString(R.string.done_writing_to_card)
-            dataTextView.text = str
+            binding.cardReaderStatusTextView.text = getString(R.string.done_writing_to_card)
+            binding.dataTextView.text = str
             setReadWriteComponentEnable(true)
 
             /* If a write was successful we should then update "readSpecialDataAPDU" so that it
@@ -591,8 +592,8 @@ class CardReaderActivity : Activity() {
                         HexUtils.toString(sw2)
                     )
 
-                    cardReaderStatusTextView.text = getString(R.string.done_writing_to_card)
-                    dataTextView.text = str
+                    binding.cardReaderStatusTextView.text = getString(R.string.done_writing_to_card)
+                    binding.dataTextView.text = str
 
                     this.setReadWriteComponentEnable(true)
 
@@ -605,8 +606,8 @@ class CardReaderActivity : Activity() {
                     /* This code is never returned here. */
                 }
                 FAIL == rc -> {
-                    cardReaderStatusTextView.text = getString(R.string.done_writing_to_card)
-                    dataTextView.text = getString(R.string.apdu_failed)
+                    binding.cardReaderStatusTextView.text = getString(R.string.done_writing_to_card)
+                    binding.dataTextView.text = getString(R.string.apdu_failed)
                     this.setReadWriteComponentEnable(true)
                 }
             }

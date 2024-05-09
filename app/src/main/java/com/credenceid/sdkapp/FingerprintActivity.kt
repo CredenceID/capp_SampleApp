@@ -11,13 +11,15 @@ import android.widget.Toast
 import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
 import com.credenceid.biometrics.Biometrics.ResultCode.*
+import com.credenceid.sdkapp.databinding.ActFpBinding
 import com.util.HexUtils
-import kotlinx.android.synthetic.main.act_fp.*
 
 private const val SYNC_API_TIMEOUT_MS = 3000
 
 @SuppressLint("StaticFieldLeak")
 class FingerprintActivity : Activity() {
+
+    private lateinit var binding: ActFpBinding
 
     /**
      * List of different fingerprint scan types supported across all Credence devices.
@@ -59,7 +61,7 @@ class FingerprintActivity : Activity() {
              * message indicating what is going on with sensor.
              */
             if (hint != null && hint.isNotEmpty()) {
-                fpStatusTextView.text = hint
+                binding.fpStatusTextView.text = hint
             }
 
             /* This code is returned once sensor has fully finished opening. */
@@ -72,11 +74,11 @@ class FingerprintActivity : Activity() {
                     mOpenFingerprint = false
 
                     /* Operation is complete, re-enable button. */
-                    openCloseBtn.isEnabled = true
+                    binding.openCloseBtn.isEnabled = true
                     /* Only if fingerprint opened do we allow user to capture fingerprints. */
-                    captureBtn.isEnabled = true
+                    binding.captureBtn.isEnabled = true
                     /* If fingerprint opened then we change button to say "Close". */
-                    openCloseBtn.text = getString(R.string.close)
+                    binding.openCloseBtn.text = getString(R.string.close)
                 }
                 /* This code is returned while sensor is in the middle of opening. */
                 INTERMEDIATE -> {
@@ -85,7 +87,7 @@ class FingerprintActivity : Activity() {
                 /* This code is returned if sensor fails to open. */
                 FAIL -> {
                     /* Operation is complete, re-enable button. */
-                    openCloseBtn.isEnabled = true
+                    binding.openCloseBtn.isEnabled = true
                 }
                 else -> {
                 }
@@ -99,7 +101,7 @@ class FingerprintActivity : Activity() {
         ) {
             when {
                 OK == resultCode -> {
-                    fpStatusTextView.text = "Fingerprint Closed: " + closeReasonCode.name
+                    binding.fpStatusTextView.text = "Fingerprint Closed: " + closeReasonCode.name
 
                     /* Now that sensor is closed, if user presses "openCloseBtn" fingerprint
                      * sensor should now open. To achieve this we change flag which controls
@@ -108,16 +110,16 @@ class FingerprintActivity : Activity() {
                     mOpenFingerprint = true
 
                     /* Change text back to "Open" and allow button to be clickable. */
-                    openCloseBtn.text = getString(R.string.open)
-                    openCloseBtn.isEnabled = true
+                    binding.openCloseBtn.text = getString(R.string.open)
+                    binding.openCloseBtn.isEnabled = true
                     /* Sensor is closed, user should NOT be able to press capture or match. */
-                    captureBtn.isEnabled = false
-                    matchBtn.isEnabled = false
+                    binding.captureBtn.isEnabled = false
+                    binding.matchBtn.isEnabled = false
                 }
                 INTERMEDIATE == resultCode -> {
                     /* This code is never returned for this API. */
                 }
-                FAIL == resultCode -> fpStatusTextView.text = "Fingerprint FAILED to close."
+                FAIL == resultCode -> binding.fpStatusTextView.text = "Fingerprint FAILED to close."
                 else -> {
                 }
             }
@@ -126,7 +128,8 @@ class FingerprintActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.act_fp)
+        binding = ActFpBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         this.configureLayoutComponents()
     }
 
@@ -159,20 +162,20 @@ class FingerprintActivity : Activity() {
         /* Only allow match once both fingerprints have been captured. */
         this.setCaptureMatchButtonEnable(false)
 
-        fingerOneImageView.setOnClickListener {
+        binding.fingerOneImageView.setOnClickListener {
             /* This ImageView should turn green since it was selected. */
-            fingerOneImageView.background = resources.getDrawable(R.drawable.image_border_on)
+            binding.fingerOneImageView.background = resources.getDrawable(R.drawable.image_border_on)
             /* Other ImageView should turn black or off. */
-            fingerTwoImageView.background = resources.getDrawable(R.drawable.image_border_off)
+            binding.fingerTwoImageView.background = resources.getDrawable(R.drawable.image_border_off)
 
             mCaptureFingerprintOne = true
         }
 
-        fingerTwoImageView.setOnClickListener {
+        binding.fingerTwoImageView.setOnClickListener {
             /* This ImageView should turn green since it was selected. */
-            fingerTwoImageView.background = resources.getDrawable(R.drawable.image_border_on)
+            binding.fingerTwoImageView.background = resources.getDrawable(R.drawable.image_border_on)
             /* Other ImageView should turn black or off. */
-            fingerOneImageView.background = resources.getDrawable(R.drawable.image_border_off)
+            binding.fingerOneImageView.background = resources.getDrawable(R.drawable.image_border_off)
 
             mCaptureFingerprintOne = false
         }
@@ -180,7 +183,7 @@ class FingerprintActivity : Activity() {
         /* Inside onClickListeners for each button, we disable all buttons until their respective
          * operation is complete. Once it is done, the appropriate buttons are re-enabled.
          */
-        openCloseBtn.setOnClickListener {
+        binding.openCloseBtn.setOnClickListener {
             /* Disable button so user does not try a second open while fingerprint it opening.
              * Hide capture/math buttons since sensor is opening/closing.
              */
@@ -193,9 +196,9 @@ class FingerprintActivity : Activity() {
             }
         }
 
-        captureBtn.setOnClickListener {
+        binding.captureBtn.setOnClickListener {
             this.setAllComponentEnable(false)
-            infoTextView.text = ""
+            binding.infoTextView.text = ""
 
             /* Based on which ImageView was selected, capture appropriate fingerprint. */
             if (mCaptureFingerprintOne) {
@@ -205,7 +208,7 @@ class FingerprintActivity : Activity() {
             }
         }
 
-        matchBtn.setOnClickListener {
+        binding.matchBtn.setOnClickListener {
             if (mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null) {
                 this.setAllComponentEnable(false)
                 this.matchFMDTemplates(mFingerprintOneFMDTemplate, mFingerprintTwoFMDTemplate)
@@ -215,11 +218,11 @@ class FingerprintActivity : Activity() {
         }
 
         if (App.BioManager!!.deviceType.name.contains("CredenceECO_FC")) {
-            calibrateBtn.setOnClickListener {
+            binding.calibrateBtn.setOnClickListener {
                 calibrateFingerprintSensor()
             }
         } else {
-            calibrateBtn.visibility = View.GONE
+            binding.calibrateBtn.visibility = View.GONE
         }
     }
 
@@ -229,10 +232,10 @@ class FingerprintActivity : Activity() {
      * @param enable If true components are enabled, if false they are disabled.
      */
     private fun setCaptureMatchButtonEnable(enable: Boolean) {
-        captureBtn.isEnabled = enable
+        binding.captureBtn.isEnabled = enable
 
         /* If both templates have been created then enable Match button. */
-        matchBtn.isEnabled = mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null
+        binding.matchBtn.isEnabled = mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null
     }
 
     /**
@@ -242,9 +245,9 @@ class FingerprintActivity : Activity() {
      */
     private fun setAllComponentEnable(enable: Boolean) {
         this.setCaptureMatchButtonEnable(enable)
-        openCloseBtn.isEnabled = enable
-        fingerOneImageView.isEnabled = enable
-        fingerTwoImageView.isEnabled = enable
+        binding.openCloseBtn.isEnabled = enable
+        binding.fingerOneImageView.isEnabled = enable
+        binding.fingerTwoImageView.isEnabled = enable
     }
 
     /**
@@ -273,18 +276,18 @@ class FingerprintActivity : Activity() {
                 ) {
                     /* If a valid hint was given then display it for user to see. */
                     if (hint != null && hint.isNotEmpty()) {
-                        fpStatusTextView.text = hint
+                        binding.fpStatusTextView.text = hint
                     }
 
                     when (resultCode) {
                         /* This code is returned once sensor captures fingerprint image. */
                         OK -> {
                             if (null != bitmap) {
-                                fingerOneImageView.setImageBitmap(bitmap)
+                                binding.fingerOneImageView.setImageBitmap(bitmap)
                             }
 
                             // fpStatusTextView.text = "WSQ File: $wsqFilepath"
-                            infoTextView.text = "Quality: $nfiqScore"
+                            binding.infoTextView.text = "Quality: $nfiqScore"
 
                             /* Create template from fingerprint image. */
                             if (bitmap != null) {
@@ -296,7 +299,7 @@ class FingerprintActivity : Activity() {
                         /* This code is returned on every new frame/image from sensor. */
                         INTERMEDIATE -> {
                             if (null != bitmap) {
-                                fingerOneImageView.setImageBitmap(bitmap)
+                                binding.fingerOneImageView.setImageBitmap(bitmap)
                             }
 
                         /* This hint is returned if cancelCapture()" or "closeFingerprint()" are
@@ -330,7 +333,7 @@ class FingerprintActivity : Activity() {
             image,
             object : OnGetFingerQualityListener {
                 override fun onGetFingerQuality(res: ResultCode?, quality: Int) {
-                    fpStatusTextView.text = "SDK Quality: $quality"
+                    binding.fpStatusTextView.text = "SDK Quality: $quality"
                     Log.d("SAMPLE", "SDK Quality = " + quality)
                 }
             }
@@ -355,13 +358,13 @@ class FingerprintActivity : Activity() {
                 ) {
                     /* If a valid hint was given then display it for user to see. */
                     if (hint != null && hint.isNotEmpty()) {
-                        fpStatusTextView.text = hint
+                        binding.fpStatusTextView.text = hint
                     }
 
                     when (resultCode) {
                         OK -> {
                             if (null != bitmap) {
-                                fingerTwoImageView.setImageBitmap(bitmap)
+                                binding.fingerTwoImageView.setImageBitmap(bitmap)
                             }
 
                             /* Create template from fingerprint image. */
@@ -370,7 +373,7 @@ class FingerprintActivity : Activity() {
                         /* This code is returned on every new frame/image from sensor. */
                         INTERMEDIATE -> {
                             if (null != bitmap) {
-                                fingerTwoImageView.setImageBitmap(bitmap)
+                                binding.fingerTwoImageView.setImageBitmap(bitmap)
                             }
 
                         /* This hint is returned if cancelCapture()" or "closeFingerprint()" are
@@ -408,7 +411,7 @@ class FingerprintActivity : Activity() {
     @SuppressLint("SetTextI18n")
     private fun createFMDTemplate(bitmap: Bitmap?) {
         if (bitmap == null) {
-            errorTextView.text = "Bitmap passed to createFMDTemplate() is null."
+            binding.errorTextView.text = "Bitmap passed to createFMDTemplate() is null."
             return
         }
 
@@ -422,7 +425,7 @@ class FingerprintActivity : Activity() {
                 OK -> {
                     /* Display how long it took for FMD template to be created. */
                     val durationInSeconds = (SystemClock.elapsedRealtime() - startTime) / 1000.0
-                    infoTextView.text = "Created FMD template in: $durationInSeconds seconds."
+                    binding.infoTextView.text = "Created FMD template in: $durationInSeconds seconds."
 
                     if (mCaptureFingerprintOne) {
                         mFingerprintOneFMDTemplate = bytes?.copyOf(bytes.size)
@@ -432,15 +435,15 @@ class FingerprintActivity : Activity() {
 
                     /* If both templates have been created then enable Match button. */
                     if (mFingerprintOneFMDTemplate != null && mFingerprintTwoFMDTemplate != null) {
-                        matchBtn.isEnabled = true
+                        binding.matchBtn.isEnabled = true
                     }
                 }
                 INTERMEDIATE -> {
                     /* This code is never returned for this API. */
                 }
                 FAIL -> {
-                    errorTextView.text = "FMD template is null."
-                    fpStatusTextView.text = "Failed to create FMD template. ResultCode : $resultCode"
+                    binding.errorTextView.text = "FMD template is null."
+                    binding.fpStatusTextView.text = "Failed to create FMD template. ResultCode : $resultCode"
                 }
                 else -> {
                 }
@@ -469,15 +472,15 @@ class FingerprintActivity : Activity() {
             when (rc) {
                 OK -> {
                     var matchDecision = "Match score = $score"
-                    fpStatusTextView.text = "Matching complete."
-                    infoTextView.text = "Match outcome: $matchDecision"
+                    binding.fpStatusTextView.text = "Matching complete."
+                    binding.infoTextView.text = "Match outcome: $matchDecision"
                 }
                 INTERMEDIATE -> {
                     /* This API will never return ResultCode.INTERMEDIATE. */
                 }
                 FAIL -> {
-                    fpStatusTextView.text = "Failed to compare templates."
-                    infoTextView.text = ""
+                    binding.fpStatusTextView.text = "Failed to compare templates."
+                    binding.infoTextView.text = ""
                 }
                 else -> {
                 }
@@ -491,8 +494,8 @@ class FingerprintActivity : Activity() {
         App.BioManager!!.calibrateFingerprintReader() { resultCode: ResultCode,
             hint: String? ->
 
-            fpStatusTextView.text = getString(R.string.fp_calibration_status, resultCode.name)
-            infoTextView.text = hint
+            binding.fpStatusTextView.text = getString(R.string.fp_calibration_status, resultCode.name)
+            binding.infoTextView.text = hint
         }
     }
 
@@ -583,17 +586,17 @@ class FingerprintActivity : Activity() {
                 ) {
                     /* If a valid hint was given then display it for user to see. */
                     if (hint != null && hint.isNotEmpty()) {
-                        fpStatusTextView.text = hint
+                        binding.fpStatusTextView.text = hint
                     }
 
                     when (resultCode) {
                         /* This code is returned once sensor captures fingerprint image. */
                         OK -> {
                             if (null != bitmap) {
-                                fingerOneImageView.setImageBitmap(bitmap)
+                                binding.fingerOneImageView.setImageBitmap(bitmap)
                             }
 
-                            fpStatusTextView.text = "File: $filePath"
+                            binding.fpStatusTextView.text = "File: $filePath"
 
                             /* Create template from fingerprint image. */
                             createFMDTemplate(bitmap)
@@ -602,7 +605,7 @@ class FingerprintActivity : Activity() {
                         INTERMEDIATE -> {
                             /* On every frame, if image preview is available, show it to user. */
                             if (null != bitmap) {
-                                fingerOneImageView.setImageBitmap(bitmap)
+                                binding.fingerOneImageView.setImageBitmap(bitmap)
                             }
 
                                 /* This hint is returned if cancelCapture()" or
@@ -637,13 +640,13 @@ class FingerprintActivity : Activity() {
         App.BioManager!!.decompressWSQ(WSQ) { resultCode, bytes ->
             when {
                 OK == resultCode -> {
-                    fpStatusTextView.text = "WSQ Decompression: SUCCESS"
-                    infoTextView.text = "Data: " + HexUtils.toString(bytes)
+                    binding.fpStatusTextView.text = "WSQ Decompression: SUCCESS"
+                    binding.infoTextView.text = "Data: " + HexUtils.toString(bytes)
                 }
                 INTERMEDIATE == resultCode -> {
                     /* This code is never returned for this API. */
                 }
-                FAIL == resultCode -> fpStatusTextView.text = "WSQ Decompression: FAIL"
+                FAIL == resultCode -> binding.fpStatusTextView.text = "WSQ Decompression: FAIL"
             }
         }
     }

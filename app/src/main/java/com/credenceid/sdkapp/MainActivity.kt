@@ -11,9 +11,11 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.credenceid.biometrics.Biometrics.ResultCode
-import com.credenceid.biometrics.Biometrics.ResultCode.*
+import com.credenceid.biometrics.Biometrics.ResultCode.FAIL
+import com.credenceid.biometrics.Biometrics.ResultCode.INTERMEDIATE
+import com.credenceid.biometrics.Biometrics.ResultCode.OK
 import com.credenceid.biometrics.BiometricsManager
-import kotlinx.android.synthetic.main.act_main.*
+import com.credenceid.sdkapp.databinding.ActMainBinding
 
 /**
  * When requested for permissions you must specify a number which sort of links the permissions
@@ -37,9 +39,13 @@ private val PERMISSIONS = arrayOf(
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.act_main)
+        binding = ActMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         this.requestPermissions()
         this.configureLayoutComponents()
@@ -50,12 +56,12 @@ class MainActivity : AppCompatActivity() {
      * Configure all objects in layout file, set up listeners, views, etc.
      */
     private fun configureLayoutComponents() {
-        appVersionTextView.text = packageVersion
-        fpBtn.setOnClickListener { startActivity(Intent(this, FingerprintActivity::class.java)) }
-        cardBtn.setOnClickListener { startActivity(Intent(this, CardReaderActivity::class.java)) }
-        mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
-        faceBtn.setOnClickListener { startActivity(Intent(this, CameraActivity::class.java)) }
-        deviceInfoBtn.setOnClickListener { startActivity(Intent(this, DeviceInfoActivity::class.java)) }
+        binding.appVersionTextView.text = packageVersion
+        binding.fpBtn.setOnClickListener { startActivity(Intent(this, FingerprintActivity::class.java)) }
+        binding.cardBtn.setOnClickListener { startActivity(Intent(this, CardReaderActivity::class.java)) }
+        binding.mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
+        binding.faceBtn.setOnClickListener { startActivity(Intent(this, CameraActivity::class.java)) }
+        binding.deviceInfoBtn.setOnClickListener { startActivity(Intent(this, DeviceInfoActivity::class.java)) }
         setBiometricButtonsVisibility(View.GONE)
     }
 
@@ -81,10 +87,10 @@ class MainActivity : AppCompatActivity() {
                     App.DevType = App.BioManager!!.deviceType
 
                     /* Populate text fields which display device/App information. */
-                    productNameTextView.text = App.BioManager!!.productName
-                    deviceIDTextView.text = App.BioManager!!.deviceType.name
-                    serviceVersionTextView.text = App.BioManager!!.serviceVersion
-                    jarVersionTextView.text = App.BioManager!!.sdkJarVersion
+                    binding.productNameTextView.text = App.BioManager!!.productName
+                    binding.deviceIDTextView.text = App.BioManager!!.deviceType.name
+                    binding.serviceVersionTextView.text = App.BioManager!!.serviceVersion
+                    binding.jarVersionTextView.text = App.BioManager!!.sdkJarVersion
 
                     /* Configure which buttons user is allowed to see to based on current device this
                      * application is running on.
@@ -113,15 +119,15 @@ class MainActivity : AppCompatActivity() {
      */
     private fun configureButtons() {
         /* By default all Credence device's face a fingerprint sensor and camera. */
-        fpBtn.visibility = View.VISIBLE
-        faceBtn.visibility = View.GONE
+        binding.fpBtn.visibility = View.VISIBLE
+        binding.faceBtn.visibility = View.GONE
 
         if (App.BioManager!!.hasCardReader()) {
-            cardBtn.visibility = View.VISIBLE
+            binding.cardBtn.visibility = View.VISIBLE
         }
 
         if (App.BioManager!!.hasMRZReader()) {
-            mrzBtn.visibility = View.VISIBLE
+            binding.mrzBtn.visibility = View.VISIBLE
         }
     }
 
@@ -131,10 +137,10 @@ class MainActivity : AppCompatActivity() {
      * @param visibility View.VISIBLE, View.INVISIBLE, View.GONE
      */
     private fun setBiometricButtonsVisibility(@Suppress("SameParameterValue") visibility: Int) {
-        fpBtn.visibility = visibility
-        cardBtn.visibility = visibility
-        faceBtn.visibility = visibility
-        mrzBtn.visibility = visibility
+        binding.fpBtn.visibility = visibility
+        binding.cardBtn.visibility = visibility
+        binding.faceBtn.visibility = visibility
+        binding.mrzBtn.visibility = visibility
     }
 
     /**

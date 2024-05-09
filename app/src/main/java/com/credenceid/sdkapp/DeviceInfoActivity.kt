@@ -1,27 +1,19 @@
 package com.credenceid.sdkapp
 
-import android.Manifest.permission
-import android.content.Intent
-import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.credenceid.biometrics.Biometrics.ResultCode
-import com.credenceid.biometrics.Biometrics.ResultCode.*
-import com.credenceid.biometrics.BiometricsManager
-import com.util.HexUtils
-import kotlinx.android.synthetic.main.act_device_info.*
-import kotlinx.android.synthetic.main.act_main.*
-import java.util.*
+import com.credenceid.sdkapp.databinding.ActDeviceInfoBinding
+import java.util.Locale
 
 
 class DeviceInfoActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActDeviceInfoBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.act_device_info)
+        binding = ActDeviceInfoBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         this.configureLayoutComponents()
     }
@@ -31,35 +23,32 @@ class DeviceInfoActivity : AppCompatActivity() {
      */
     private fun configureLayoutComponents() {
 
-        getHardwareIdentifierBtn.setOnClickListener {
-            App.BioManager!!.getDeviceHardwareIdentifiers(){
-                serialNumber: String,
-                imei: String,
-                androidId: String,
-                wifiMac: String,
-                btMac: String,
-                simIccId: String ->
+        binding.getHardwareIdentifierBtn.setOnClickListener {
+            App.BioManager!!.getDeviceHardwareIdentifiers() { serialNumber: String,
+                                                              imei: String,
+                                                              androidId: String,
+                                                              wifiMac: String,
+                                                              btMac: String,
+                                                              simIccId: String ->
 
-                val strResult = String.format(Locale.ENGLISH,
-                        "Serial Numner: %s\n" +
-                                "Imei: %s\n" +
-                                "Android ID: %s\n" +
-                                "Wifi Mac add.: %s\n" +
-                                "Bt Mac add: %s\n" +
-                                "Sim IccID: %s\n",
-                        serialNumber,
-                        imei,
-                        androidId,
-                        wifiMac,
-                        btMac,
-                        simIccId)
+                val strResult = String.format(
+                    Locale.ENGLISH,
+                    "Serial Numner: %s\n" +
+                        "Imei: %s\n" +
+                        "Android ID: %s\n" +
+                        "Wifi Mac add.: %s\n" +
+                        "Bt Mac add: %s\n" +
+                        "Sim IccID: %s\n",
+                    serialNumber,
+                    imei,
+                    androidId,
+                    wifiMac,
+                    btMac,
+                    simIccId
+                )
 
-                statusTextView.text = strResult
-
+                binding.statusTextView.text = strResult
             }
         }
-
     }
-
-
 }

@@ -3,6 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.credenceid.sdkapp">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
+
+    <uses-permission android:name="com.credenceid.permission.SERVICE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -10,11 +23,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="AllowBackup,GoogleAppIndexingWarning"
-        tools:targetApi="donut">
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
         <activity
             android:name=".MainActivity"
+            android:exported="true"
             android:screenOrientation="locked">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,32 +37,32 @@
 
         <activity
             android:name=".FingerprintActivity"
+            android:exported="false"
             android:screenOrientation="locked" />
 
         <activity
             android:name=".CardReaderActivity"
+            android:exported="false"
             android:screenOrientation="locked"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity
             android:name=".CameraActivity"
+            android:exported="false"
             android:screenOrientation="locked" />
         <activity
             android:name=".FaceActivity"
+            android:exported="false"
             android:screenOrientation="locked" />
 
         <activity
             android:name=".MRZActivity"
+            android:exported="false"
             android:screenOrientation="locked" />
 
         <activity
             android:name=".DeviceInfoActivity"
+            android:exported="false"
             android:screenOrientation="locked" />
     </application>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="com.credenceid.permission.SERVICE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
-    <uses-permission android:name="android.permission.CAMERA" />
-
 </manifest>

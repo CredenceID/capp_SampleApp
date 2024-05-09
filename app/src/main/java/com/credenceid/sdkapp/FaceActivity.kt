@@ -1,11 +1,8 @@
-@file:Suppress("DEPRECATION")
-
 package com.credenceid.sdkapp
 
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ProgressDialog
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
@@ -19,18 +16,20 @@ import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.biometrics.DeviceFamily.CredenceTwo
 import com.credenceid.face.FaceEngine
 import com.credenceid.sdkapp.android.camera.Utils
-import kotlinx.android.synthetic.main.act_face.*
+import com.credenceid.sdkapp.databinding.ActFaceBinding
 import java.util.*
 
-@Suppress("DEPRECATION")
 class FaceActivity : Activity() {
+
+    private lateinit var binding: ActFaceBinding
 
     private lateinit var dialog: ProgressDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.act_face)
+        binding = ActFaceBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         dialog = ProgressDialog(this)
         dialog.setMessage(getString(R.string.processing))
@@ -65,7 +64,7 @@ class FaceActivity : Activity() {
 
     private fun configureLayoutComponents() {
 
-        finishBtn.setOnClickListener { this.finish() }
+        binding.finishBtn.setOnClickListener { this.finish() }
     }
 
     @SuppressLint("SetTextI18n")
@@ -81,7 +80,7 @@ class FaceActivity : Activity() {
         this.showProgressDialog()
 
         /* Create new scaled image to run analysis on. */
-        faceImageView.setImageBitmap(bitmap)
+        binding.faceImageView.setImageBitmap(bitmap)
 
         App.BioManager!!.analyzeFace(bitmap) { rc: Biometrics.ResultCode,
                                                _: RectF,
@@ -98,11 +97,11 @@ class FaceActivity : Activity() {
             /* If we got back data, populate CropView and other widgets with face data. */
             when (rc) {
                 OK -> {
-                    genderTextView.text = getString(R.string.gender_colon_arg) + gender.name
-                    ageTextView.text = getString(R.string.age_colon_arg) + age
-                    glassesTextView.text = getString(R.string.glasses_colon_arg) + glasses
-                    emotionTextView.text = getString(R.string.emotiona_colon_arg) + emotion.name
-                    qualityTextView.text = getString(R.string.imagequal_colon_arg) + imageQuality + "%"
+                    binding.genderTextView.text = getString(R.string.gender_colon_arg) + gender.name
+                    binding.ageTextView.text = getString(R.string.age_colon_arg) + age
+                    binding.glassesTextView.text = getString(R.string.glasses_colon_arg) + glasses
+                    binding.emotionTextView.text = getString(R.string.emotiona_colon_arg) + emotion.name
+                    binding.qualityTextView.text = getString(R.string.imagequal_colon_arg) + imageQuality + "%"
 
                     var text = getString(R.string.headposedir_colon_arg)
 
@@ -117,7 +116,7 @@ class FaceActivity : Activity() {
                     else
                         poseDir[1].name + "\n  &\n" + poseDir[2].name
 
-                    poseDirTextView.text = text
+                    binding.poseDirTextView.text = text
 
                 }
                 INTERMEDIATE -> {
@@ -148,5 +147,4 @@ class FaceActivity : Activity() {
         if (dialog.isShowing)
             dialog.dismiss()
     }
-
 }
