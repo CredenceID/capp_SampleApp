@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@color/background"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/cardReaderStatusTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textColor="@color/red"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/cardStatusTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textColor="@color/red"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/dataTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:gravity="center"
+        android:maxLines="20"
+        android:singleLine="false"
+        android:textColor="@color/black"
+        android:textSize="14sp" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="0.1" />
+
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:id="@+id/syncCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/card_sync_checkbox_label"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/openCloseBtn"
+            style="@style/CardReaderActivityButton"
+            android:layout_marginTop="15dp"
+            android:text="@string/open_sam_card" />
+        <Button
+            android:id="@+id/connectDisconnectBtn"
+            style="@style/CardReaderActivityButton"
+            android:layout_marginTop="15dp"
+            android:text="@string/connect_sam_card" />
+
+        <EditText
+            android:id="@+id/customApduEditText"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:focusable="true"
+            android:hint="@string/sam_card_edtitext_hint"
+            android:inputType="text"
+            android:maxLength="20"
+            android:textSize="20sp"
+            tools:ignore="Autofill" />
+
+        <Button
+            android:id="@+id/sendCustomApduBtn"
+            style="@style/CardReaderActivityButton"
+            android:layout_marginTop="15dp"
+            android:text="@string/send_custom_apdu_to_sam" />
+
+        <Button
+            android:id="@+id/sendApduBtn"
+            style="@style/CardReaderActivityButton"
+            android:layout_marginTop="15dp"
+            android:text="@string/send_apdu_to_sam" />
+
+    </LinearLayout>
+
+</LinearLayout>

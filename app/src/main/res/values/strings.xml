@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 	<string name="app_name">C-SampleApp</string>
 	<string name="bio_init_fail">Biometric initialization FAILED. Exiting application.</string>
 	<string name="bio_init">Biometrics initialized.</string>
@@ -18,12 +18,20 @@
 	<string name="fingerprint_one_imageview_label">Fingerprint One</string>>
 	<string name="fingerprint_two_imageview_label">Fingerprint Two</string>
 	<string name="open_card">Open CardReader</string>
+	<string name="open_sam_card">Open SAM CardReader</string>
 	<string name="close_card_reader">Close CardReader</string>
+	<string name="connect_sam_card">Connect to SAM Card</string>
+	<string name="disconnect_sam_card_reader">Disconnect to SAM Card</string>
+	<string name="sam_card_disconnected">SAM disconnected</string>
+	<string name="close_sam_card_reader">Close SAM CardReader</string>
 	<string name="write_data">Write To Card</string>
 	<string name="read_data">Read From Card</string>
+	<string name="send_custom_apdu_to_sam">Send custom APDU To SAM</string>
+	<string name="send_apdu_to_sam">Send APDU To SAM</string>
 	<string name="stress_test">Stress test</string>
 	<string name="card_sync_checkbox_label">Use Synchronous APIs</string>
 	<string name="card_edtitext_hint">Enter text to write to card</string>
+	<string name="sam_card_edtitext_hint">Enter custom APDU to sand to SAM</string>
 	<string-array name="card_spinner_items">
 		<item>Read data</item>
 		<item>Get UID</item>
@@ -37,11 +45,15 @@
 	<string name="opening_card_reader">Opening card reader, please wait…</string>
 	<string name="failed_open_card_reader">Failed to open card reader.</string>
 	<string name="card_reader_opened">Card reader opened.</string>
+	<string name="sam_card_reader_opened">SAM Card reader opened.</string>
 	<string name="card_present">Card is present.</string>
 	<string name="card_absent">Card is absent.</string>
+	<string name="sam_present">SAM is present.</string>
+	<string name="sam_absent">SAM is absent.</string>
 	<string name="apdu_failed">APDU command failed, NULL response.</string>
 	<string name="no_card_present_to_write_to">No card present to write to.</string>
 	<string name="no_data_to_write_to_card">No data to write to card.</string>
+	<string name="invalid_apdu_to_write_to_card">Invalid APDU to send to card.</string>
 	<string name="done_writing_to_card">Done writing data to card.</string>
 	<string name="no_card_present_read_from">No card present to read from.</string>
 	<string name="done_reading_from_card">Done reading data from card.</string>

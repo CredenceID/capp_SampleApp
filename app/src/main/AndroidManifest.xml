@@ -47,6 +47,12 @@
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity
+            android:name=".SamCardReaderActivity"
+            android:exported="false"
+            android:screenOrientation="locked"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <activity
             android:name=".CameraActivity"
             android:exported="false"
             android:screenOrientation="locked" />

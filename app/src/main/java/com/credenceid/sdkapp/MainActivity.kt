@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         binding.appVersionTextView.text = packageVersion
         binding.fpBtn.setOnClickListener { startActivity(Intent(this, FingerprintActivity::class.java)) }
         binding.cardBtn.setOnClickListener { startActivity(Intent(this, CardReaderActivity::class.java)) }
+        binding.samCardBtn.setOnClickListener { startActivity(Intent(this, SamCardReaderActivity::class.java)) }
         binding.mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
         binding.faceBtn.setOnClickListener { startActivity(Intent(this, CameraActivity::class.java)) }
         binding.deviceInfoBtn.setOnClickListener { startActivity(Intent(this, DeviceInfoActivity::class.java)) }
@@ -126,6 +127,10 @@ class MainActivity : AppCompatActivity() {
             binding.cardBtn.visibility = View.VISIBLE
         }
 
+        if (App.BioManager!!.hasSamCardReader()) {
+            binding.samCardBtn.visibility = View.VISIBLE
+        }
+
         if (App.BioManager!!.hasMRZReader()) {
             binding.mrzBtn.visibility = View.VISIBLE
         }
@@ -141,6 +146,8 @@ class MainActivity : AppCompatActivity() {
         binding.cardBtn.visibility = visibility
         binding.faceBtn.visibility = visibility
         binding.mrzBtn.visibility = visibility
+        binding.samCardBtn.visibility = visibility
+        binding.deviceInfoBtn.visibility = visibility
     }
 
     /**
