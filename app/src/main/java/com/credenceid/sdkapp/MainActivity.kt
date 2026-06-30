@@ -128,6 +128,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (App.BioManager!!.hasSamCardReader()) {
+            Log.d("CID-DEBUG","SAM reader available")
             binding.samCardBtn.visibility = View.VISIBLE
         }
 

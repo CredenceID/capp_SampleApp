@@ -41,6 +41,7 @@
 		<item>Get challenge</item>
 		<item>Select TWIC applet</item>
 		<item>Get TWIC CHUID</item>
+		<item>Select File</item>
 	</string-array>
 	<string name="opening_card_reader">Opening card reader, please wait…</string>
 	<string name="failed_open_card_reader">Failed to open card reader.</string>
