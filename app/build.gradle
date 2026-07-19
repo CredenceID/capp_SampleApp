@@ -3,6 +3,17 @@ plugins {
 	id 'org.jetbrains.kotlin.android'
 }
 
+/* Optional developer-local signing. If a keystore.properties file exists in the project
+ * root (it is git-ignored; see keystore.properties.example), builds are signed with that
+ * keystore instead of the default debug key. Credence ID engineers use this to sign with
+ * a device platform key so `adb install -r` can update the preinstalled sample app.
+ * External developers do not need this file. */
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+	keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+
 android {
 	namespace "com.credenceid.sdkapp"
 	compileSdk 36
@@ -21,8 +32,27 @@ android {
 		viewBinding true
 	}
 
+	if (keystorePropertiesFile.exists()) {
+		signingConfigs {
+			local {
+				storeFile rootProject.file(keystoreProperties['storeFile'])
+				storePassword keystoreProperties['storePassword']
+				keyAlias keystoreProperties['keyAlias']
+				keyPassword keystoreProperties['keyPassword']
+			}
+		}
+	}
+
 	buildTypes {
+		debug {
+			if (keystorePropertiesFile.exists()) {
+				signingConfig signingConfigs.local
+			}
+		}
 		release {
+			if (keystorePropertiesFile.exists()) {
+				signingConfig signingConfigs.local
+			}
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 		}
