@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Overrides for tablet-class screens (C-TAB family and larger). Screen-size
+     adaptation belongs in resource qualifier buckets like this one, never in
+     device-name checks: any current or future device whose smallest width is
+     at least 480dp automatically picks these up, while phone-sized handhelds
+     (C-ONE, Trident, ...) keep the defaults in res/values/dimens.xml. -->
+<resources>
+	<dimen name="main_button_size">140dp</dimen>
+	<dimen name="main_button_inter_margin">16dp</dimen>
+
+	<dimen name="fingerprint_width">170dp</dimen>
+	<dimen name="fingerprint_height">235dp</dimen>
+</resources>

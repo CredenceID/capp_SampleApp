@@ -18,6 +18,7 @@ import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.sdkapp.databinding.ActFpBinding
+import com.credenceid.sdkapp.util.DeviceProfile
 import com.util.HexUtils
 import java.io.OutputStream
 import java.time.LocalDateTime
@@ -218,7 +219,10 @@ class FingerprintActivity : Activity() {
             }
         }
 
-        if (App.BioManager!!.deviceType.name.contains("CredenceECO_FC")) {
+        /* Family-specific behaviour is centralized in DeviceProfile instead of
+         * comparing device names inline (name checks silently break on new models).
+         */
+        if (DeviceProfile.supportsFingerprintCalibration) {
             binding.calibrateBtn.setOnClickListener {
                 calibrateFingerprintSensor()
             }

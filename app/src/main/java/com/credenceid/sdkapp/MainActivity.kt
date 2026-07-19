@@ -2,6 +2,7 @@ package com.credenceid.sdkapp
 
 import android.Manifest.permission
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +17,7 @@ import com.credenceid.biometrics.Biometrics.ResultCode.INTERMEDIATE
 import com.credenceid.biometrics.Biometrics.ResultCode.OK
 import com.credenceid.biometrics.BiometricsManager
 import com.credenceid.sdkapp.databinding.ActMainBinding
+import com.credenceid.sdkapp.util.DeviceProfile
 
 /**
  * When requested for permissions you must specify a number which sort of links the permissions
@@ -87,6 +89,9 @@ class MainActivity : AppCompatActivity() {
                     App.DevFamily = App.BioManager!!.deviceFamily
                     App.DevType = App.BioManager!!.deviceType
 
+                    /* Snapshot this device's capabilities once; all screens adapt off it. */
+                    DeviceProfile.populate(App.BioManager!!)
+
                     /* Populate text fields which display device/App information. */
                     binding.productNameTextView.text = App.BioManager!!.productName
                     binding.deviceIDTextView.text = App.BioManager!!.deviceType.name
@@ -119,20 +124,29 @@ class MainActivity : AppCompatActivity() {
      * application is running on.
      */
     private fun configureButtons() {
-        /* By default all Credence device's face a fingerprint sensor and camera. */
-        binding.fpBtn.visibility = View.VISIBLE
-        binding.faceBtn.visibility = View.VISIBLE
+        /* Every feature button is driven by a capability reported by the SDK, so this
+         * one code path adapts to any Credence ID device without naming devices.
+         */
+        if (DeviceProfile.hasFingerprintScanner) {
+            binding.fpBtn.visibility = View.VISIBLE
+        }
 
-        if (App.BioManager!!.hasCardReader()) {
+        /* Camera demo pages use the device camera, an Android capability rather than
+         * a CredenceSDK one, so ask PackageManager.
+         */
+        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+            binding.faceBtn.visibility = View.VISIBLE
+        }
+
+        if (DeviceProfile.hasCardReader) {
             binding.cardBtn.visibility = View.VISIBLE
         }
 
-        if (App.BioManager!!.hasSamCardReader()) {
-            Log.d("CID-DEBUG","SAM reader available")
+        if (DeviceProfile.hasSamCardReader) {
             binding.samCardBtn.visibility = View.VISIBLE
         }
 
-        if (App.BioManager!!.hasMRZReader()) {
+        if (DeviceProfile.hasMRZReader) {
             binding.mrzBtn.visibility = View.VISIBLE
         }
     }
