@@ -48,18 +48,12 @@ class FaceActivity : Activity() {
 
             this.detectFace(image)
         } else {
-            this.onBackPressed()
+            this.finish()
 
             Handler().postDelayed({
                 Toast.makeText(this, "Failed to detect face.", LENGTH_LONG).show()
             }, 1000)
         }
-    }
-
-    override fun onBackPressed() {
-
-        super.onBackPressed()
-        this.finish()
     }
 
     private fun configureLayoutComponents() {
@@ -123,7 +117,7 @@ class FaceActivity : Activity() {
                     /* This code is never returned for this API. */
                 }
                 FAIL -> {
-                    this.onBackPressed()
+                    this.finish()
                     Handler().postDelayed({
                         Toast.makeText(this, "Failed to detect face.", LENGTH_LONG).show()
                     }, 1000)

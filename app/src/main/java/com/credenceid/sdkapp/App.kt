@@ -1,7 +1,6 @@
 package com.credenceid.sdkapp
 
 import android.app.Application
-import android.os.Environment
 import com.credenceid.biometrics.BiometricsManager
 import com.credenceid.biometrics.DeviceFamily
 import com.credenceid.biometrics.DeviceType
@@ -10,7 +9,6 @@ import com.credenceid.biometrics.DeviceType
 class App : Application() {
     companion object {
         const val TAG = "Credence ID Sample App"
-        val SDCARD_PATH: String = Environment.getExternalStorageDirectory().toString() + "/"
         /**
          * CredenceSDK biometrics object used to interface with APIs.
          */

@@ -175,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             var version = "Unknown"
             try {
                 val pInfo = packageManager.getPackageInfo(packageName, 0)
-                version = pInfo.versionName
+                version = pInfo.versionName ?: version
             } catch (ignore: Exception) {
             }
             return version

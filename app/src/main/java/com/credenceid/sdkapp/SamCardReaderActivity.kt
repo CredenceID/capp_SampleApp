@@ -59,12 +59,6 @@ class SamCardReaderActivity : Activity() {
         this.configureLayoutComponents()
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        /* If back button is pressed when we want to destroy activity. */
-        this.onDestroy()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
 

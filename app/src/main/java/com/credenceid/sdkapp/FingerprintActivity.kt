@@ -143,14 +143,6 @@ class FingerprintActivity : Activity() {
     }
 
     /**
-     * Invoked when user pressed back menu button.
-     */
-    override fun onBackPressed() {
-        super.onBackPressed()
-        this.finish()
-    }
-
-    /**
      * Invoked when application is killed, either by user or system.
      */
     override fun onDestroy() {
