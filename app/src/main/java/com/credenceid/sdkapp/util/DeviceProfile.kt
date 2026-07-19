@@ -47,6 +47,8 @@ object DeviceProfile {
         private set
     var hasIrisScanner = false
         private set
+    var hasBarcodeScanner = false
+        private set
     var fingerprintScannerType: FingerprintScannerType = FingerprintScannerType.NONE
         private set
 
@@ -72,6 +74,7 @@ object DeviceProfile {
         hasSamCardReader = manager.hasSamCardReader()
         hasMRZReader = manager.hasMRZReader()
         hasIrisScanner = manager.hasIrisScanner()
+        hasBarcodeScanner = manager.hasBarcodeScanner()
         fingerprintScannerType = manager.fingerprintScannerType
 
         isPopulated = true
@@ -80,7 +83,7 @@ object DeviceProfile {
             App.TAG, "DeviceProfile: type=${deviceType.name} family=${deviceFamily.name}" +
                     " product=\"$productName\" fingerprint=$hasFingerprintScanner" +
                     "(${fingerprintScannerType.name}) card=$hasCardReader sam=$hasSamCardReader" +
-                    " mrz=$hasMRZReader iris=$hasIrisScanner" +
+                    " mrz=$hasMRZReader iris=$hasIrisScanner barcode=$hasBarcodeScanner" +
                     " fpCalibration=$supportsFingerprintCalibration"
         )
     }

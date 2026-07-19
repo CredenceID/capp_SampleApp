@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         binding.samCardBtn.setOnClickListener { startActivity(Intent(this, SamCardReaderActivity::class.java)) }
         binding.mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
         binding.faceBtn.setOnClickListener { startActivity(Intent(this, CameraActivity::class.java)) }
+        binding.barcodeBtn.setOnClickListener { startActivity(Intent(this, BarcodeActivity::class.java)) }
         binding.deviceInfoBtn.setOnClickListener { startActivity(Intent(this, DeviceInfoActivity::class.java)) }
         setBiometricButtonsVisibility(View.GONE)
     }
@@ -149,6 +150,13 @@ class MainActivity : AppCompatActivity() {
         if (DeviceProfile.hasMRZReader) {
             binding.mrzBtn.visibility = View.VISIBLE
         }
+
+        if (DeviceProfile.hasBarcodeScanner) {
+            binding.barcodeBtn.visibility = View.VISIBLE
+        }
+
+        /* Device info is not tied to any peripheral; every device gets it. */
+        binding.deviceInfoBtn.visibility = View.VISIBLE
     }
 
     /**
@@ -162,6 +170,7 @@ class MainActivity : AppCompatActivity() {
         binding.faceBtn.visibility = visibility
         binding.mrzBtn.visibility = visibility
         binding.samCardBtn.visibility = visibility
+        binding.barcodeBtn.visibility = visibility
         binding.deviceInfoBtn.visibility = visibility
     }
 

@@ -66,6 +66,12 @@
             android:screenOrientation="locked" />
 
         <activity
+            android:name=".BarcodeActivity"
+            android:exported="false"
+            android:label="@string/barcode_title"
+            android:screenOrientation="locked" />
+
+        <activity
             android:name=".DeviceInfoActivity"
             android:exported="false"
             android:screenOrientation="locked" />

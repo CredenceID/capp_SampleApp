@@ -15,4 +15,8 @@
 	<color name="btn_disabled_end">#353535</color>
 
 	<color name="red">#FF0000</color>
+
+	<color name="barcode_state_closed">#9E9E9E</color>
+	<color name="barcode_state_open">#43A047</color>
+	<color name="barcode_state_scanning">#FB8C00</color>
 </resources>
