@@ -13,17 +13,24 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.sdkapp.databinding.ActFpBinding
 import com.util.HexUtils
 import java.io.OutputStream
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 private const val SYNC_API_TIMEOUT_MS = 3000
+
+/**
+ * Timestamp appended to each captured fingerprint image saved to the gallery. "java.time" is not
+ * available below API 26, so this is formatted with "SimpleDateFormat" which this application's
+ * minSdk of 24 does support.
+ */
+private const val CAPTURE_TIMESTAMP_PATTERN = "yyyy-MM-dd_HH:mm:ss"
 
 @SuppressLint("StaticFieldLeak")
 class FingerprintActivity : Activity() {
@@ -273,7 +280,6 @@ class FingerprintActivity : Activity() {
         App.BioManager!!.grabFingerprint(
             mScanTypes[0],
             object : OnFingerprintGrabbedWSQNewListener {
-                @RequiresApi(Build.VERSION_CODES.O)
                 @SuppressLint("SetTextI18n")
 
                 override fun onFingerprintGrabbed(
@@ -302,9 +308,8 @@ class FingerprintActivity : Activity() {
                             /* Create template from fingerprint image. */
                             if (bitmap != null) {
                                 createFMDTemplate(bitmap)
-                                val currentDateTime = LocalDateTime.now()
-                                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss")
-                                val formattedDate = currentDateTime.format(formatter)
+                                val formatter = SimpleDateFormat(CAPTURE_TIMESTAMP_PATTERN, Locale.US)
+                                val formattedDate = formatter.format(Date())
                                 saveBitmapToGallery(
                                     this@FingerprintActivity,
                                     bitmap,
