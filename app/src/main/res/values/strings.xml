@@ -32,7 +32,24 @@
 	<string name="card_sync_checkbox_label">Use Synchronous APIs</string>
 	<string name="card_edtitext_hint">Enter text to write to card</string>
 	<string name="sam_card_edtitext_hint">Enter custom APDU to sand to SAM</string>
-	<string-array name="card_spinner_items">
+		<!-- [CIE-7688] smart card reader configuration -->
+	<string name="reader_config_heading">Reader configuration</string>
+	<string name="reader_poll_hint">Poll ms</string>
+	<string name="reader_timeout_hint">Timeout ms</string>
+	<string name="apply_reader_config">Apply reader config</string>
+	<string name="read_reader_config">Read reader config</string>
+	<string name="applying_reader_config">Applying reader configuration…</string>
+	<string name="reader_config_failed">Reader configuration failed or unsupported on this device</string>
+	<string name="reader_config_applied_format">Reader config: %1$s, poll %2$d ms, timeout %3$d ms</string>
+	<string name="card_slot_status_format">slot: %1$s (state %2$d)
+ATR: %3$s
+ATS: %4$s</string>
+	<string-array name="card_reader_mode_items">
+		<item>Mode: AUTO (contact, then contactless)</item>
+		<item>Mode: CONTACT_ONLY</item>
+		<item>Mode: CONTACTLESS_ONLY</item>
+	</string-array>
+<string-array name="card_spinner_items">
 		<item>Read data</item>
 		<item>Get UID</item>
 		<item>1K Data</item>
@@ -107,4 +124,19 @@
 	<string name="emotiona_colon_arg">Emotion:\u0020</string>
 	<string name="imagequal_colon_arg">Quality:\u0020</string>
 	<string name="headposedir_colon_arg">Looking:\u0020</string>
+	<!-- [CIE-7688] card reader screen sections and labels -->
+	<string name="section_status">1 &#8226; Status</string>
+	<string name="section_card_details">2 &#8226; Card details</string>
+	<string name="section_reader">3 &#8226; Reader</string>
+	<string name="section_configuration">4 &#8226; Reader configuration</string>
+	<string name="section_apdu">5 &#8226; APDU exchange</string>
+	<string name="label_card_values">Slot, ATR and ATS of the card currently detected</string>
+	<string name="hint_open_first">Open the reader before anything else on this screen works.</string>
+	<string name="label_reader_mode">Which slot(s) to poll</string>
+	<string name="label_poll_interval">Poll interval (ms)</string>
+	<string name="label_read_timeout">Read timeout (ms)</string>
+	<string name="hint_config_ranges">Poll 100–10000 ms, timeout 500–60000 ms. Applies immediately and survives a reboot.</string>
+	<string name="hint_card_required">Needs a card on the reader. Sync uses the blocking API, unsync the callback one.</string>
+	<string name="label_write_data">Data to write to card</string>
+	<string name="label_read_apdu">APDU to send</string>
 </resources>

@@ -38,7 +38,9 @@ android {
 
 dependencies {
 
-	implementation files('libs/capp_CredenceSDKJar-debug.aar')
+	// [CIE-7688] local build of the SDK jar carrying the card reader configuration API.
+	// Revert to the released AAR once the CIE-7688 SDK changes are published.
+	implementation files('libs/CredenceID-SDKJar-CIE7688.aar')
 
 	implementation 'androidx.core:core-ktx:1.13.1'
 	implementation 'androidx.appcompat:appcompat:1.6.1'

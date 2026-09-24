@@ -11,6 +11,8 @@ import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import com.credenceid.biometrics.ApduCommand
+import com.credenceid.biometrics.CardReaderConfig
+import com.credenceid.biometrics.CardReaderMode
 import com.credenceid.biometrics.Biometrics
 import com.credenceid.biometrics.Biometrics.CloseReasonCode
 import com.credenceid.biometrics.Biometrics.ResultCode
@@ -360,6 +362,53 @@ class CardReaderActivity : AppCompatActivity() {
                 hideKeyboard(v)
             }
         }
+
+        /* [CIE-7688] smart card reader runtime configuration. */
+
+        binding.applyConfigBtn.setOnClickListener {
+            val poll = binding.pollIntervalEditText.text.toString().toIntOrNull()
+                ?: CardReaderConfig.DEFAULT_POLL_INTERVAL_MS
+            val timeout = binding.readTimeoutEditText.text.toString().toIntOrNull()
+                ?: CardReaderConfig.DEFAULT_READ_TIMEOUT_MS
+
+            val config = CardReaderConfig.Builder()
+                .setMode(selectedReaderMode())
+                .setPollIntervalMs(poll)
+                .setReadTimeoutMs(timeout)
+                .build()
+
+            binding.cardReaderStatusTextView.text = getString(R.string.applying_reader_config)
+            App.BioManager!!.setCardReaderConfiguration(config) { rc, applied ->
+                showConfigResult(rc, applied)
+            }
+        }
+
+        binding.readConfigBtn.setOnClickListener {
+            App.BioManager!!.getCardReaderConfiguration { rc, applied ->
+                showConfigResult(rc, applied)
+                /* Reflect what the service actually holds back into the controls. */
+                applied?.let {
+                    binding.readerModeSelector.setSelection(it.mode.ordinal)
+                    binding.pollIntervalEditText.setText(it.pollIntervalMs.toString())
+                    binding.readTimeoutEditText.setText(it.readTimeoutMs.toString())
+                }
+            }
+        }
+
+        /* Richer status callback: raw ATR/ATS bytes plus the slot the card was found in. */
+        App.BioManager!!.registerCardStatusListener(
+            Biometrics.OnCardSlotStatusListener { atr, ats, slot, _, currentState ->
+                runOnUiThread {
+                    binding.dataTextView.text = getString(
+                        R.string.card_slot_status_format,
+                        slot.name,
+                        currentState,
+                        atr?.let { HexUtils.toString(it) } ?: "-",
+                        ats?.let { HexUtils.toString(it) } ?: "(none)"
+                    )
+                }
+            }
+        )
     }
 
     /**
@@ -370,6 +419,30 @@ class CardReaderActivity : AppCompatActivity() {
             val im = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             im.hideSoftInputFromWindow(view.windowToken, 0)
         } catch (ignore: NullPointerException) {
+        }
+    }
+
+    /** Maps the mode spinner position onto the SDK enum. */
+    private fun selectedReaderMode(): CardReaderMode =
+        when (binding.readerModeSelector.selectedItemPosition) {
+            1 -> CardReaderMode.CONTACT_ONLY
+            2 -> CardReaderMode.CONTACTLESS_ONLY
+            else -> CardReaderMode.AUTO
+        }
+
+    private fun showConfigResult(rc: ResultCode,
+                                 config: CardReaderConfig?) {
+        runOnUiThread {
+            binding.cardReaderStatusTextView.text = if (OK == rc && config != null) {
+                getString(
+                    R.string.reader_config_applied_format,
+                    config.mode.name,
+                    config.pollIntervalMs,
+                    config.readTimeoutMs
+                )
+            } else {
+                getString(R.string.reader_config_failed)
+            }
         }
     }
 

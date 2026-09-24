@@ -50,4 +50,27 @@
 		<item name="android:layout_width">wrap_content</item>
 	</style>
 
+	<!-- [CIE-7688] card reader screen -->
+	<style name="CardSectionHeader">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:layout_marginTop">18dp</item>
+		<item name="android:textSize">13sp</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:textAllCaps">true</item>
+		<item name="android:textColor">@color/section_header</item>
+	</style>
+	<style name="CardSectionDivider">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">1dp</item>
+		<item name="android:layout_marginTop">3dp</item>
+		<item name="android:layout_marginBottom">10dp</item>
+		<item name="android:background">@color/section_divider</item>
+	</style>
+	<style name="CardFieldLabel">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:textSize">12sp</item>
+		<item name="android:textColor">@color/field_label</item>
+	</style>
 </resources>
