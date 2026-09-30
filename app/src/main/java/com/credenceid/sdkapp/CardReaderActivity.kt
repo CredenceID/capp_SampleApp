@@ -43,12 +43,12 @@ class CardReaderActivity : AppCompatActivity() {
      * Get challenge eID document
      */
     private val getChallenge = (
-        "00" + // MiFare Card
-            "84" + // MiFare Card READ Command
+        "00" + // CLA: ISO 7816
+            "84" + // INS: GET CHALLENGE
             "00" + // P1
-            "00" + // P2: Block Number
+            "00" + // P2
             "08"
-        ) // Number of bytes to read
+        ) // Le: number of challenge bytes requested
 
     //private val getChallenge = "00A4040007A000000247100100"
 
@@ -67,10 +67,10 @@ class CardReaderActivity : AppCompatActivity() {
      * Reads Mifare card UID.
      */
     private val selectFile = (
-            "00" + // MiFare Card
-                    "A4" + // MiFare Card READ Command
-                    "04" + // P1
-                    "00" + // P2: Block Number
+            "00" + // CLA: ISO 7816
+                    "A4" + // INS: SELECT
+                    "04" + // P1: select by DF name
+                    "00" + // P2: first or only occurrence
                     "00"
             ) // Number of bytes to read
 
@@ -111,10 +111,10 @@ class CardReaderActivity : AppCompatActivity() {
      * This APDU is used to read "specialData" written to the card.
      */
     private var readSpecialDataAPDU = (
-        "FF" + // MiFare Card
-            "B0" + // MiFare Card READ Command
+        "FF" + // CLA: PC/SC storage card
+            "B0" + // INS: READ BINARY
             "00" + // P1
-            "01" + // P2: Block Number
+            "01" + // P2: block number
             "00"
         ) // Number of bytes to read
 

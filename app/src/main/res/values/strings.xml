@@ -50,15 +50,15 @@ ATS: %4$s</string>
 	</string-array>
 	<string name="sam_card_edtitext_hint">Enter custom APDU to sand to SAM</string>
 	<string-array name="card_spinner_items">
-		<item>Read data</item>
-		<item>Get UID</item>
-		<item>1K Data</item>
-		<item>2K Data</item>
-		<item>4K Data</item>
-		<item>Get challenge</item>
-		<item>Select TWIC applet</item>
-		<item>Get TWIC CHUID</item>
-		<item>Select File</item>
+		<item>Read data (storage card)</item>
+		<item>Get UID (storage card)</item>
+		<item>1K Data (storage card)</item>
+		<item>2K Data (storage card)</item>
+		<item>4K Data (storage card)</item>
+		<item>Get challenge (ISO 7816)</item>
+		<item>Select TWIC applet (ISO 7816)</item>
+		<item>Get TWIC CHUID (ISO 7816)</item>
+		<item>Select File (ISO 7816)</item>
 	</string-array>
 	<string name="opening_card_reader">Opening card reader, please wait…</string>
 	<string name="failed_open_card_reader">Failed to open card reader.</string>
@@ -138,5 +138,5 @@ ATS: %4$s</string>
 	<string name="hint_config_ranges">Poll 100–10000 ms, timeout 500–60000 ms. Applies immediately and survives a reboot.</string>
 	<string name="hint_card_required">Needs a card on the reader. Sync uses the blocking API, unsync the callback one.</string>
 	<string name="label_write_data">Data to write to card</string>
-	<string name="label_read_apdu">APDU to send</string>
+	<string name="label_read_apdu">APDU to send. Storage-card commands (CLA FF) only work on MIFARE-type cards; ISO 7816 commands need a microprocessor card.</string>
 </resources>
