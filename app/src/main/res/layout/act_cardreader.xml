@@ -1,104 +1,249 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    Card reader test screen.
+
+    The whole page scrolls, so nothing can be pushed off-screen or overlap regardless of how
+    much status text is showing. Sections run in the order a tester uses them: see state, read
+    values, control the reader, configure it, then exchange APDUs.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
     android:background="@color/background"
-    android:gravity="center"
-    android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/cardReaderStatusTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:singleLine="true"
-        android:textColor="@color/red"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/cardStatusTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:singleLine="true"
-        android:textColor="@color/red"
-        android:textSize="16sp" />
-
-    <TextView
-        android:id="@+id/dataTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
-        android:gravity="center"
-        android:maxLines="20"
-        android:singleLine="false"
-        android:textColor="@color/black"
-        android:textSize="14sp" />
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="0.1" />
-
+    android:fillViewport="true">
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="24dp">
+
+        <!-- ============================ 1. STATUS ============================ -->
+
+        <TextView
+            style="@style/CardSectionHeader"
+            android:layout_marginTop="0dp"
+            android:text="@string/section_status" />
+
+        <View style="@style/CardSectionDivider" />
+
+        <TextView
+            android:id="@+id/cardReaderStatusTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/red"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/cardStatusTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/red"
+            android:textSize="15sp" />
+
+        <!-- ========================= 2. CARD DETAILS ========================= -->
+
+        <TextView
+            style="@style/CardSectionHeader"
+            android:text="@string/section_card_details" />
+
+        <View style="@style/CardSectionDivider" />
+
+        <TextView
+            style="@style/CardFieldLabel"
+            android:text="@string/label_card_values" />
+
+        <!--
+            Monospace and selectable: these are hex values a tester needs to read digit by
+            digit and paste into a bug report.
+        -->
+        <TextView
+            android:id="@+id/dataTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@color/panel"
+            android:fontFamily="monospace"
+            android:padding="8dp"
+            android:textColor="@color/value_text"
+            android:textIsSelectable="true"
+            android:textSize="12sp"
+            tools:text="slot: CONTACTLESS (state 2)" />
+
+        <!-- ============================ 3. READER ============================ -->
+
+        <TextView
+            style="@style/CardSectionHeader"
+            android:text="@string/section_reader" />
+
+        <View style="@style/CardSectionDivider" />
+
+        <TextView
+            style="@style/CardFieldLabel"
+            android:text="@string/hint_open_first" />
+
+        <Button
+            android:id="@+id/openCloseBtn"
+            style="@style/CardReaderActivityButton"
+            android:layout_marginTop="6dp"
+            android:text="@string/open_card" />
+
+        <!-- ========================= 4. CONFIGURATION ========================= -->
+
+        <TextView
+            style="@style/CardSectionHeader"
+            android:text="@string/section_configuration" />
+
+        <View style="@style/CardSectionDivider" />
+
+        <TextView
+            style="@style/CardFieldLabel"
+            android:text="@string/label_reader_mode" />
+
+        <Spinner
+            android:id="@+id/readerModeSelector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:entries="@array/card_reader_mode_items" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/CardFieldLabel"
+                    android:text="@string/label_poll_interval" />
+
+                <EditText
+                    android:id="@+id/pollIntervalEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/reader_poll_hint"
+                    android:inputType="number"
+                    android:maxLength="5"
+                    android:textSize="15sp"
+                    tools:ignore="Autofill" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/CardFieldLabel"
+                    android:text="@string/label_read_timeout" />
+
+                <EditText
+                    android:id="@+id/readTimeoutEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/reader_timeout_hint"
+                    android:inputType="number"
+                    android:maxLength="5"
+                    android:textSize="15sp"
+                    tools:ignore="Autofill" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            style="@style/CardFieldLabel"
+            android:layout_marginTop="6dp"
+            android:text="@string/hint_config_ranges" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/applyConfigBtn"
+                style="@style/CardReaderActivityButton"
+                android:text="@string/apply_reader_config" />
+
+            <Button
+                android:id="@+id/readConfigBtn"
+                style="@style/CardReaderActivityButton"
+                android:layout_marginStart="10dp"
+                android:text="@string/read_reader_config" />
+        </LinearLayout>
+
+        <!-- ========================= 5. APDU EXCHANGE ========================= -->
+
+        <TextView
+            style="@style/CardSectionHeader"
+            android:text="@string/section_apdu" />
+
+        <View style="@style/CardSectionDivider" />
+
+        <TextView
+            style="@style/CardFieldLabel"
+            android:text="@string/hint_card_required" />
 
         <CheckBox
             android:id="@+id/syncCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:text="@string/card_sync_checkbox_label"
-            android:textSize="20sp" />
+            android:textSize="15sp" />
 
-        <Button
-            android:id="@+id/openCloseBtn"
-            style="@style/CardReaderActivityButton"
-            android:layout_marginTop="15dp"
-            android:text="@string/open_card" />
+        <TextView
+            style="@style/CardFieldLabel"
+            android:layout_marginTop="8dp"
+            android:text="@string/label_write_data" />
 
         <EditText
             android:id="@+id/writeEditText"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:focusable="true"
             android:hint="@string/card_edtitext_hint"
             android:inputType="text"
             android:maxLength="20"
-            android:textSize="20sp"
+            android:textSize="15sp"
             tools:ignore="Autofill" />
 
         <Button
             android:id="@+id/writeDataBtn"
             style="@style/CardReaderActivityButton"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="6dp"
             android:text="@string/write_data" />
+
+        <TextView
+            style="@style/CardFieldLabel"
+            android:layout_marginTop="12dp"
+            android:text="@string/label_read_apdu" />
 
         <Spinner
             android:id="@+id/readAPDUSelector"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="2dp"
             android:entries="@array/card_spinner_items" />
 
         <Button
             android:id="@+id/readDataBtn"
             style="@style/CardReaderActivityButton"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="6dp"
             android:text="@string/read_data" />
 
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>
