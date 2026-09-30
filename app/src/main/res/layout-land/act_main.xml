@@ -150,6 +150,15 @@
 				android:src="@drawable/ic_card_reader"
 				tools:ignore="ContentDescription" />
 
+			<ImageButton
+				android:id="@+id/samCardBtn"
+				android:layout_width="@dimen/main_button_size"
+				android:layout_height="@dimen/main_button_size"
+				android:layout_marginStart="@dimen/main_button_inter_margin"
+				android:background="@drawable/tab_btn_background"
+				android:src="@drawable/ic_sam"
+				tools:ignore="ContentDescription" />
+
 		</LinearLayout>
 
 		<LinearLayout

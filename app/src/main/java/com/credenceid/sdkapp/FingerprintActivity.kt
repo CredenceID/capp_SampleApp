@@ -2,17 +2,26 @@ package com.credenceid.sdkapp
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContentValues
+import android.content.Context
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.SystemClock
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import com.credenceid.biometrics.Biometrics.*
 import com.credenceid.biometrics.Biometrics.FMDFormat.ISO_19794_2_2005
 import com.credenceid.biometrics.Biometrics.ResultCode.*
 import com.credenceid.sdkapp.databinding.ActFpBinding
 import com.util.HexUtils
+import java.io.OutputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 private const val SYNC_API_TIMEOUT_MS = 3000
 
@@ -264,6 +273,7 @@ class FingerprintActivity : Activity() {
         App.BioManager!!.grabFingerprint(
             mScanTypes[0],
             object : OnFingerprintGrabbedWSQNewListener {
+                @RequiresApi(Build.VERSION_CODES.O)
                 @SuppressLint("SetTextI18n")
 
                 override fun onFingerprintGrabbed(
@@ -292,6 +302,15 @@ class FingerprintActivity : Activity() {
                             /* Create template from fingerprint image. */
                             if (bitmap != null) {
                                 createFMDTemplate(bitmap)
+                                val currentDateTime = LocalDateTime.now()
+                                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss")
+                                val formattedDate = currentDateTime.format(formatter)
+                                saveBitmapToGallery(
+                                    this@FingerprintActivity,
+                                    bitmap,
+                                    "fp_aquired_" + formattedDate
+                                )
+
                             }
 
                             setAllComponentEnable(true)
@@ -648,6 +667,45 @@ class FingerprintActivity : Activity() {
                 }
                 FAIL == resultCode -> binding.fpStatusTextView.text = "WSQ Decompression: FAIL"
             }
+        }
+    }
+
+    fun saveBitmapToGallery(context: Context, bitmap: Bitmap, fileName: String): Boolean {
+        val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        } else {
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        }
+
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "$fileName.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+                put(MediaStore.Images.Media.IS_PENDING, 1)
+            }
+        }
+
+        val resolver = context.contentResolver
+        val uri = resolver.insert(collection, contentValues)
+
+        return try {
+            uri?.let {
+                val outputStream: OutputStream? = resolver.openOutputStream(it)
+                outputStream?.use { stream ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    contentValues.clear()
+                    contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
+                    resolver.update(it, contentValues, null, null)
+                }
+                true
+            } ?: false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
     }
 }
