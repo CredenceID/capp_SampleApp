@@ -2,6 +2,7 @@ package com.credenceid.sdkapp
 
 import android.Manifest.permission
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +17,7 @@ import com.credenceid.biometrics.Biometrics.ResultCode.INTERMEDIATE
 import com.credenceid.biometrics.Biometrics.ResultCode.OK
 import com.credenceid.biometrics.BiometricsManager
 import com.credenceid.sdkapp.databinding.ActMainBinding
+import com.credenceid.sdkapp.util.DeviceProfile
 
 /**
  * When requested for permissions you must specify a number which sort of links the permissions
@@ -62,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         binding.samCardBtn.setOnClickListener { startActivity(Intent(this, SamCardReaderActivity::class.java)) }
         binding.mrzBtn.setOnClickListener { startActivity(Intent(this, MRZActivity::class.java)) }
         binding.faceBtn.setOnClickListener { startActivity(Intent(this, CameraActivity::class.java)) }
+        binding.barcodeBtn.setOnClickListener { startActivity(Intent(this, BarcodeActivity::class.java)) }
         binding.deviceInfoBtn.setOnClickListener { startActivity(Intent(this, DeviceInfoActivity::class.java)) }
         setBiometricButtonsVisibility(View.GONE)
     }
@@ -86,6 +89,9 @@ class MainActivity : AppCompatActivity() {
 
                     App.DevFamily = App.BioManager!!.deviceFamily
                     App.DevType = App.BioManager!!.deviceType
+
+                    /* Snapshot this device's capabilities once; all screens adapt off it. */
+                    DeviceProfile.populate(App.BioManager!!)
 
                     /* Populate text fields which display device/App information. */
                     binding.productNameTextView.text = App.BioManager!!.productName
@@ -119,22 +125,38 @@ class MainActivity : AppCompatActivity() {
      * application is running on.
      */
     private fun configureButtons() {
-        /* By default all Credence device's face a fingerprint sensor and camera. */
-        binding.fpBtn.visibility = View.VISIBLE
-        binding.faceBtn.visibility = View.VISIBLE
+        /* Every feature button is driven by a capability reported by the SDK, so this
+         * one code path adapts to any Credence ID device without naming devices.
+         */
+        if (DeviceProfile.hasFingerprintScanner) {
+            binding.fpBtn.visibility = View.VISIBLE
+        }
 
-        if (App.BioManager!!.hasCardReader()) {
+        /* Camera demo pages use the device camera, an Android capability rather than
+         * a CredenceSDK one, so ask PackageManager.
+         */
+        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+            binding.faceBtn.visibility = View.VISIBLE
+        }
+
+        if (DeviceProfile.hasCardReader) {
             binding.cardBtn.visibility = View.VISIBLE
         }
 
-        if (App.BioManager!!.hasSamCardReader()) {
-            Log.d("CID-DEBUG","SAM reader available")
+        if (DeviceProfile.hasSamCardReader) {
             binding.samCardBtn.visibility = View.VISIBLE
         }
 
-        if (App.BioManager!!.hasMRZReader()) {
+        if (DeviceProfile.hasMRZReader) {
             binding.mrzBtn.visibility = View.VISIBLE
         }
+
+        if (DeviceProfile.hasBarcodeScanner) {
+            binding.barcodeBtn.visibility = View.VISIBLE
+        }
+
+        /* Device info is not tied to any peripheral; every device gets it. */
+        binding.deviceInfoBtn.visibility = View.VISIBLE
     }
 
     /**
@@ -148,6 +170,7 @@ class MainActivity : AppCompatActivity() {
         binding.faceBtn.visibility = visibility
         binding.mrzBtn.visibility = visibility
         binding.samCardBtn.visibility = visibility
+        binding.barcodeBtn.visibility = visibility
         binding.deviceInfoBtn.visibility = visibility
     }
 
@@ -175,7 +198,7 @@ class MainActivity : AppCompatActivity() {
             var version = "Unknown"
             try {
                 val pInfo = packageManager.getPackageInfo(packageName, 0)
-                version = pInfo.versionName
+                version = pInfo.versionName ?: version
             } catch (ignore: Exception) {
             }
             return version

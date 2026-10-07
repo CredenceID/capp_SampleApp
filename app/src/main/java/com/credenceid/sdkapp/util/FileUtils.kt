@@ -117,6 +117,9 @@ object FileUtils {
 
     fun delete(absFilePath: String?) {
 
+        if (absFilePath == null)
+            return
+
         val file = File(absFilePath)
         /* If a previous file already exists then delete it. */
         if (file.exists())
@@ -136,5 +139,6 @@ object FileUtils {
 	 * @param absFilePath, Absolute location of file to check.
 	 * @return True if file exists, false otherwise.
 	 */
-    fun exists(absFilePath: String?): Boolean = File(absFilePath).exists()
+    fun exists(absFilePath: String?): Boolean =
+        absFilePath != null && File(absFilePath).exists()
 }

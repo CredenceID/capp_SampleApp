@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:fitsSystemWindows="true"
 	android:layout_gravity="center"
 	android:background="@color/background"
 	android:gravity="center"
@@ -49,66 +50,48 @@
 
 	</RelativeLayout>
 
+	<!-- Buttons share the row equally; spacer Views here squeezed them until labels wrapped. -->
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
 		android:layout_marginBottom="15dp"
-		android:orientation="horizontal">
-
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1" />
+		android:gravity="center_vertical"
+		android:orientation="horizontal"
+		android:paddingStart="10dp"
+		android:paddingEnd="10dp">
 
 		<Button
 			android:id="@+id/flashOnBtn"
 			style="@style/FaceActivityButton"
-			android:layout_marginStart="10dp"
+			android:layout_marginEnd="8dp"
+			android:singleLine="true"
 			android:text="@string/flash_on_label"
 			android:textSize="20sp" />
-
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1" />
 
 		<Button
 			android:id="@+id/captureBtn"
 			style="@style/FaceActivityButton"
+			android:layout_marginEnd="8dp"
+			android:singleLine="true"
 			android:text="@string/capture_label"
 			android:textSize="20sp" />
-
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1" />
 
 		<CheckBox
 			android:id="@+id/eightMPCheckBox"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginEnd="8dp"
 			android:text="@string/face_8mp_checkbox_label"
 			android:textSize="20sp"
-			android:visibility="gone" />
-
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1"
 			android:visibility="gone" />
 
 		<Button
 			android:id="@+id/flashOffBtn"
 			style="@style/FaceActivityButton"
-			android:layout_marginEnd="10dp"
+			android:singleLine="true"
 			android:text="@string/flash_off_label"
 			android:textSize="20sp" />
-
-		<View
-			android:layout_width="0dp"
-			android:layout_height="0dp"
-			android:layout_weight="1" />
 
 	</LinearLayout>
 
