@@ -157,17 +157,6 @@ class CameraActivity : Activity(), SurfaceHolder.Callback {
         context = this
     }
 
-    /**
-     * This is required to stop camera every time back button is pressed.
-     */
-    override fun onBackPressed() {
-
-        Log.d(App.TAG, "onBackPressed()")
-        super.onBackPressed()
-        this.stopReleaseCamera()
-        this.finish()
-    }
-
     override fun onStart() {
         super.onStart()
         Log.d(App.TAG, "onStart()")

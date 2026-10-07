@@ -21,4 +21,8 @@
 	<color name="field_label">#4A5A66</color>
 	<color name="value_text">#0B3D91</color>
 	<color name="panel">#E8EAED</color>
+
+	<color name="barcode_state_closed">#9E9E9E</color>
+	<color name="barcode_state_open">#43A047</color>
+	<color name="barcode_state_scanning">#FB8C00</color>
 </resources>

@@ -3,14 +3,25 @@ plugins {
 	id 'org.jetbrains.kotlin.android'
 }
 
+/* Optional developer-local signing. If a keystore.properties file exists in the project
+ * root (it is git-ignored; see keystore.properties.example), builds are signed with that
+ * keystore instead of the default debug key. Credence ID engineers use this to sign with
+ * a device platform key so `adb install -r` can update the preinstalled sample app.
+ * External developers do not need this file. */
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+	keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+
 android {
 	namespace "com.credenceid.sdkapp"
-	compileSdk 34
+	compileSdk 36
 
 	defaultConfig {
 		applicationId "com.credenceid.sdkapp"
 		minSdk 24
-		targetSdk 34
+		targetSdk 36
 		versionCode 3
 		versionName "5.11.0-RC1"
 
@@ -21,18 +32,37 @@ android {
 		viewBinding true
 	}
 
+	if (keystorePropertiesFile.exists()) {
+		signingConfigs {
+			local {
+				storeFile rootProject.file(keystoreProperties['storeFile'])
+				storePassword keystoreProperties['storePassword']
+				keyAlias keystoreProperties['keyAlias']
+				keyPassword keystoreProperties['keyPassword']
+			}
+		}
+	}
+
 	buildTypes {
+		debug {
+			if (keystorePropertiesFile.exists()) {
+				signingConfig signingConfigs.local
+			}
+		}
 		release {
+			if (keystorePropertiesFile.exists()) {
+				signingConfig signingConfigs.local
+			}
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 		}
 	}
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
+		sourceCompatibility JavaVersion.VERSION_17
+		targetCompatibility JavaVersion.VERSION_17
 	}
 	kotlinOptions {
-		jvmTarget = '1.8'
+		jvmTarget = '17'
 	}
 }
 
@@ -41,11 +71,11 @@ dependencies {
 	// CSDK-Jar development build (Jenkins CSDK-Jar/development #2).
 	implementation files('libs/CredenceID-SDKJar-5.12.0-RC1-release.aar')
 
-	implementation 'androidx.core:core-ktx:1.13.1'
-	implementation 'androidx.appcompat:appcompat:1.6.1'
-	implementation 'com.google.android.material:material:1.11.0'
-	implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+	implementation 'androidx.core:core-ktx:1.16.0'
+	implementation 'androidx.appcompat:appcompat:1.7.1'
+	implementation 'com.google.android.material:material:1.12.0'
+	implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 	testImplementation 'junit:junit:4.13.2'
-	androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-	androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+	androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+	androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }

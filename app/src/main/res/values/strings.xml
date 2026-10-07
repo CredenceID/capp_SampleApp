@@ -17,6 +17,18 @@
 	</string>
 	<string name="fingerprint_one_imageview_label">Fingerprint One</string>>
 	<string name="fingerprint_two_imageview_label">Fingerprint Two</string>
+	<string name="barcode_title">Barcode</string>
+	<string name="barcode_scan">Scan</string>
+	<string name="barcode_clear">Clear</string>
+	<string name="barcode_stop">Stop</string>
+	<string name="barcode_results_hint">Scan results will appear here…</string>
+	<string name="barcode_status_closed">Scanner closed</string>
+	<string name="barcode_status_open">Scanner open — press Scan or pull a trigger button</string>
+	<string name="barcode_status_scanning">Scanning…</string>
+	<string name="barcode_status_busy">Scanner busy — an open is already in progress</string>
+	<string name="barcode_status_error">Scanner error</string>
+	<string name="barcode_read_failed">Read failed: %1$s</string>
+	<string name="barcode_read_entry">#%1$d  [%2$s]  %3$s\n%4$s\nCharset: %5$s, %6$d bytes\n\n</string>
 	<string name="open_card">Open CardReader</string>
 	<string name="open_sam_card">Open SAM CardReader</string>
 	<string name="close_card_reader">Close CardReader</string>
