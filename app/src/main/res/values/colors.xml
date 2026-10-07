@@ -15,4 +15,10 @@
 	<color name="btn_disabled_end">#353535</color>
 
 	<color name="red">#FF0000</color>
+	<!-- [CIE-7688] card reader screen -->
+	<color name="section_header">#22313F</color>
+	<color name="section_divider">#8899A6</color>
+	<color name="field_label">#4A5A66</color>
+	<color name="value_text">#0B3D91</color>
+	<color name="panel">#E8EAED</color>
 </resources>
